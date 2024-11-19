@@ -40,11 +40,7 @@ const postSchema = mongoose.Schema(
       latitude: { type: Number }, // Tọa độ latitude
       longitude: { type: Number }, // Tọa độ longitude
     },
-    status: {
-      type: String,
-      default: "active", // Trạng thái mặc định là đang hoạt động
-      enum: ["active", "resolved", "archived"], // Các trạng thái hợp lệ
-    },
+    isApproved: { type: Boolean, default: false },
   },
   {
     timestamps: true, // Tự động thêm `createdAt` và `updatedAt`

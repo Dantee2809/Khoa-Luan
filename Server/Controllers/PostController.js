@@ -5,22 +5,23 @@ import jwt from 'jsonwebtoken';
 
 export const createPost = async (req, res) => {
     try {
-        const newPost = new PostModel({
-            userId: req.body.userId,  // Lấy userId từ body thay vì req.user.id
-            desc: req.body.desc,
-            image: req.body.image,
-            category: req.body.category,
-            contact: req.body.contact,
-
-        });
-
-        await newPost.save();
-        res.status(200).json({ message: "Post created successfully" });
+      const newPost = new PostModel({
+        userId: req.body.userId,
+        desc: req.body.desc,
+        image: req.body.image,
+        category: req.body.category,
+        contact: req.body.contact,
+        isApproved: false, // Mặc định chưa duyệt
+      });
+  
+      await newPost.save();
+      res.status(200).json({ message: "Post created successfully and waiting for admin approval" });
     } catch (error) {
-        console.error("Error saving post:", error);
-        res.status(500).json({ message: "Error saving post" });
+      console.error("Error saving post:", error);
+      res.status(500).json({ message: "Error saving post" });
     }
-};
+  };
+  
 
 
 export const getPost = async(req, res) => {
