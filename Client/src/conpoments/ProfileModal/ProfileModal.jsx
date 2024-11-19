@@ -1,5 +1,5 @@
 import { Modal, useMantineTheme } from "@mantine/core";
-
+import "./ProfileModal.css"
 function ProfileModal({ modalOpened, setModalOpened }) {
   const theme = useMantineTheme();
 
@@ -17,21 +17,20 @@ function ProfileModal({ modalOpened, setModalOpened }) {
       onClose={() => setModalOpened(false)}
     >
       <form className="infoForm">
-        <h3>Your info</h3>
+        <h3>Thông tin cá nhân</h3>
 
         <div>
           <input
             type="text"
             className="infoInput"
-            name="FirstName"
-            placeholder="First Name"
+            name="Họ"
+            placeholder="Họ"
           />
-
           <input
             type="text"
             className="infoInput"
-            name="LastName"
-            placeholder="Last Name"
+            name="Tên"
+            placeholder="Tên"
           />
         </div>
 
@@ -39,8 +38,8 @@ function ProfileModal({ modalOpened, setModalOpened }) {
           <input
             type="text"
             className="infoInput"
-            name="worksAT"
-            placeholder="Works at"
+            name="Nơi làm việc"
+            placeholder="Nơi làm việc"
           />
         </div>
 
@@ -48,35 +47,25 @@ function ProfileModal({ modalOpened, setModalOpened }) {
           <input
             type="text"
             className="infoInput"
-            name="livesIN"
-            placeholder="LIves in"
+            name="Địa chỉ"
+            placeholder="Địa chỉ"
           />
 
           <input
             type="text"
             className="infoInput"
-            name="Country"
-            placeholder="Country"
+            name="Thành Phố/ Tỉnh"
+            placeholder="Thành Phố/ Tỉnh"
           />
         </div>
-
         <div>
-          <input
-            type="text"
-            className="infoInput"
-            placeholder="RelationShip Status"
-          />
-        </div>
-
-
-        <div>
-            Profile Image 
+            Chọn ảnh bìa:
             <input type="file" name='profileImg'/>
-            Cover Image
+            Chọn ảnh đại diện:
             <input type="file" name="coverImg" />
         </div>
 
-        <button className="button infoButton">Update</button>
+        <button className="button infoButton ">Cập nhật</button>
       </form>
     </Modal>
   );

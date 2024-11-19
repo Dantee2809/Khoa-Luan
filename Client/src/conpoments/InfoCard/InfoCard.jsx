@@ -9,7 +9,7 @@ const InfoCard = () => {
   return (
     <div className="InfoCard">
       <div className="infoHead">
-        <h4>Your Info</h4>
+        <h4>Thông tin cá nhân</h4>
         <div>
           <UilPen
             width="2rem"
@@ -22,29 +22,21 @@ const InfoCard = () => {
           />
         </div>
       </div>
-
       <div className="info">
         <span>
-          <b>Status </b>
+          <b>Địa chỉ: </b>
         </span>
-        <span>in Relationship</span>
+        <span>Ngõ 34 Hòa Hải, Đà Nẵng</span>
       </div>
 
       <div className="info">
         <span>
-          <b>Lives in </b>
+          <b>Nơi làm việc: </b>
         </span>
-        <span>Multan</span>
+        <span>Facebook</span>
       </div>
 
-      <div className="info">
-        <span>
-          <b>Works at </b>
-        </span>
-        <span>Zainkeepscode inst</span>
-      </div>
-
-      <button className="button logout-button">Logout</button>
+      <button className="button logout-button">Đăng Xuất</button>
     </div>
   );
 };
