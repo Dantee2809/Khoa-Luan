@@ -18,6 +18,7 @@ export const getUser = async (req, res) => {
     }
 }
 
+
 export const updateUser = async (req, res) => {
     const id = req.params.id;
     const { currentUserId , currentUserAdminStatus, password } = req.body;   
@@ -39,19 +40,34 @@ export const updateUser = async (req, res) => {
 }
 
 export const deleteUser = async (req, res) => {
-    const id = req.params.id
-    const { currentUserId , currentUserAdminStatus } = req.body  
-    if ( currentUserId === id || currentUserAdminStatus)
-        {
+    const id = req.params.id;
+    const { currentUserId, currentUserAdminStatus } = req.body;
+
+    if (currentUserId === id || currentUserAdminStatus) {
         try {
-            await UserModel.findByIdAndDelete(id)
+            const user = await UserModel.findById(id);
+            if (!user) {
+                return res.status(404).json("User not found");
+            }
+
+            // Thực hiện xóa
+            await UserModel.findByIdAndDelete(id);
             res.status(200).json("User deleted successfully");
         } catch (error) {
             res.status(500).json(error);
         }
-    }
-    else{
+    } else {
         res.status(403).json("Forbidden: Access denied");
+    }
+};
+
+export const authUser = async (req, res) => {
+    try {
+        const { id } = req.headers;
+        const data = await UserModel.findById(id).select("-password");
+        return res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({message: error.message})
     }
 }
 

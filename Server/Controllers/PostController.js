@@ -9,6 +9,9 @@ export const createPost = async (req, res) => {
             userId: req.body.userId,  // Lấy userId từ body thay vì req.user.id
             desc: req.body.desc,
             image: req.body.image,
+            category: req.body.category,
+            contact: req.body.contact,
+
         });
 
         await newPost.save();
@@ -115,14 +118,51 @@ export const getallPost = async (req, res) => {
     }
 };
 
-
+export const searchPost = async (req, res) => {
+    try {
+      const { category, keyword, latitude, longitude, radius } = req.query;
+  
+      // Tạo bộ lọc tìm kiếm
+      const filter = {};
+  
+      // Lọc theo danh mục nếu có
+      if (category) {
+        filter.category = category;
+      }
+  
+      // Tìm kiếm từ khóa trong mô tả
+      if (keyword) {
+        filter.desc = { $regex: keyword, $options: "i" }; // `$options: "i"` để không phân biệt hoa thường
+      }
+  
+      // Lọc theo vị trí (nếu có tọa độ và bán kính)
+      if (latitude && longitude && radius) {
+        const lat = parseFloat(latitude);
+        const lng = parseFloat(longitude);
+        const radInKm = parseFloat(radius) / 6371; // Bán kính trái đất là 6371 km
+  
+        filter.location = {
+          $geoWithin: {
+            $centerSphere: [[lng, lat], radInKm], // [kinh độ, vĩ độ]
+          },
+        };
+      }
+  
+      // Tìm kiếm trong cơ sở dữ liệu
+      const results = await PostModel.find(filter);
+  
+      // Trả kết quả
+      res.status(200).json({ success: true, data: results });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, message: "Lỗi server", error: err.message });
+    }
+  };
 
 export const getPostbyid = async (req, res) => {
     try {
-        const { postId } = req.params;
-        console.log("Post ID:", postId); // Log postId để kiểm tra
-
-        const post = await PostModel.findById(postId);
+        const { id } = req.params;
+        const post = await PostModel.findById(id);
 
         if (!post) {
             return res.status(404).json({ message: "Post not found" });
@@ -138,9 +178,9 @@ export const getPostbyid = async (req, res) => {
     }
 };
 
-export const getRecentPost = async (req, res) => {
+export const getRecentlyPosts = async (req, res) => {
     try {
-        const posts = await PostModel.find().sort({ createdAt: -1 }).limit(4);
+        const posts = await PostModel.find().sort({ createdAt: -1 }).limit(5);
        
         return res.json({
             status: "Success",
@@ -151,6 +191,20 @@ export const getRecentPost = async (req, res) => {
         res.status(500).json({ message: "Error" });
     }
 };
+export const getOldestPosts = async (req, res) => {
+    try {
+        const posts = await PostModel.find().sort({ createdAt: 1 }).limit(5);
+       
+        return res.json({
+            status: "Success",
+            data: posts,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Error" });
+    }
+};
+
 
 
 

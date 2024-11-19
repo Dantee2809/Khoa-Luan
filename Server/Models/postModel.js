@@ -1,23 +1,57 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
-const postSchema = mongoose.Schema({
-    userId: { 
-        type: String, 
-        required : true 
+const postSchema = mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId, // Gắn kết tới ObjectId của người dùng
+      ref: "User", // Tham chiếu tới model User
+      required: true, // Bắt buộc
     },
-    desc : { 
-        type: String, 
-        required : true 
+    desc: {
+      type: String,
+      default: "", // Không bắt buộc, có giá trị mặc định
     },
-    image : { 
-        type: String, 
-        required : true 
+    category: {
+      type: String,
+      enum: [
+        "electronics", // Đồ công nghệ
+        "personal_documents", // Giấy tờ tùy thân
+        "wallet", // Ví
+        "money", // Tiền
+      ], // Chỉ định danh mục hợp lệ
     },
-},
-{
-    timestamps : true
-});
+    image: {
+      type: String,
+      default: null, // Đường dẫn hình ảnh, không bắt buộc
+    },
+    contact: {
+      type: String,
+      validate: {
+        validator: function (v) {
+          return /^[0-9]{10,15}$/.test(v); // Số điện thoại từ 10-15 số
+        },
+        message: (props) => `${props.value} không phải số điện thoại hợp lệ!`,
+      },
+    },
+    location: {
+      province: { type: String }, // Tên tỉnh
+      district: { type: String }, // Tên quận/huyện
+      ward: { type: String }, // Tên phường/xã
+      latitude: { type: Number }, // Tọa độ latitude
+      longitude: { type: Number }, // Tọa độ longitude
+    },
+    status: {
+      type: String,
+      default: "active", // Trạng thái mặc định là đang hoạt động
+      enum: ["active", "resolved", "archived"], // Các trạng thái hợp lệ
+    },
+  },
+  {
+    timestamps: true, // Tự động thêm `createdAt` và `updatedAt`
+  }
+);
 
-var PostModel = mongoose.model('Posts', postSchema)
+// Tạo mô hình PostModel
+const PostModel = mongoose.model("Posts", postSchema);
 
-export default PostModel
+export default PostModel;

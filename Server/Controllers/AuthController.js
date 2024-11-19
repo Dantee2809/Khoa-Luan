@@ -28,7 +28,7 @@ export const registerUser = async (req, res) => {
         });
 
         await newUser.save();
-        res.status(200).json({message:"Đã đăng kí thành công "});
+        res.status(200).json(newUser);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -62,14 +62,14 @@ export const loginUser = async (req , res) => {
     }
 }
 
-export const authUser = async (req, res) => {
+export const logoutUser = async (req, res) => {
     try {
-        const { id } = req.headers;
-        const data = await UserModel.findById(id);
-        return res.status(200).json(data);
+        // Không cần xử lý gì nhiều vì token nằm phía client
+        res.status(200).json({ message: "Logout successful" });
     } catch (error) {
-        res.status(500).json({message: error.message})
+        res.status(500).json({ message: error.message });
     }
-}
+};
+
 
 
