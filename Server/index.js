@@ -3,6 +3,7 @@ import bodyparser from 'body-parser'
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 import cors from 'cors'
+import AdminRoute from './Routes/AdminRoute.js'
 import AuthRoute from './Routes/AuthRoute.js'
 import UserRoute from './Routes/UserRoute.js'
 import PostRoute from './Routes/PostRoute.js'
@@ -24,6 +25,7 @@ mongoose.connect('mongodb+srv://lostnfound:k2HOMRjQjlQ4zr5t@cluster0.sxv75.mongo
     })
 })
 
+app.use('/admin', AdminRoute)
 app.use('/auth', AuthRoute)
 app.use('/user', UserRoute)
 app.use('/post', PostRoute)

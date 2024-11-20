@@ -1,6 +1,7 @@
 import UserModel from "../Models/userModel.js";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import { generateToken } from "../lib/utils.js";
 
 export const registerUser = async (req, res) => {
     const { username, password, firstname, lastname ,email } = req.body;
@@ -11,9 +12,12 @@ export const registerUser = async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ message: "Username đã tồn tại" });
         }
-        if(password.langth <= 5) {
-            return res
-            .status(400).json({ message: "Mật khẩu nên dài hơn 5 kí tự " });
+        if (!username || !email || !password || !firstname || !lastname ) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+      
+        if (password.length < 6) {
+            return res.status(400).json({ message: "Mật khẩu nên dài hơn 5 kí tự " });
         }
         // Nếu không trùng, tiếp tục hash mật khẩu và lưu người dùng
         const salt = await bcrypt.genSalt(10);
@@ -26,71 +30,116 @@ export const registerUser = async (req, res) => {
             lastname
             
         });
-
-        await newUser.save();
-        res.status(200).json(newUser);
+        if (newUser) {
+            // generate jwt token here
+            generateToken(newUser._id, res);
+            await newUser.save();
+      
+            res.status(201).json({
+              _id: newUser._id,
+              username: newUser.username,
+              email: newUser.email,
+              profilePicture: newUser.profilePicture,
+            });
+          } else {
+            res.status(400).json({ message: "Invalid user data" });
+          }
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-export const loginUser = async (req , res) => {
-    try {
-        // Kiểm tra xem có token trong request header không
-        const token = req.headers['authorization']?.split(' ')[1]; // Lấy token từ header (nếu có)
+// export const loginUser = async (req , res) => {
+//     try {
+//         // Kiểm tra xem có token trong request header không
+//         const token = req.headers['authorization']?.split(' ')[1]; // Lấy token từ header (nếu có)
         
-        if (token) {
-            // Nếu có token, kiểm tra tính hợp lệ của token
-            jwt.verify(token, "lostnfound", (err, decoded) => {
-                if (err) {
-                    return res.status(400).json({message: "Token expired or invalid"});
-                }
-                // Nếu token hợp lệ, trả về thông báo người dùng đã đăng nhập
-                return res.status(400).json({message: "You are already logged in"});
-            });
-        } else {
-            // Nếu không có token trong header, tiếp tục với quy trình đăng nhập
-            const {username , password} = req.body;
+//         if (token) {
+//             // Nếu có token, kiểm tra tính hợp lệ của token
+//             jwt.verify(token, "lostnfound", (err, decoded) => {
+//                 if (err) {
+//                     return res.status(400).json({message: "Token expired or invalid"});
+//                 }
+//                 // Nếu token hợp lệ, trả về thông báo người dùng đã đăng nhập
+//                 return res.status(400).json({message: "You are already logged in"});
+//             });
+//         } else {
+//             // Nếu không có token trong header, tiếp tục với quy trình đăng nhập
+//             const {username , password} = req.body;
 
-            const existUser = await UserModel.findOne({username});
-            if(!existUser){
-                return res.status(400).json({message:"User not found"});
-            }
+//             const existUser = await UserModel.findOne({username});
+//             if(!existUser){
+//                 return res.status(400).json({message:"User not found"});
+//             }
 
-            await bcrypt.compare(password, existUser.password, (err, data) => {
-                if(data) {
-                    const authClaims = [
-                        {name: existUser.username},
-                        {role: existUser.role}
-                    ];
-                    const token = jwt.sign({authClaims},"lostnfound",{expiresIn:"30d"});
+//             await bcrypt.compare(password, existUser.password, (err, data) => {
+//                 if(data) {
+//                     const authClaims = [
+//                         {name: existUser.username},
+//                         {role: existUser.role}
+//                     ];
+//                     const token = jwt.sign({authClaims},"lostnfound",{expiresIn:"30d"});
                     
-                    res.status(200).json({
-                        message: `Welcome back, ${existUser.username}! You are logged in as a ${existUser.role}.`,
-                        id: existUser._id,
-                        role: existUser.role,
-                        token: token
-                    });
-                }
-                else {
-                    res.status(400).json({message: "Wrong password"});
-                }
-            });
-        }
+//                     res.status(200).json({
+//                         message: `Welcome back, ${existUser.username}! You are logged in as a ${existUser.role}.`,
+//                         id: existUser._id,
+//                         role: existUser.role,
+//                         token: token
+//                     });
+//                 }
+//                 else {
+//                     res.status(400).json({message: "Wrong password"});
+//                 }
+//             });
+//         }
+//     } catch (error) {
+//         res.status(500).json({message: error.message});
+//     }
+// }
+
+export const loginUser = async (req, res) => {
+    const { email, password } = req.body;
+    try {
+      const user = await UserModel.findOne({ email });
+  
+      if (!user) {
+        return res.status(400).json({ message: "Invalid credentials" });
+      }
+  
+      const isPasswordCorrect = await bcrypt.compare(password, user.password);
+      if (!isPasswordCorrect) {
+        return res.status(400).json({ message: "Invalid credentials" });
+      }
+  
+      generateToken(user._id, res);
+  
+      res.status(200).json({
+        _id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        profilePic: user.profilePic,
+      });
     } catch (error) {
-        res.status(500).json({message: error.message});
+      console.log("Error in login controller", error.message);
+      res.status(500).json({ message: "Internal Server Error" });
     }
-}
-
-
+  };
 
 export const logoutUser = async (req, res) => {
-    try {
+    //try {
         // Không cần xử lý gì nhiều vì token nằm phía client
-        res.status(200).json({ message: "Logout successful" });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+    //     res.status(200).json({ message: "Logout successful" });
+    // } catch (error) {
+    //     res.status(500).json({ message: error.message });
+    // }
+
+    try {
+        res.cookie("jwt", "", { maxAge: 0 });
+        res.status(200).json({ message: "Logged out successfully" });
+      } catch (error) {
+        console.log("Error in logout controller", error.message);
+        res.status(500).json({ message: "Internal Server Error" });
+      }
 };
 
 export const authUser = async (req, res) => {
@@ -120,6 +169,38 @@ export const authUser = async (req, res) => {
     return res.status(500).json({ message: 'Lỗi server', error: error.message });
   }
 };
+
+export const updateProfile = async (req, res) => {
+    try {
+      const { profilePic } = req.body;
+      const userId = req.user._id;
+  
+      if (!profilePic) {
+        return res.status(400).json({ message: "Profile pic is required" });
+      }
+  
+      const uploadResponse = await cloudinary.uploader.upload(profilePic);
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { profilePic: uploadResponse.secure_url },
+        { new: true }
+      );
+  
+      res.status(200).json(updatedUser);
+    } catch (error) {
+      console.log("error in update profile:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  };
+  
+  export const checkAuth = (req, res) => {
+    try {
+      res.status(200).json(req.user);
+    } catch (error) {
+      console.log("Error in checkAuth controller", error.message);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  };
 
 
 

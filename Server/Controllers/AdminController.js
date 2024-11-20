@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import PostModel from '../Models/postModel';
+import PostModel from '../Models/postModel.js';
 
 export const approvePost = async (req, res) => {
     try {

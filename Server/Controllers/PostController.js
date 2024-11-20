@@ -15,7 +15,8 @@ export const createPost = async (req, res) => {
       });
   
       await newPost.save();
-      res.status(200).json({ message: "Post created successfully and waiting for admin approval" });
+    //   res.status(200).json({ message: "Post created successfully and waiting for admin approval" });
+    res.status(200).json(newPost);
     } catch (error) {
       console.error("Error saving post:", error);
       res.status(500).json({ message: "Error saving post" });

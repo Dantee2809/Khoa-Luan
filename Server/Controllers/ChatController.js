@@ -1,5 +1,4 @@
 import chatModel from '../Models/chatModel.js';
-import bcrypt from 'bcrypt'
 
 export const createChat = async (req , res) => {
     const newChat = new chatModel({

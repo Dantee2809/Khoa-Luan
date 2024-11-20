@@ -18,17 +18,16 @@ try {
 }
 }
 
-export const getMessages = async (req , res) => {
-    const {chatId} = req.params;
+export const getMessages = async (req, res) => {
+    const { chatId } = req.params;
     try {
-        const result = await messageModel.find({chatId})
-        res.status(200).json(chat)
-       
+      const result = await messageModel.find({ chatId });
+      res.status(200).json(result);
     } catch (error) {
-        res.status(500).json({message: error.message})
+      res.status(500).json({ message: error.message });
     }
-}
-
+  };
+  
 export const findChat = async (req , res) => {
     try {
         const chat = await chatModel.findOne({members: {$all: [req.params.firstId, req.params.secondId]}});
