@@ -2,6 +2,7 @@ import UserModel from "../Models/userModel.js";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { generateToken } from "../lib/utils.js";
+import cloudinary from "../lib/cloudinary.js";
 
 export const registerUser = async (req, res) => {
     const { username, password, firstname, lastname ,email } = req.body;
@@ -27,8 +28,7 @@ export const registerUser = async (req, res) => {
             password: hashedPassword,
             email,
             firstname,
-            lastname
-            
+            lastname        
         });
         if (newUser) {
             // generate jwt token here
@@ -39,7 +39,9 @@ export const registerUser = async (req, res) => {
               _id: newUser._id,
               username: newUser.username,
               email: newUser.email,
-              profilePicture: newUser.profilePicture,
+              firstname: newUser.firstname,
+              lastname: newUser.lastname,
+              profilePic: newUser.profilePic,
             });
           } else {
             res.status(400).json({ message: "Invalid user data" });
@@ -115,9 +117,12 @@ export const loginUser = async (req, res) => {
   
       res.status(200).json({
         _id: user._id,
-        fullName: user.fullName,
+        username: user.username,
         email: user.email,
+        firstname: user.firstname,
+        lastname: user.lastname,
         profilePic: user.profilePic,
+
       });
     } catch (error) {
       console.log("Error in login controller", error.message);
@@ -180,7 +185,7 @@ export const updateProfile = async (req, res) => {
       }
   
       const uploadResponse = await cloudinary.uploader.upload(profilePic);
-      const updatedUser = await User.findByIdAndUpdate(
+      const updatedUser = await UserModel.findByIdAndUpdate(
         userId,
         { profilePic: uploadResponse.secure_url },
         { new: true }

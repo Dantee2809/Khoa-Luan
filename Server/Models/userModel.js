@@ -30,7 +30,10 @@ const userSchema = mongoose.Schema({
       enum: ['user', 'admin'],
       default: 'user'
     }, 
-    profilePicture: String,
+    profilePic: {
+      type: String,
+      default: "",
+    },
     coverPicture: String,
     about: String,
     livein : String,
