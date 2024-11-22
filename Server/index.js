@@ -10,8 +10,8 @@ import UserRoute from './Routes/UserRoute.js'
 import PostRoute from './Routes/PostRoute.js'
 import ChatRoute from './Routes/ChatRoute.js'
 import MessageRoute from './Routes/MessageRoute.js'
+import { app, server } from "./lib/socket.js";
 
-const app = express();
 app.use(
     cors({
       origin: "http://localhost:3000",
@@ -26,7 +26,7 @@ dotenv.config();
 
 mongoose.connect('mongodb+srv://lostnfound:k2HOMRjQjlQ4zr5t@cluster0.sxv75.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
 .then(() => {
-    app.listen(5001,()=>{
+    server.listen(5001,()=>{
         console.log(`Server is running on port ${process.env.PORT}`);
     })
 })
