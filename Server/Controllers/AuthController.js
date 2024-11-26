@@ -3,22 +3,17 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { generateToken } from "../lib/utils.js";
 import cloudinary from "../lib/cloudinary.js";
+import { MdMarkEmailRead } from "react-icons/md";
+import chatModel from "../Models/chatModel.js";
 
 export const registerUser = async (req, res) => {
     const { username, password, firstname, lastname ,email } = req.body;
 
     try {
         // Kiểm tra xem username có tồn tại trong database không
-        const existingUser = await UserModel.findOne({ username });
+        const existingUser = await UserModel.findOne({ email : email });
         if (existingUser) {
-            return res.status(400).json({ message: "Username đã tồn tại" });
-        }
-        if (!username || !email || !password || !firstname || !lastname ) {
-            return res.status(400).json({ message: "All fields are required" });
-        }
-      
-        if (password.length < 6) {
-            return res.status(400).json({ message: "Mật khẩu nên dài hơn 5 kí tự " });
+            return res.status(400).json({ message: "Email đã tồn tại" });
         }
         // Nếu không trùng, tiếp tục hash mật khẩu và lưu người dùng
         const salt = await bcrypt.genSalt(10);
@@ -129,32 +124,9 @@ export const loginUser = async (req, res) => {
       res.status(500).json({ message: "Internal Server Error" });
     }
   };
-
-  export const deleteUser = async (req, res) => {
-    try {
-      const userId = req.user._id; // Lấy ID người dùng từ middleware xác thực
-    const user = await UserModel.findByIdAndDelete(userId); // Xóa user trong database
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.clearCookie('token'); // Xóa cookie token
-    res.status(200).json({ message: "Account deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting account:", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-};
+  
   
 export const logoutUser = async (req, res) => {
-    //try {
-        // Không cần xử lý gì nhiều vì token nằm phía client
-    //     res.status(200).json({ message: "Logout successful" });
-    // } catch (error) {
-    //     res.status(500).json({ message: error.message });
-    // }
-
     try {
         res.cookie("jwt", "", { maxAge: 0 });
         res.status(200).json({ message: "Logged out successfully" });
@@ -162,6 +134,30 @@ export const logoutUser = async (req, res) => {
         console.log("Error in logout controller", error.message);
         res.status(500).json({ message: "Internal Server Error" });
       }
+};
+export const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user._id; // ID của user đăng nhập được lấy từ middleware authMiddleware
+
+    // Xóa tài khoản khỏi database
+    const deletedUser = await UserModel.findByIdAndDelete(userId);
+
+    if (!deletedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    // Xóa tất cả các đoạn chat liên quan đến user
+    await chatModel.deleteMany({
+      $or: [{ senderId: userId }, { receiverId: userId }],
+    });
+
+    // Xóa cookie (logout)
+    res.cookie("jwt", "", { maxAge: 0 });
+
+    res.status(200).json({ message: "Tài khoản đã được xóa !!!" });
+  } catch (error) {
+    console.log("Error in deleteAccount controller:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 };
 
 export const authUser = async (req, res) => {
