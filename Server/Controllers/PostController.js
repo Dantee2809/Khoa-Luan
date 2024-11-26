@@ -8,10 +8,9 @@ export const createPost = async (req, res) => {
       const newPost = new PostModel({
         userId: req.body.userId,
         desc: req.body.desc,
-        image: req.body.image,
-        category: req.body.category,
         contact: req.body.contact,
         isApproved: false, // Mặc định chưa duyệt
+        location:req.body.location,
       });
   
       await newPost.save();

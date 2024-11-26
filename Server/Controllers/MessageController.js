@@ -8,7 +8,7 @@ export const getUsersForSidebar = async (req, res) => {
   try {
     const loggedInUserId = req.user._id;
     const filteredUsers = await UserModel.find({ _id: { $ne: loggedInUserId } }).select("-password");
-
+    
     res.status(200).json(filteredUsers);
   } catch (error) {
     console.error("Error in getUsersForSidebar: ", error.message);
@@ -67,3 +67,49 @@ export const sendMessage = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+export const getContacts = async (req, res) => {
+  try {
+    const loggedInUserId = req.user._id; // ID của user hiện tại
+
+    // Tìm tất cả các cuộc hội thoại mà user đã nhắn tin
+    const contacts = await messageModel.aggregate([
+      {
+        $match: {
+          $or: [
+            { senderId: loggedInUserId },
+            { receiverId: loggedInUserId },
+          ],
+          text: { $exists: true, $ne: "" }, // Chỉ lấy tin nhắn có text không rỗng
+        },
+      },
+      {
+        $group: {
+          _id: null, // Không nhóm theo trường cụ thể nào
+          contactIds: {
+            $addToSet: {
+              $cond: [
+                { $ne: ["$senderId", loggedInUserId] },
+                "$senderId", // Nếu senderId không phải user hiện tại, thì lấy senderId
+                "$receiverId", // Ngược lại, lấy receiverId
+              ],
+            },
+          },
+        },
+      },
+    ]);
+
+    const contactIds = contacts[0]?.contactIds || []; // Danh sách ID liên hệ
+
+    // Lấy thông tin chi tiết của các user từ UserModel
+    const users = await UserModel.find({ _id: { $in: contactIds } }).select("-password");
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error in getContacts:", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+

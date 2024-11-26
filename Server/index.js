@@ -1,15 +1,17 @@
-import express from 'express'
-import bodyparser from 'body-parser'
-import mongoose from 'mongoose'
-import dotenv from 'dotenv'
-import cors from 'cors'
-import cookieParser from 'cookie-parser'
-import AdminRoute from './Routes/AdminRoute.js'
-import AuthRoute from './Routes/AuthRoute.js'
-import UserRoute from './Routes/UserRoute.js'
-import PostRoute from './Routes/PostRoute.js'
-import ChatRoute from './Routes/ChatRoute.js'
-import MessageRoute from './Routes/MessageRoute.js'
+import express from "express";
+import bodyparser from "body-parser";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+
+// Import Routes
+import AdminRoute from "./Routes/AdminRoute.js";
+import AuthRoute from "./Routes/AuthRoute.js";
+import UserRoute from "./Routes/UserRoute.js";
+import PostRoute from "./Routes/PostRoute.js";
+import ChatRoute from "./Routes/ChatRoute.js";
+import MessageRoute from "./Routes/MessageRoute.js";
 import { app, server } from "./lib/socket.js";
 
 app.use(

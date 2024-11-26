@@ -130,6 +130,23 @@ export const loginUser = async (req, res) => {
     }
   };
 
+  export const deleteUser = async (req, res) => {
+    try {
+      const userId = req.user._id; // Lấy ID người dùng từ middleware xác thực
+    const user = await UserModel.findByIdAndDelete(userId); // Xóa user trong database
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.clearCookie('token'); // Xóa cookie token
+    res.status(200).json({ message: "Account deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting account:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+  
 export const logoutUser = async (req, res) => {
     //try {
         // Không cần xử lý gì nhiều vì token nằm phía client
