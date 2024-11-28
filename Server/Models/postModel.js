@@ -22,7 +22,6 @@ const postSchema = mongoose.Schema(
     },
     image: {
       type: String,
-      default: null, // Đường dẫn hình ảnh, không bắt buộc
     },
     contact: {
       type: String,

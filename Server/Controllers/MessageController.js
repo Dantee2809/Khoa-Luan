@@ -1,17 +1,77 @@
-import messageModel from '../Models/messageModel.js'
-import UserModel from '../Models/userModel.js';
-import cloudinary from '../lib/cloudinary.js';
-import { getReceiverSocketId, io } from '../lib/socket.js';
+import messageModel from "../Models/messageModel.js";
+import UserModel from "../Models/userModel.js";
+import cloudinary from "../lib/cloudinary.js";
+import { getReceiverSocketId, io } from "../lib/socket.js";
 //import { getReceiverSocketId, io } from "../lib/socket.js";
 
+// export const getUsersForSidebar = async (req, res) => {
+//   // Controller getContacts
+//   try {
+//     const loggedInUserId = req.user._id; // ID của người dùng hiện tại
+
+//     // Tìm tất cả các cuộc hội thoại mà user đã nhắn tin và đã follow nhau
+//     const contacts = await messageModel.aggregate([
+//       {
+//         $match: {
+//           $or: [{ senderId: loggedInUserId }, { receiverId: loggedInUserId }],
+//           text: { $exists: true, $ne: "" }, // Chỉ lấy tin nhắn có text không rỗng
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: null, // Không nhóm theo trường cụ thể nào
+//           contactIds: {
+//             $addToSet: {
+//               $cond: [
+//                 { $ne: ["$senderId", loggedInUserId] },
+//                 "$senderId", // Nếu senderId không phải user hiện tại, thì lấy senderId
+//                 "$receiverId", // Ngược lại, lấy receiverId
+//               ],
+//             },
+//           },
+//         },
+//       },
+//     ]);
+
+//     // Kiểm tra xem người dùng có theo dõi nhau hay không
+//     const followings = await UserModel.find({
+//       _id: { $in: contacts[0]?.contactIds },
+//     });
+
+//     const validContacts = followings.filter((user) => {
+//       // Kiểm tra nếu người dùng đã theo dõi nhau
+//       return (
+//         user.followers.includes(loggedInUserId) &&
+//         user.following.includes(loggedInUserId)
+//       );
+//     });
+
+//     res.status(200).json(validContacts);
+//   } catch (error) {
+//     console.error("Error in getContacts:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
 export const getUsersForSidebar = async (req, res) => {
   try {
-    const loggedInUserId = req.user._id;
-    const filteredUsers = await UserModel.find({ _id: { $ne: loggedInUserId } }).select("-password");
-    
-    res.status(200).json(filteredUsers);
+    const loggedInUserId = req.user._id; // ID người dùng hiện tại từ protectRoute
+
+    // Tìm thông tin người dùng hiện tại
+    const loggedInUser = await UserModel.findById(loggedInUserId);
+
+    if (!loggedInUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Lấy danh sách người dùng mà user hiện tại đã follow
+    const users = await UserModel.find({
+      _id: { $in: loggedInUser.followers },
+      _id: { $in: loggedInUser.following },
+    }).select("-password");
+
+    res.status(200).json(users);
   } catch (error) {
-    console.error("Error in getUsersForSidebar: ", error.message);
+    console.error("Error in getUsersForSidebar:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -76,10 +136,7 @@ export const getContacts = async (req, res) => {
     const contacts = await messageModel.aggregate([
       {
         $match: {
-          $or: [
-            { senderId: loggedInUserId },
-            { receiverId: loggedInUserId },
-          ],
+          $or: [{ senderId: loggedInUserId }, { receiverId: loggedInUserId }],
           text: { $exists: true, $ne: "" }, // Chỉ lấy tin nhắn có text không rỗng
         },
       },
@@ -97,19 +154,25 @@ export const getContacts = async (req, res) => {
           },
         },
       },
+      {
+        $project: {
+          _id: 0,
+          contactIds: 1,
+        },
+      },
     ]);
 
-    const contactIds = contacts[0]?.contactIds || []; // Danh sách ID liên hệ
+    const contactIds = contacts[0]?.contactIds || [];
 
-    // Lấy thông tin chi tiết của các user từ UserModel
-    const users = await UserModel.find({ _id: { $in: contactIds } }).select("-password");
+    // Lọc ra những user đã liên lạc và đang theo dõi
+    const followingUsers = await UserModel.find({
+      _id: { $in: contactIds },
+      followers: { $in: [loggedInUserId] }, // Kiểm tra nếu người dùng đã theo dõi
+    });
 
-    res.status(200).json(users);
+    res.status(200).json(followingUsers);
   } catch (error) {
-    console.error("Error in getContacts:", error.message);
-    res.status(500).json({ error: "Internal server error" });
+    console.error(error);
+    res.status(500).json({ message: "Error fetching contacts", error });
   }
 };
-
-
-
