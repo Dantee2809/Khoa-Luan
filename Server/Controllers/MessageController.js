@@ -52,21 +52,62 @@ import { getReceiverSocketId, io } from "../lib/socket.js";
 //     res.status(500).json({ error: "Internal server error" });
 //   }
 // };
+
+// export const getUsersForSidebar = async (req, res) => {
+//   try {
+//     const loggedInUserId = req.user._id; // ID người dùng hiện tại từ protectRoute
+//     // Tìm thông tin người dùng hiện tại
+//     const loggedInUser = await UserModel.findById(loggedInUserId);
+
+//     if (!loggedInUser) {
+//       return res.status(404).json({ error: "User not found" });
+//     }
+
+//     // Lấy danh sách người dùng mà user hiện tại đã follow
+//     const users = await UserModel.find({
+//       _id: { $in: loggedInUser.followers },
+//       _id: { $in: loggedInUser.following },
+//     }).select("-password");
+
+//     res.status(200).json(users);
+//   } catch (error) {
+//     console.error("Error in getUsersForSidebar:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+
 export const getUsersForSidebar = async (req, res) => {
   try {
-    const loggedInUserId = req.user._id; // ID người dùng hiện tại từ protectRoute
-
-    // Tìm thông tin người dùng hiện tại
+    const loggedInUserId = req.user._id;
     const loggedInUser = await UserModel.findById(loggedInUserId);
 
     if (!loggedInUser) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Lấy danh sách người dùng mà user hiện tại đã follow
+    // Tìm tất cả tin nhắn liên quan đến người dùng hiện tại
+    const messages = await messageModel.find({
+      $or: [{ senderId: loggedInUserId }, { receiverId: loggedInUserId }],
+    });
+
+    // Lấy danh sách ID của những người đã nhắn tin với người dùng hiện tại
+    const userIdsWithMessages = new Set(
+      messages
+        .flatMap((msg) => [msg.senderId.toString(), msg.receiverId.toString()])
+        .filter((id) => id !== loggedInUserId.toString())
+    );
+
+    // Lấy danh sách người dùng thỏa mãn ít nhất một trong hai điều kiện
     const users = await UserModel.find({
-      _id: { $in: loggedInUser.followers },
-      _id: { $in: loggedInUser.following },
+      $or: [
+        { _id: { $in: [...userIdsWithMessages] } },
+        {
+          $or: [
+            { _id: { $in: loggedInUser.followers } },
+            { _id: { $in: loggedInUser.following } },
+          ],
+        },
+      ],
     }).select("-password");
 
     res.status(200).json(users);
@@ -75,7 +116,6 @@ export const getUsersForSidebar = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 export const getMessages = async (req, res) => {
   try {
     const { id: userToChatId } = req.params;

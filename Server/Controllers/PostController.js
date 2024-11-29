@@ -2,24 +2,34 @@ import PostModel from "../Models/postModel.js";
 import mongoose from "mongoose";
 import UserModel from "../Models/userModel.js";
 import jwt from "jsonwebtoken";
+import cloudinary from "../lib/cloudinary.js";
 
 export const createPost = async (req, res) => {
   try {
+    // Tải ảnh lên Cloudinary
+    let imageUrl = "";
+    if (req.body.image) {
+      const result = await cloudinary.uploader.upload(req.body.image, {
+        folder: "posts", // Tùy chọn thư mục lưu ảnh
+      });
+      imageUrl = result.secure_url; // URL ảnh sau khi tải lên
+    }
+
+    // Tạo bài viết mới
     const newPost = new PostModel({
       userId: req.body.userId,
       desc: req.body.desc,
-      image: req.body.image,
+      image: imageUrl, // Lưu URL ảnh từ Cloudinary
       category: req.body.category,
       contact: req.body.contact,
       isApproved: false, // Mặc định chưa duyệt
     });
 
     await newPost.save();
-    //   res.status(200).json({ message: "Post created successfully and waiting for admin approval" });
     res.status(200).json(newPost);
   } catch (error) {
-    console.error("Error saving post:", error);
-    res.status(500).json({ message: "Error saving post" });
+    console.error("Error creating post:", error);
+    res.status(500).json({ message: "Error creating post" });
   }
 };
 
@@ -113,7 +123,28 @@ export const getAllPosts = async (req, res) => {
     res.status(500).json({ message: "Error retrieving posts" });
   }
 };
+export const getPostApprove = async (req, res) => {
+  try {
+    // Lọc bài viết có isApproved: false và sắp xếp theo createdAt mới nhất
+    const posts = await PostModel.find({ isApproved: false }).sort({
+      createdAt: -1,
+    });
 
+    console.log("Filtered Posts found:", posts); // Log để kiểm tra dữ liệu
+
+    if (posts.length === 0) {
+      return res.status(404).json({ message: "No posts found" });
+    }
+
+    return res.json({
+      status: "Success",
+      data: posts,
+    });
+  } catch (error) {
+    console.log("Error:", error);
+    res.status(500).json({ message: "Error retrieving posts" });
+  }
+};
 export const searchPost = async (req, res) => {
   try {
     const { category, keyword, latitude, longitude, radius } = req.query;
@@ -200,5 +231,27 @@ export const getOldestPosts = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Error" });
+  }
+};
+
+export const approvePosts = async (req, res) => {
+  const { id } = req.params;
+  const { isApproved } = req.body;
+
+  try {
+    const post = await PostModel.findByIdAndUpdate(
+      id,
+      { isApproved },
+      { new: true }
+    );
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    res.status(200).json({ message: "Post approval status updated", post });
+  } catch (error) {
+    console.error("Error updating post:", error);
+    res.status(500).json({ message: "Error updating post" });
   }
 };

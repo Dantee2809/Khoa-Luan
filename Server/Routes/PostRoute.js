@@ -10,6 +10,7 @@ import {
   getRecentlyPosts,
   searchPost,
   getAllPosts,
+  approvePosts,
 } from "../Controllers/PostController.js";
 
 const router = express.Router();
@@ -24,5 +25,6 @@ router.get("/posts/detail/:id", getPostbyid); // Để lấy bài viết theo id
 router.get("/postsId/getRecently", getRecentlyPosts); // Để lấy bài viết theo id
 router.get("/postsId/getOldest", getOldestPosts); // Để lấy bài viết theo id
 router.get("/postsId/searchById", searchPost); // Để lấy bài viết theo id
+router.put("/approve/:id", approvePosts);
 
 export default router;
