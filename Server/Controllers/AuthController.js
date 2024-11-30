@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { generateToken } from "../lib/utils.js";
 import cloudinary from "../lib/cloudinary.js";
-import chatModel from "../Models/chatModel.js";
+import messageModel from "../Models/messageModel.js";
 
 export const registerUser = async (req, res) => {
   const { username, password, firstname, lastname, email } = req.body;
@@ -99,12 +99,15 @@ export const loginUser = async (req, res) => {
     const user = await UserModel.findOne({ email });
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Lỗi không xác định" });
     }
-
+    // Kiểm tra trạng thái bị block
+    if (user.isBlocked) {
+      return res.status(403).json({ message: "Tài khoản của bạn đã bị khóa" });
+    }
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Sai mật khẩu" });
     }
 
     generateToken(user._id, res);
@@ -144,7 +147,7 @@ export const deleteAccount = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
     // Xóa tất cả các đoạn chat liên quan đến user
-    await chatModel.deleteMany({
+    await messageModel.deleteMany({
       $or: [{ senderId: userId }, { receiverId: userId }],
     });
 

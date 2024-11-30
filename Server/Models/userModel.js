@@ -31,12 +31,12 @@ const userSchema = mongoose.Schema(
       type: String,
       default: "",
     },
-    coverPicture: String,
-    about: String,
-    livein: String,
-    relationship: String,
     followers: [],
     following: [],
+    isBlocked: {
+      type: Boolean,
+      default: false, // Mặc định người dùng không bị chặn
+    },
   },
   { timestamps: true }
 );

@@ -1,6 +1,8 @@
 import express from "express";
 import {
   approvePost,
+  blockUser,
+  getAllUsers,
   getApprovedPosts,
   getPendingPosts,
   loginAdmin,
@@ -18,5 +20,7 @@ router.post("/approve/:id", approvePost);
 router.get("/pendingPost", getPendingPosts);
 router.get("/approvePost", getApprovedPosts);
 router.get("/check", protectRoute, checkAuth);
+router.get("/getUsers", getAllUsers);
+router.put("/block/:userId", protectRoute, blockUser);
 
 export default router;

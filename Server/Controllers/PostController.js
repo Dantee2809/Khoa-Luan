@@ -6,26 +6,37 @@ import cloudinary from "../lib/cloudinary.js";
 
 export const createPost = async (req, res) => {
   try {
-    // Tải ảnh lên Cloudinary
-    let imageUrl = "";
-    if (req.body.image) {
-      const result = await cloudinary.uploader.upload(req.body.image, {
-        folder: "posts", // Tùy chọn thư mục lưu ảnh
-      });
-      imageUrl = result.secure_url; // URL ảnh sau khi tải lên
+    // Lấy các tham số từ req.body
+    const { image, userId, desc, contact, isLost, isFound } = req.body;
+    // Kiểm tra nếu không có ảnh
+    if (!image) {
+      return res.status(400).json({ message: "Image is required" });
     }
-
-    // Tạo bài viết mới
-    const newPost = new PostModel({
-      userId: req.body.userId,
-      desc: req.body.desc,
-      image: imageUrl, // Lưu URL ảnh từ Cloudinary
-      category: req.body.category,
-      contact: req.body.contact,
-      isApproved: false, // Mặc định chưa duyệt
+    if (isLost && isFound) {
+      return res
+        .status(400)
+        .json({ message: "A post cannot be both lost and found." });
+    }
+    // Upload ảnh lên Cloudinary
+    const uploadResponse = await cloudinary.uploader.upload(image, {
+      resource_type: "auto", // Tự động nhận dạng loại file
     });
 
+    // Tạo bài viết mới với URL ảnh từ Cloudinary
+    const newPost = new PostModel({
+      userId, // ID người dùng
+      desc, // Mô tả bài viết
+      image: uploadResponse.secure_url, // Lưu URL ảnh từ Cloudinary
+      contact, // Liên hệ
+      isLost: isLost || false, // Mặc định là false nếu không được gửi
+      isFound: isFound || false, // Mặc định là false nếu không được gửi
+      isApproved: false, // Mặc định là chưa được phê duyệt
+    });
+
+    // Lưu bài viết vào cơ sở dữ liệu
     await newPost.save();
+
+    // Gửi phản hồi
     res.status(200).json(newPost);
   } catch (error) {
     console.error("Error creating post:", error);
@@ -73,36 +84,36 @@ export const deletePost = async (req, res) => {
     res.status(500).json(error);
   }
 };
-export const getTimelinepost = async (req, res) => {
-  const userId = req.params.id;
-  try {
-    const currentUserPosts = await PostModel.find({ userId: userId });
-    const followingPosts = await UserModel.aggregate([
-      {
-        $match: {
-          _id: new mongoose.Types.ObjectId(userId),
-        },
-      },
-      {
-        $lookup: {
-          from: "posts",
-          localField: "following",
-          foreignField: "userId",
-          as: "followingPosts",
-        },
-      },
-      {
-        $project: {
-          followingPosts: 1,
-          _id: 0,
-        },
-      },
-    ]);
-    res.status(200).json(currentUserPosts.concat(...followingPosts));
-  } catch (error) {
-    res.status(500).json(error);
-  }
-};
+// export const getTimelinepost = async (req, res) => {
+//   const userId = req.params.id;
+//   try {
+//     const currentUserPosts = await PostModel.find({ userId: userId });
+//     const followingPosts = await UserModel.aggregate([
+//       {
+//         $match: {
+//           _id: new mongoose.Types.ObjectId(userId),
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "posts",
+//           localField: "following",
+//           foreignField: "userId",
+//           as: "followingPosts",
+//         },
+//       },
+//       {
+//         $project: {
+//           followingPosts: 1,
+//           _id: 0,
+//         },
+//       },
+//     ]);
+//     res.status(200).json(currentUserPosts.concat(...followingPosts));
+//   } catch (error) {
+//     res.status(500).json(error);
+//   }
+// };
 
 export const getAllPosts = async (req, res) => {
   try {
@@ -143,48 +154,6 @@ export const getPostApprove = async (req, res) => {
   } catch (error) {
     console.log("Error:", error);
     res.status(500).json({ message: "Error retrieving posts" });
-  }
-};
-export const searchPost = async (req, res) => {
-  try {
-    const { category, keyword, latitude, longitude, radius } = req.query;
-
-    // Tạo bộ lọc tìm kiếm
-    const filter = {};
-
-    // Lọc theo danh mục nếu có
-    if (category) {
-      filter.category = category;
-    }
-
-    // Tìm kiếm từ khóa trong mô tả
-    if (keyword) {
-      filter.desc = { $regex: keyword, $options: "i" }; // `$options: "i"` để không phân biệt hoa thường
-    }
-
-    // Lọc theo vị trí (nếu có tọa độ và bán kính)
-    if (latitude && longitude && radius) {
-      const lat = parseFloat(latitude);
-      const lng = parseFloat(longitude);
-      const radInKm = parseFloat(radius) / 6371; // Bán kính trái đất là 6371 km
-
-      filter.location = {
-        $geoWithin: {
-          $centerSphere: [[lng, lat], radInKm], // [kinh độ, vĩ độ]
-        },
-      };
-    }
-
-    // Tìm kiếm trong cơ sở dữ liệu
-    const results = await PostModel.find(filter);
-
-    // Trả kết quả
-    res.status(200).json({ success: true, data: results });
-  } catch (err) {
-    console.error(err);
-    res
-      .status(500)
-      .json({ success: false, message: "Lỗi server", error: err.message });
   }
 };
 

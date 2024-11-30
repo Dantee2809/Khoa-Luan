@@ -2,7 +2,6 @@ import express from "express";
 import {
   deleteUser,
   followUser,
-  getAllUsers,
   getUserProfile,
   unfollowUser,
   updateUser,
@@ -14,11 +13,9 @@ const router = express.Router();
 router.get("/profile/:id", getUserProfile);
 router.put("/:id", updateUser);
 router.delete("/:id", deleteUser);
-router.post("/:id/follow", followUser);
-router.post("/:id/unfollow", unfollowUser);
+router.put("/follow/:id1/:id2", followUser);
+router.put("/unfollow/:id1/:id2", unfollowUser);
 // router.post("/follow", followUser);
 // router.post("/unfollow", unfollowUser);
-
-router.get("/getUsers", getAllUsers);
 
 export default router;

@@ -11,17 +11,17 @@ const postSchema = mongoose.Schema(
       type: String,
       default: "", // Không bắt buộc, có giá trị mặc định
     },
-    category: {
-      type: String,
-      enum: [
-        "electronics", // Đồ công nghệ
-        "personal_documents", // Giấy tờ tùy thân
-        "wallet", // Ví
-        "money", // Tiền
-      ], // Chỉ định danh mục hợp lệ
-    },
     image: {
       type: String,
+      default: "",
+    },
+    isLost: {
+      type: Boolean,
+      default: false,
+    },
+    isFound: {
+      type: Boolean,
+      default: false,
     },
     contact: {
       type: String,
@@ -31,13 +31,6 @@ const postSchema = mongoose.Schema(
         },
         message: (props) => `${props.value} không phải số điện thoại hợp lệ!`,
       },
-    },
-    location: {
-      province: { type: String }, // Tên tỉnh
-      district: { type: String }, // Tên quận/huyện
-      ward: { type: String }, // Tên phường/xã
-      latitude: { type: Number }, // Tọa độ latitude
-      longitude: { type: Number }, // Tọa độ longitude
     },
     isApproved: { type: Boolean, default: false },
   },

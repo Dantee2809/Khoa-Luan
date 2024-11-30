@@ -34,19 +34,6 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
-// Get all users
-export const getAllUsers = async (req, res) => {
-  try {
-    let users = await UserModel.find();
-    users = users.map((user) => {
-      const { password, ...otherDetails } = user._doc;
-      return otherDetails;
-    });
-    res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json(error);
-  }
-};
 export const updateUser = async (req, res) => {
   const id = req.params.id;
   const { currentUserId, currentUserAdminStatus, password } = req.body;
@@ -90,33 +77,6 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-// Follow a User
-// export const followUser = async (req, res) => {
-//   const { currentUserId, followId } = req.body;
-
-//   // Kiểm tra nếu người dùng hiện tại và người cần follow là giống nhau
-//   if (currentUserId === followId) {
-//     return res.status(403).json("Cannot follow yourself");
-//   }
-
-//   try {
-//     const userToFollow = await UserModel.findById(followId);
-//     const followingUser = await UserModel.findById(currentUserId);
-
-//     // Kiểm tra nếu người dùng đã follow người này chưa
-//     if (!userToFollow.followers.includes(currentUserId)) {
-//       await userToFollow.updateOne({ $push: { followers: currentUserId } });
-//       await followingUser.updateOne({ $push: { following: followId } });
-//       return res.status(200).json("User followed successfully");
-//     } else {
-//       return res.status(400).json("You are already following this user");
-//     }
-//   } catch (error) {
-//     res.status(500).json("Error following user: " + error.message);
-//   }
-// };
-
-// Follow a User
 export const followUser = async (req, res) => {
   try {
     const { id: targetUserId } = req.params; // ID của người cần follow
@@ -154,10 +114,14 @@ export const followUser = async (req, res) => {
     await user.save();
     await targetUser.save();
 
+    // Chỉ trả về các thông tin cần thiết
     res.status(200).json({
       message: "Followed successfully",
-      user,
-      targetUser,
+      targetUser: {
+        username: targetUser.username,
+        email: targetUser.email,
+        followersCount: targetUser.followers.length,
+      },
     });
   } catch (error) {
     console.error("Error in followUser:", error);
@@ -202,16 +166,133 @@ export const unfollowUser = async (req, res) => {
     await user.save();
     await targetUser.save();
 
+    // Trả về thông tin cần thiết sau khi unfollow
     res.status(200).json({
       message: "Unfollowed successfully",
-      user,
-      targetUser,
+      targetUser: {
+        username: targetUser.username,
+        email: targetUser.email,
+        followersCount: targetUser.followers.length,
+      },
     });
   } catch (error) {
     console.error("Error in unfollowUser:", error);
     res.status(500).json({ message: "Something went wrong", error });
   }
 };
+
+// Follow a User
+// export const followUser = async (req, res) => {
+//   const { currentUserId, followId } = req.body;
+
+//   // Kiểm tra nếu người dùng hiện tại và người cần follow là giống nhau
+//   if (currentUserId === followId) {
+//     return res.status(403).json("Cannot follow yourself");
+//   }
+
+//   try {
+//     const userToFollow = await UserModel.findById(followId);
+//     const followingUser = await UserModel.findById(currentUserId);
+
+//     // Kiểm tra nếu người dùng đã follow người này chưa
+//     if (!userToFollow.followers.includes(currentUserId)) {
+//       await userToFollow.updateOne({ $push: { followers: currentUserId } });
+//       await followingUser.updateOne({ $push: { following: followId } });
+//       return res.status(200).json("User followed successfully");
+//     } else {
+//       return res.status(400).json("You are already following this user");
+//     }
+//   } catch (error) {
+//     res.status(500).json("Error following user: " + error.message);
+//   }
+// };
+
+// Follow a User
+// Controller logic
+// const followUser = async (req, res) => {
+//   try {
+//     const { currentUserId, targetUserId } = req.params;
+
+//     // Kiểm tra giá trị đầu vào
+//     if (!currentUserId || !targetUserId) {
+//       return res.status(400).json({ message: "Invalid user IDs" });
+//     }
+
+//     // Tìm user cần follow
+//     const userToFollow = await UserModel.findById(targetUserId);
+//     const currentUser = await UserModel.findById(currentUserId);
+
+//     if (!userToFollow || !currentUser) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     // Kiểm tra nếu đã follow trước đó
+//     if (userToFollow.followers.includes(currentUserId)) {
+//       return res.status(400).json({ message: "Already following this user" });
+//     }
+
+//     // Thêm currentUserId vào danh sách followers
+//     userToFollow.followers.push(currentUserId);
+//     await userToFollow.save();
+
+//     // Thêm targetUserId vào danh sách following của currentUser
+//     currentUser.following.push(targetUserId);
+//     await currentUser.save();
+
+//     res.status(200).json({ message: "Followed successfully" });
+//   } catch (error) {
+//     console.error("Error in followUser:", error);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// };
+
+// export const unfollowUser = async (req, res) => {
+//   try {
+//     const { id: targetUserId } = req.params; // ID của người cần unfollow
+//     const { userId } = req.body; // ID của người đang thực hiện unfollow
+
+//     if (!userId || !targetUserId) {
+//       return res
+//         .status(400)
+//         .json({ message: "Missing userId or targetUserId" });
+//     }
+
+//     if (userId === targetUserId) {
+//       return res.status(400).json({ message: "You cannot unfollow yourself" });
+//     }
+
+//     // Tìm người dùng hiện tại và người cần unfollow
+//     const user = await UserModel.findById(userId);
+//     const targetUser = await UserModel.findById(targetUserId);
+
+//     if (!user || !targetUser) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     // Xóa targetUserId khỏi danh sách `following` của user
+//     user.following = user.following.filter(
+//       (id) => id.toString() !== targetUserId
+//     );
+
+//     // Xóa userId khỏi danh sách `followers` của targetUser
+//     targetUser.followers = targetUser.followers.filter(
+//       (id) => id.toString() !== userId
+//     );
+
+//     // Lưu thay đổi vào database
+//     await user.save();
+//     await targetUser.save();
+
+//     res.status(200).json({
+//       message: "Unfollowed successfully",
+//       user,
+//       targetUser,
+//     });
+//   } catch (error) {
+//     console.error("Error in unfollowUser:", error);
+//     res.status(500).json({ message: "Something went wrong", error });
+//   }
+// };
 
 // Unfollow a User
 // export const unfollowUser = async (req, res) => {

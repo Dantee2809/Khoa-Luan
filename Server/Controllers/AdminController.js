@@ -78,6 +78,19 @@ export const loginAdmin = async (req, res) => {
   }
 };
 
+export const getAllUsers = async (req, res) => {
+  try {
+    let users = await UserModel.find();
+    users = users.map((user) => {
+      const { password, ...otherDetails } = user._doc;
+      return otherDetails;
+    });
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+
 // API duyệt bài viết
 export const approvePost = async (req, res) => {
   const { postId } = req.body; // ID bài viết cần duyệt
@@ -149,5 +162,27 @@ export const logoutAdmin = async (req, res) => {
   } catch (error) {
     console.log("Error in logout controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+export const blockUser = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.isBlocked = !user.isBlocked; // Đảo trạng thái block
+    await user.save();
+
+    res.status(200).json({
+      message: `User ${user.isBlocked ? "blocked" : "unblocked"} successfully`,
+      isBlocked: user.isBlocked,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error updating user block status", error });
   }
 };
