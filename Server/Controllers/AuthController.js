@@ -1,10 +1,11 @@
 import UserModel from "../Models/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 import { generateToken } from "../lib/utils.js";
 import cloudinary from "../lib/cloudinary.js";
 import messageModel from "../Models/messageModel.js";
-
+import nodemailer from "nodemailer";
 export const registerUser = async (req, res) => {
   const { username, password, firstname, lastname, email } = req.body;
 
@@ -12,11 +13,12 @@ export const registerUser = async (req, res) => {
     // Kiểm tra xem username có tồn tại trong database không
     const existingUser = await UserModel.findOne({ email: email });
     if (existingUser) {
-      return res.status(400).json({ message: "Email đã tồn tại" });
+      return res.status(400).json({ message: "Tài khoản đã tồn tại" });
     }
     // Nếu không trùng, tiếp tục hash mật khẩu và lưu người dùng
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+
     const newUser = new UserModel({
       username,
       password: hashedPassword,
@@ -28,14 +30,12 @@ export const registerUser = async (req, res) => {
       // generate jwt token here
       generateToken(newUser._id, res);
       await newUser.save();
-
       res.status(201).json({
         _id: newUser._id,
         username: newUser.username,
         email: newUser.email,
         firstname: newUser.firstname,
         lastname: newUser.lastname,
-        profilePic: newUser.profilePic,
       });
     } else {
       res.status(400).json({ message: "Invalid user data" });
@@ -126,7 +126,44 @@ export const loginUser = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+export const forgetPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return res.json({ message: "user not registered" });
+    }
+    const token = jwt.sign({ id: user._id }, process.env.JWT_KEY, {
+      expiresIn: "1h",
+    });
+    // Add your logic for password reset here (e.g., sending a reset link)
+    var transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "trungnguyenhs3105@gmail.com",
+        pass: "ugtu fnsp xbqa vdff",
+      },
+    });
 
+    var mailOptions = {
+      from: "trungnguyenhs3105@gmail.com",
+      to: email,
+      subject: "Gửi token để đặt lại mã",
+      text: `http://localhost:3000/forgotpass/${token}`,
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Email sent: " + info.response);
+      }
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 export const logoutUser = async (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 });

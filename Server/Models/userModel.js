@@ -37,6 +37,10 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false, // Mặc định người dùng không bị chặn
     },
+    lastLogin: {
+      type: Date,
+      default: Date.now,
+    },
   },
   { timestamps: true }
 );

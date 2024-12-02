@@ -13,8 +13,8 @@ const router = express.Router();
 router.get("/profile/:id", getUserProfile);
 router.put("/:id", updateUser);
 router.delete("/:id", deleteUser);
-router.put("/follow/:id1/:id2", followUser);
-router.put("/unfollow/:id1/:id2", unfollowUser);
+router.put("/:id/follow", followUser);
+router.put("/:id/unfollow", unfollowUser);
 // router.post("/follow", followUser);
 // router.post("/unfollow", unfollowUser);
 

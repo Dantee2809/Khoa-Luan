@@ -1,7 +1,4 @@
 import PostModel from "../Models/postModel.js";
-import mongoose from "mongoose";
-import UserModel from "../Models/userModel.js";
-import jwt from "jsonwebtoken";
 import cloudinary from "../lib/cloudinary.js";
 
 export const createPost = async (req, res) => {
@@ -114,6 +111,28 @@ export const deletePost = async (req, res) => {
 //     res.status(500).json(error);
 //   }
 // };
+
+// API tìm kiếm bài viết
+export const searchPosts = async (req, res) => {
+  try {
+    const { query } = req.query; // Lấy từ khóa tìm kiếm từ query params
+
+    // Tìm kiếm theo mô tả (desc), liên hệ (contact) hoặc trạng thái (isLost/isFound)
+    const posts = await PostModel.find({
+      $or: [
+        { desc: { $regex: query, $options: "i" } }, // Tìm kiếm không phân biệt chữ hoa/thường
+        { contact: { $regex: query, $options: "i" } },
+        { isLost: query.toLowerCase() === "lost" },
+        { isFound: query.toLowerCase() === "found" },
+      ],
+    });
+
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error("Error searching posts:", error);
+    res.status(500).json({ message: "Error searching posts" });
+  }
+};
 
 export const getAllPosts = async (req, res) => {
   try {
