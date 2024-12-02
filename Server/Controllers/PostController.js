@@ -66,12 +66,15 @@ export const updatePost = async (req, res) => {
     res.status(500).json(error);
   }
 };
+// Backend code
 export const deletePost = async (req, res) => {
   const postId = req.params.id;
-  const { userId } = req.body;
+  const { userId, role } = req.body; // Lấy role từ body, role là thông tin quyền
+
   try {
     const post = await PostModel.findById(postId);
-    if (post.userId === userId) {
+    if (role === "admin" || post.userId === userId) {
+      // Admin có quyền xóa tất cả bài viết
       await post.deleteOne();
       res.status(200).json("Post deleted");
     } else {
@@ -81,6 +84,7 @@ export const deletePost = async (req, res) => {
     res.status(500).json(error);
   }
 };
+
 // export const getTimelinepost = async (req, res) => {
 //   const userId = req.params.id;
 //   try {

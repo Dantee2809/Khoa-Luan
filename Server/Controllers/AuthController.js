@@ -112,15 +112,7 @@ export const loginUser = async (req, res) => {
 
     generateToken(user._id, res);
 
-    res.status(200).json({
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      firstname: user.firstname,
-      lastname: user.lastname,
-      profilePic: user.profilePic,
-      role: user.role,
-    });
+    res.status(200).json(user); // Trả về toàn bộ dữ liệu người dùng
   } catch (error) {
     console.log("Error in login controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
