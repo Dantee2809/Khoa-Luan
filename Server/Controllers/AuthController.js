@@ -149,7 +149,7 @@ export const forgetPassword = async (req, res) => {
       from: "trungnguyenhs3105@gmail.com",
       to: email,
       subject: "Gửi token để đặt lại mã",
-      text: `http://localhost:3000/forgotpass/${token}`,
+      text: `http://localhost:3000/reset-password/${token}`,
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
@@ -162,6 +162,19 @@ export const forgetPassword = async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+  try {
+    const decoded = await jwt.verify(token, process.env.JWT_KEY);
+    const id = decoded.id;
+    const hashPassword = await bcrypt.hash(password, 10);
+    await UserModel.findByIdAndUpdate({ _id: id }, { password: hashPassword });
+    return res.json({ status: true, message: "Updated password success" });
+  } catch (err) {
+    return res.json("Token ko hợp lệ");
   }
 };
 export const logoutUser = async (req, res) => {

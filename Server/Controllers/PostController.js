@@ -113,24 +113,36 @@ export const deletePost = async (req, res) => {
 // };
 
 // API tìm kiếm bài viết
-export const searchPosts = async (req, res) => {
+// export const searchPosts = async (req, res) => {
+//   try {
+//     const { query } = req.query; // Lấy từ khóa tìm kiếm từ query params
+
+//     // Tìm kiếm theo mô tả (desc), liên hệ (contact) hoặc trạng thái (isLost/isFound)
+//     const posts = await PostModel.find({
+//       $or: [
+//         { desc: { $regex: query, $options: "i" } }, // Tìm kiếm không phân biệt chữ hoa/thường
+//         { contact: { $regex: query, $options: "i" } },
+//         { isLost: query.toLowerCase() === "lost" },
+//         { isFound: query.toLowerCase() === "found" },
+//       ],
+//     });
+
+//     res.status(200).json(posts);
+//   } catch (error) {
+//     console.error("Error searching posts:", error);
+//     res.status(500).json({ message: "Error searching posts" });
+//   }
+// };
+export const search = async (req, res) => {
+  const { q } = req.query; // Lấy query từ request
   try {
-    const { query } = req.query; // Lấy từ khóa tìm kiếm từ query params
-
-    // Tìm kiếm theo mô tả (desc), liên hệ (contact) hoặc trạng thái (isLost/isFound)
     const posts = await PostModel.find({
-      $or: [
-        { desc: { $regex: query, $options: "i" } }, // Tìm kiếm không phân biệt chữ hoa/thường
-        { contact: { $regex: query, $options: "i" } },
-        { isLost: query.toLowerCase() === "lost" },
-        { isFound: query.toLowerCase() === "found" },
-      ],
+      desc: { $regex: q, $options: "i" }, // Tìm theo mô tả (không phân biệt chữ hoa/thường)
     });
-
-    res.status(200).json(posts);
-  } catch (error) {
-    console.error("Error searching posts:", error);
-    res.status(500).json({ message: "Error searching posts" });
+    res.status(200).json({ posts });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Lỗi server" });
   }
 };
 
