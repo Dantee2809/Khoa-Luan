@@ -3,6 +3,17 @@ import { Modal, useMantineTheme } from "@mantine/core";
 import { useAuthStore } from "../../store/useAuthStore"; // Import useAuthStore
 import "./ProfileModal.css";
 
+// Hàm kiểm tra định dạng email
+const isValidEmail = (email) => {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  console.log(emailRegex.test("gsjdjd.com")); // false
+  console.log(emailRegex.test("test@gsjdjd.com")); // true
+  console.log(emailRegex.test("test@gmail.com")); // true
+
+  return emailRegex.test(email);
+};
+
 function ProfileModal({ modalOpened, setModalOpened, userData }) {
   const theme = useMantineTheme();
   const { updateProfileInfo, isUpdatingProfile, errorMessage } = useAuthStore(); // Lấy hàm updateProfile và trạng thái từ store zustand
@@ -15,21 +26,36 @@ function ProfileModal({ modalOpened, setModalOpened, userData }) {
     lastname: userData?.lastname || "",
   });
 
+  // State để lưu lỗi email
+  const [emailError, setEmailError] = useState("");
+
   // Hàm xử lý thay đổi dữ liệu từ các trường input
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    // Reset lỗi khi người dùng thay đổi email
+    if (name === "email") {
+      setEmailError("");
+    }
   };
 
   // Hàm xử lý submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Kiểm tra định dạng email
+    if (!isValidEmail(formData.email)) {
+      setEmailError("Email không đúng định dạng!");
+      return;
+    }
+
     try {
       // Gọi updateProfile từ zustand để gửi dữ liệu lên server
       await updateProfileInfo(formData);
       setModalOpened(false); // Đóng modal sau khi cập nhật thành công
     } catch (error) {
+      // Hiển thị thông báo lỗi nếu có
       console.error("Lỗi khi cập nhật thông tin:", error);
     }
   };
@@ -48,49 +74,71 @@ function ProfileModal({ modalOpened, setModalOpened, userData }) {
       onClose={() => setModalOpened(false)}
     >
       <form className="infoForm" onSubmit={handleSubmit}>
-        <h3>Thông tin cá nhân</h3>
-
+        <h3 style={{ fontSize: "20px", fontWeight: "500" }}>
+          Thông tin cá nhân
+        </h3>
         <div>
-          <input
-            type="text"
-            className="infoInput"
-            name="username"
-            placeholder="Họ tên"
-            value={formData.username}
-            onChange={handleChange}
-          />
-          <input
-            type="text"
-            className="infoInput"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-          />
+          <ul>
+            <li style={{ fontSize: "15px", fontWeight: "500" }}>Biệt Danh</li>
+            <p>
+              <input
+                type="text"
+                className="infoInput"
+                name="username"
+                placeholder="Biệt danh"
+                value={formData.username}
+                onChange={handleChange}
+              />
+            </p>
+          </ul>
+          <ul>
+            <li style={{ fontSize: "15px", fontWeight: "500" }}>Email</li>
+            <p>
+              <input
+                type="text"
+                className="infoInput"
+                name="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </p>
+            {/* Hiển thị thông báo lỗi email nếu có */}
+            {emailError && <div className="errorMessage">{emailError}</div>}
+          </ul>
         </div>
-
         <div>
-          <input
-            type="text"
-            className="infoInput"
-            name="firstname"
-            placeholder="Tên đệm"
-            value={formData.firstname}
-            onChange={handleChange}
-          />
+          <ul>
+            <li style={{ fontSize: "15px", fontWeight: "500" }}>
+              Họ & Tên đệm
+            </li>
+            <p>
+              <input
+                type="text"
+                className="infoInput"
+                name="firstname"
+                placeholder="Họ & Tên đệm"
+                value={formData.firstname}
+                onChange={handleChange}
+              />
+            </p>
+          </ul>
         </div>
-
         <div>
-          <input
-            type="text"
-            className="infoInput"
-            name="lastname"
-            placeholder="Tên lót"
-            value={formData.lastname}
-            onChange={handleChange}
-          />
+          <ul>
+            <li style={{ fontSize: "15px", fontWeight: "500" }}>Tên</li>
+            <p>
+              <input
+                type="text"
+                className="infoInput"
+                name="lastname"
+                placeholder="Tên"
+                value={formData.lastname}
+                onChange={handleChange}
+              />
+            </p>
+          </ul>
         </div>
-
         <button
           className="button infoButton"
           type="submit"
@@ -99,7 +147,7 @@ function ProfileModal({ modalOpened, setModalOpened, userData }) {
           {isUpdatingProfile ? "Đang cập nhật..." : "Cập nhật"}
         </button>
 
-        {/* Hiển thị lỗi nếu có */}
+        {/* Hiển thị thông báo lỗi từ server nếu có */}
         {errorMessage && <div className="errorMessage">{errorMessage}</div>}
       </form>
     </Modal>

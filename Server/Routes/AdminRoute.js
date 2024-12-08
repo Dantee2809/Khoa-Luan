@@ -1,12 +1,15 @@
 import express from "express";
 import {
   approvePost,
+  banUsers,
   blockUser,
   dashboard,
+  getAllMessages,
   getAllPostsByMonth,
   getAllUsers,
   getApprovedPosts,
   getPendingPosts,
+  getUserById,
   loginAdmin,
   logoutAdmin,
 } from "../Controllers/AdminController.js";
@@ -22,6 +25,9 @@ router.get("/pendingPost", getPendingPosts);
 router.get("/approvePost", getApprovedPosts);
 router.get("/check", protectRoute, checkAuth);
 router.get("/getUsers", getAllUsers);
+router.get("/messages", getAllMessages);
+router.get("/user/:userId", getUserById);
+router.post("/ban-users-from-chat", banUsers);
 router.get("/checkAuth/user/:id", checkUserStatus);
 router.put("/block/:userId", protectRoute, blockUser);
 router.get("/reports", dashboard);

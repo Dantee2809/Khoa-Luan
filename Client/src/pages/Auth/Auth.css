@@ -61,10 +61,8 @@
 }
 .infoButton {
   font-size: 12px;
+  width: 100%;
 }
 .authForm > h3 {
   font-size: 20px;
-}
-.infoButton {
-  width: 100%;
 }

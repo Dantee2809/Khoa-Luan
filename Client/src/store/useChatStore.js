@@ -2,6 +2,7 @@ import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios";
 import { useAuthStore } from "./useAuthStore";
+import { fetchAllMessages } from "../lib/fetch";
 
 export const useChatStore = create((set, get) => ({
   messages: [],
@@ -10,6 +11,18 @@ export const useChatStore = create((set, get) => ({
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
+
+  loading: false, // Biến trạng thái loading
+  error: null, // Biến lưu lỗi nếu có
+  fetchMessages: async () => {
+    set({ loading: true, error: null }); // Đặt loading thành true khi đang lấy dữ liệu
+    try {
+      const messages = await fetchAllMessages(); // Gọi API để lấy tin nhắn
+      set({ messages, loading: false }); // Cập nhật danh sách tin nhắn và tắt loading
+    } catch (error) {
+      set({ error: "Không thể tải tin nhắn", loading: false }); // Nếu có lỗi, cập nhật error
+    }
+  },
 
   getUsers: async () => {
     set({ isUsersLoading: true });

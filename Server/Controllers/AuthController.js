@@ -108,42 +108,41 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   const { email, password, isAdminLogin } = req.body;
 
-  // Kiểm tra dữ liệu đầu vào
-  if (!email?.trim()) {
-    return res.status(400).json({ message: "  " });
-  }
-  if (!/\S+@\S+\.\S+/.test(email)) {
-    return res.status(400).json({ message: "Email không đúng định dạng" });
-  }
-  if (!password?.trim()) {
-    return res.status(400).json({ message: "Mật khẩu không được để trống" });
-  }
-
   try {
-    // Logic xử lý đăng nhập
-    const user = await UserModel.findOne({ email });
-
-    if (!user) {
-      return res.status(400).json({ message: "Tài khoản chưa đăng ký!" });
-    }
-
-    if (user.isBlocked) {
-      return res.status(403).json({ message: "Tài khoản của bạn đã bị khóa" });
-    }
-
     if (isAdminLogin && user.role !== "admin") {
       return res.status(403).json({
         message: "Bạn không có quyền truy cập Admin hoặc không phải Admin.",
       });
     }
+    // Kiểm tra nếu thiếu thông tin đầu vào
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Vui lòng nhập đầy đủ thông tin tài khoản và mật khẩu!",
+      });
+    }
 
+    // Tìm kiếm người dùng trong cơ sở dữ liệu
+    const user = await UserModel.findOne({ email });
+
+    // Kiểm tra nếu tài khoản không tồn tại
+    if (!user) {
+      return res.status(400).json({ message: "Tài khoản chưa đăng ký!" });
+    }
+
+    // Kiểm tra trạng thái bị block
+    if (user.isBlocked) {
+      return res.status(403).json({ message: "Tài khoản của bạn đã bị khóa" });
+    }
+
+    // Kiểm tra mật khẩu
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
       return res.status(400).json({ message: "Sai mật khẩu" });
     }
 
+    // Tạo token đăng nhập và trả về thông tin người dùng
     generateToken(user._id, res);
-    res.status(200).json(user); // Trả về thông tin người dùng
+    res.status(200).json(user);
   } catch (error) {
     console.error("Error in login controller:", error.message);
     res

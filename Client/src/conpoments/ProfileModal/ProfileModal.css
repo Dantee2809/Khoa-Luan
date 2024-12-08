@@ -1,23 +1,36 @@
-.infoForm{
-    display: grid;
-    gap: 1em;
+.infoForm {
+  display: grid;
+  gap: 1em;
 }
-.infoInput{
-    border: none;
-    outline: none;
-    background-color: var(--inputColor);
-    border-radius: 8px;
-    padding: 10px;
-    flex:4;
+.infoForm > div > ul {
+  gap: 0rem;
+  height: 4rem;
+  width: 100%;
 }
-.infoForm>div{
-    display: flex;
-    gap: 1rem;
-    height: 2rem;
-    width: 90%;
-  }
-.infoButton{
-    width: 6rem;
-    height: 2rem;
-    align-self: flex-end;
+
+.infoForm > div {
+  display: flex;
+  gap: 1rem;
+  height: 5rem;
+  width: 90%;
+}
+
+.infoForm > div > ul > p {
+  display: flex;
+  gap: 1rem;
+  height: 4rem;
+  width: 100%;
+}
+.infoInput {
+  border: none;
+  outline: none;
+  background-color: var(--inputColor);
+  border-radius: 8px;
+  padding: 10px;
+  flex: 4;
+}
+.infoButton {
+  width: 100%;
+  height: 2rem;
+  align-self: flex-end;
 }

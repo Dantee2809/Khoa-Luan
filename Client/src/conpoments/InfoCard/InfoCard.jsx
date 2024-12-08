@@ -13,7 +13,9 @@ const InfoCard = () => {
   return (
     <div className="InfoCard">
       <div className="infoHead">
-        <h4>Thông tin cá nhân</h4>
+        <h4 style={{ fontSize: "20px", fontWeight: "700" }}>
+          Thông tin cá nhân
+        </h4>
         <div>
           <UilPen
             width="2rem"
@@ -31,26 +33,18 @@ const InfoCard = () => {
         <span>
           <b>Email: </b>
         </span>
-        <span>{authUser?.email || "Chưa cập nhật"}</span>
+        <span>{authUser.email}</span>
       </div>
 
       <div className="info">
         <span>
-          <b>Tên user: </b>
+          <b>Tên người dùng: </b>
         </span>
-        <span>{authUser?.firstname || "Chưa cập nhật"}</span>
+        <span>
+          {authUser.firstname} {authUser.lastname}
+        </span>
       </div>
-
-      {authUser && (
-        <>
-          <button className="button logout-button" onClick={logout}>
-            <LogOut className="size-5" />
-            <span className="hidden sm:inline">Đăng xuất</span>
-          </button>
-        </>
-      )}
     </div>
   );
 };
-
 export default InfoCard;

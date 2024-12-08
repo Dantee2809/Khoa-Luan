@@ -41,6 +41,8 @@ function Forget() {
         console.log("API Response:", response.data); // Log phản hồi từ API
         setLoading(false);
         if (response.data.status) {
+          // Thông báo khi gửi thành công
+          toast.success("Email gửi thành công!");
           navigate("/sign-in");
         } else {
           toast.error(response.data.message || "Có lỗi xảy ra!");

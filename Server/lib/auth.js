@@ -21,6 +21,7 @@ const authenticateToken = (req, res, next) => {
   //     return res.status(403).json({ message: "Token hết hạn hoặc không hợp lệ" });
   //   }
   // };
+
   const token = req.header("Authorization")?.split(" ")[1]; // Lấy token từ header
 
   if (!token) {

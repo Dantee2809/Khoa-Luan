@@ -16,23 +16,19 @@ export const createPost = async (req, res) => {
 
     // Tạo bài viết mới với URL ảnh từ Cloudinary
     const newPost = new PostModel({
-      userId, // ID người dùng
-      desc, // Mô tả bài viết
+      userId: req.body.userId,
+      desc: req.body.desc,
       image: uploadResponse.secure_url, // Lưu URL ảnh từ Cloudinary
-      location,
-      contact, // Liên hệ
+      category: req.body.category,
+      contact: req.body.contact,
+      isApproved: false, // Mặc định chưa duyệt
       isLost: isLost || false, // Mặc định là false nếu không được gửi
       isFound: isFound || false, // Mặc định là false nếu không được gửi
-      isApproved: false, // Mặc định là chưa được phê duyệt
     });
-
     // Lưu bài viết vào cơ sở dữ liệu
     await newPost.save();
-
     // Gửi phản hồi
-    res
-      .status(200)
-      .json({ message: "Bài viết đã được đăng thành công!", post: newPost });
+    res.status(200).json(newPost);
   } catch (error) {
     console.error("Error:Lỗi đăng bài", error);
     return res.status(500).json({
@@ -49,6 +45,26 @@ export const getPost = async (req, res) => {
     res.status(200).json(post);
   } catch (error) {
     res.status(500).json(error);
+  }
+};
+
+export const getPostToProfile = async (req, res) => {
+  try {
+    const { userId } = req.params; // Lấy ID người dùng từ URL
+
+    // Lấy tất cả bài viết của người dùng này
+    const posts = await PostModel.find({ author: userId }).sort({
+      createdAt: -1,
+    });
+
+    if (posts.length === 0) {
+      return res.status(404).json({ message: "No posts found" });
+    }
+
+    return res.status(200).json(posts);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "Error retrieving posts" });
   }
 };
 // Backend - Cập nhật trong hàm fetch posts

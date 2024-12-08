@@ -21,6 +21,9 @@ import RegisterUser from "./pages/Auth/RegisterUser.jsx";
 import AdvControl from "./conpoments/Admin/AdvControl.jsx";
 import ReportDashboard from "./conpoments/Admin/ReportDashboard.jsx";
 import ReportPost from "./conpoments/Admin/ReportPost.jsx";
+import AllUserChat from "./conpoments/ChatBox/AllUserChat.jsx";
+import ChangePassword from "./pages/Auth/ChangePassword.jsx";
+import UserProfile from "./conpoments/Admin/UserProfile.jsx";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth, onlineUsers } = useAuthStore();
@@ -64,6 +67,14 @@ const App = () => {
             }
           />
           <Route
+            path="/change-password"
+            element={
+              <ProtectedRoute>
+                <ChangePassword />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/admin-dashboard"
             element={
               <ProtectedRoute>
@@ -79,6 +90,8 @@ const App = () => {
             <Route path="admin-message" element={<Chat />} />{" "}
             <Route path="admin-post/:id" element={<PostDetail />} />{" "}
             <Route path="admin-report-post" element={<ReportPost />} />{" "}
+            <Route path="admin-all-chat" element={<AllUserChat />} />{" "}
+            <Route path="profile/:userId" element={<UserProfile />} />
             {/* Các route khác có thể thêm ở đây */}
           </Route>
           {/* Các route khác */}

@@ -99,27 +99,24 @@ const PostShare = () => {
   }, [authUser]);
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-6 max-w-xl mx-auto p-6 bg-white rounded-lg shadow-md"
-    >
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-xl mx-auto">
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-gray-700">
-          Description
+          Mô tả
         </label>
         <textarea
           name="desc"
           value={formData.desc}
           onChange={handleChange}
           className="textarea textarea-bordered w-full p-3 rounded-md border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Enter description here..."
+          placeholder="Viết mô tả..."
           required
         />
       </div>
 
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-gray-700">
-          Contact
+          Liên lạc
         </label>
         <input
           type="text"
@@ -127,14 +124,14 @@ const PostShare = () => {
           value={formData.contact}
           onChange={handleChange}
           className="input input-bordered w-full p-3 rounded-md border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Your contact info"
+          placeholder="Số điện thoại"
           required
         />
       </div>
 
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-gray-700">
-          Location
+          Địa điểm
         </label>
         <select
           name="location"
@@ -143,7 +140,7 @@ const PostShare = () => {
           className="input input-bordered w-full p-3 rounded-md border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         >
-          <option value="">Select Province</option>
+          <option value="">Chọn địa điểm</option>
           {loadingProvinces ? (
             <option disabled>Loading provinces...</option>
           ) : (
@@ -158,7 +155,7 @@ const PostShare = () => {
 
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-gray-700">
-          Select Image
+          Chọn ảnh
         </label>
         <input
           type="file"
@@ -190,7 +187,7 @@ const PostShare = () => {
             className="checkbox checkbox-primary h-5 w-5 text-green-600 border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
           />
           <span className="ml-2 text-sm text-gray-700 font-medium">
-            Đã tim thấy / Nhặt được
+            Đã tìm thấy / Nhặt được
           </span>
         </div>
       </div>
@@ -202,7 +199,7 @@ const PostShare = () => {
         }`}
         disabled={isCreating}
       >
-        {isCreating ? "Creating..." : "Create Post"}
+        {isCreating ? "Đang tạo bài..." : "Đăng bài"}
       </button>
 
       {createPostSuccess && (

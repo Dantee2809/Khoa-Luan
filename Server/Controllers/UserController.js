@@ -167,6 +167,39 @@ export const fetchFollowingStatus = async (req, res) => {
       .json({ message: "Lỗi user đã xóa tài khoản hoặc không kết nối được." });
   }
 };
+
+export const changePassword = async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  const userId = req.user._id;
+
+  if (!oldPassword || !newPassword) {
+    return res.status(400).json({ message: "Vui lòng nhập đầy đủ thông tin" });
+  }
+
+  if (newPassword.length < 6) {
+    return res
+      .status(400)
+      .json({ message: "Mật khẩu mới phải có ít nhất 6 ký tự" });
+  }
+
+  try {
+    const user = await UserModel.findById(userId);
+    if (!user)
+      return res.status(404).json({ message: "Người dùng không tồn tại" });
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch)
+      return res.status(400).json({ message: "Mật khẩu cũ không chính xác" });
+
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Mật khẩu đã được thay đổi thành công" });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    res.status(500).json({ error: "Có lỗi xảy ra khi thay đổi mật khẩu" });
+  }
+};
 // Follow a User
 // export const followUser = async (req, res) => {
 //   const { currentUserId, followId } = req.body;

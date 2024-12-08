@@ -156,10 +156,13 @@ const Post = ({ data, currentUserId, authUserId }) => {
 
       {/* Nút tương tác */}
       <div className="postReact">
-        <img src={Comment} alt="comment" />
-        <img src={Share} alt="share" />
         {!isCurrentUserPost && (
           <>
+            {/*Nhắn tin */}
+            <button className="button fc-button" onClick="">
+              Nhắn Tin
+            </button>
+            {/*Nút theo dõi */}
             <button
               className={`button fc-button ${
                 isUserFollowing ? "unfollow" : "follow"
@@ -173,7 +176,6 @@ const Post = ({ data, currentUserId, authUserId }) => {
                 ? "Đã theo dõi"
                 : "Theo dõi"}
             </button>
-
             {/* Nút báo cáo bài viết */}
             <button
               className="report-btn button btn-danger"
@@ -193,12 +195,10 @@ const Post = ({ data, currentUserId, authUserId }) => {
         <br />
         <span>Mô tả: {data.desc || "Không có mô tả"}</span>
         <br />
-        <p>
-          Địa điểm:{" "}
-          {isLoading
-            ? "Đang tải địa điểm..."
-            : getProvinceNameById(data.location)}
-        </p>
+        Địa điểm:{" "}
+        {isLoading
+          ? "Đang tải địa điểm..."
+          : getProvinceNameById(data.location)}
         <br />
         <span>Ngày tạo: {formattedDate}</span>
         <br />

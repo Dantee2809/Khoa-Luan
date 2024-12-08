@@ -1,9 +1,11 @@
 import "./ProfileCard.css";
 import React, { useState } from "react";
+import { LogOut } from "lucide-react";
 import { Camera } from "lucide-react";
 import { useAuthStore } from "../../store/useAuthStore";
 import { Link } from "react-router-dom";
 const ProfileCard = () => {
+  const { logout } = useAuthStore();
   const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
   const [selectedImg, setSelectedImg] = useState(null);
   const handleImageUpload = async (e) => {
@@ -60,7 +62,9 @@ const ProfileCard = () => {
       </div>
       <div className="ProfileName">
         <span>{authUser?.username}</span>
-        <span>Intern Coder</span>
+        <span style={{ fontSize: "23px" }}>
+          {authUser.firstname} {authUser.lastname}
+        </span>
         {/* Hiển thị "Tôi là admin" nếu role là admin */}
         {authUser?.role === "admin" && (
           <p className="text-red-500 font-extrabold mt-2">Tôi là admin</p>
@@ -82,19 +86,25 @@ const ProfileCard = () => {
         </div>
         <hr />
       </div>
+      {/* Các liên kết khác */}
       <span>
         <div className="profile-menu">
           <ul>
-            {/* Các liên kết khác */}
-            <li>
-              <Link
-                to="/delete-account"
-                className="text-red-500 hover:underline"
-              >
-                Delete Account
-              </Link>
+            <li className="i-profile">
+              <Link to="/profile">Trang Cá Nhân</Link>
             </li>
           </ul>
+          <ul>
+            <button className="i-profile" onClick={logout}>
+              Đăng xuất
+            </button>
+          </ul>
+          <ul>
+            <li className="i-profile">
+              <Link to="/delete-account">Xóa tài khoản</Link>
+            </li>
+          </ul>
+          <Link to="/change-password">Đổi mật khẩu</Link>
         </div>
       </span>
     </div>

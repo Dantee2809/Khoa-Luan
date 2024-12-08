@@ -75,7 +75,6 @@ function Auth() {
         {/* Email */}
         <div>
           <input
-            type="email"
             className="infoInput"
             placeholder="you@example.com"
             value={formData.email}

@@ -13,13 +13,16 @@ import {
   provinces,
   reportPost,
   delete1UserPost,
+  getPostToProfile,
 } from "../Controllers/PostController.js";
 import { protectRoute } from "../middleware/auth_middleware.js";
+import authenticateToken from "../lib/auth.js";
 
 const router = express.Router();
 
 router.post("/posts", createPost); // Để tạo bài viết
 router.get("/posts/:id", getPost); // Để lấy một bài viết theo id
+router.get("/posts/user/:id", getPostToProfile); // Để lấy một bài viết theo id
 // router.get("/getFetch", fetchPosts); // Để lấy một bài viết theo id
 
 router.put("/posts/:id", updatePost); // Để cập nhật bài viết

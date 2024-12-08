@@ -296,3 +296,73 @@ textarea {
   box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
   background-color: #f9f9f9;
 }
+
+/* Style for the User Profile page */
+.user-profile-container {
+  max-width: 800px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.username {
+  font-size: 2em;
+  color: #333;
+  margin-top: 10px;
+}
+
+.profile-info {
+  margin-bottom: 30px;
+  font-size: 1.2em;
+  color: #666;
+}
+
+.profile-info p {
+  margin: 10px 0;
+}
+
+.block-section {
+  text-align: center;
+}
+
+.block-btn {
+  padding: 10px 20px;
+  font-size: 1.2em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.block-btn.block {
+  background-color: #f44336; /* Red for block */
+  color: white;
+}
+
+.block-btn.block:hover {
+  background-color: #d32f2f;
+}
+
+.block-btn.unblock {
+  background-color: #4caf50; /* Green for unblock */
+  color: white;
+}
+
+.block-btn.unblock:hover {
+  background-color: #388e3c;
+}

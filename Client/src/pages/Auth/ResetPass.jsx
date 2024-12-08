@@ -16,7 +16,7 @@ const ResetPass = () => {
       .then((response) => {
         if (response.data.status) {
           toast.success("Bạn đã đổi pass thành công!");
-          navigate("/sign-up");
+          navigate("/sign-in");
         } else {
           toast.error(response.data.message || "Có lỗi xảy ra!");
         }

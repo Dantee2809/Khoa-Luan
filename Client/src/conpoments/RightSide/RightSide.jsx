@@ -23,7 +23,7 @@ const RightSide = () => {
   };
 
   return (
-    <div className="RightSide bg-base-100 rounded-xl">
+    <div className="RightSide">
       {/* Navigation Icons */}
       <div className="navIcons">
         <Link to="/">
@@ -33,9 +33,9 @@ const RightSide = () => {
             className="w-8 h-8 hover:scale-110 transition-transform"
           />
         </Link>
-        <Link to="/">
+        {/* <Link to="/">
           <img src={Noti} alt="" />
-        </Link>
+        </Link> */}
         {/* Modal for Creating Posts */}
         <Link to="/chatbox">
           <img
@@ -49,7 +49,7 @@ const RightSide = () => {
       {/* Advertisement Card */}
       <AdvCard />
 
-      <div className="">
+      <div className="a-bottom">
         <button
           className="button r-button"
           onClick={() => setModalOpened(true)}

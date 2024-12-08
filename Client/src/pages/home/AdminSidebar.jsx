@@ -2,7 +2,7 @@ import React from "react";
 import { Link, Outlet } from "react-router-dom";
 import "./AdminSidebar.css";
 import { FaTachometerAlt, FaUsers, FaNewspaper, FaCogs } from "react-icons/fa";
-import { MessageCircleCode, Podcast } from "lucide-react";
+import { MessageCircleCode, MessageCircleMore, Podcast } from "lucide-react";
 import {
   MdLocalPostOffice,
   MdPostAdd,
@@ -15,17 +15,17 @@ const AdminSidebar = () => {
     {
       to: "/admin-dashboard/admin-post",
       icon: <MdPostAdd />,
-      label: "Bài viết",
+      label: "Quản lý Bài viết",
     },
     {
       to: "/admin-dashboard/admin-user",
       icon: <FaUsers />,
-      label: "Người dùng",
+      label: "Quản lý Người dùng",
     },
     {
       to: "/admin-dashboard/admin-adv",
       icon: <FaNewspaper />,
-      label: "Quảng cáo",
+      label: "Quản lý Quảng cáo",
     },
     {
       to: "/admin-dashboard/admin-report",
@@ -40,7 +40,12 @@ const AdminSidebar = () => {
     {
       to: "/admin-dashboard/admin-report-post",
       icon: <MdReportProblem />,
-      label: "Báo cáo",
+      label: "Quản lý Báo cáo",
+    },
+    {
+      to: "/admin-dashboard/admin-all-chat",
+      icon: <MessageCircleMore />,
+      label: "Quản lý tin nhắn",
     },
   ];
 

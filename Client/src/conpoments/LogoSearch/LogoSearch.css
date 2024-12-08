@@ -1,21 +1,25 @@
 .LogoSearch {
   margin-top: 1rem;
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 .LogoSearch > img {
   width: 4rem;
   height: 4rem;
-  margin-right: 3px; /* Khoảng cách giữa logo và input */
+  margin-right: 2px; /* Khoảng cách giữa logo và input */
 }
 .Search {
+  margin-top: 0.75rem;
   display: flex;
   background-color: var(--inputColor);
   border-radius: 10px;
+  width: 15rem;
+  height: 2.5rem;
 }
 .search-input {
-  padding-left: 8px; /* Khoảng cách từ bên trái của input */
-  padding-right: 8px;
+  align-items: center;
+  padding-left: 5px; /* Khoảng cách từ bên trái của input */
+  padding-right: 5px;
 }
 .Search > input {
   background-color: transparent;
@@ -28,8 +32,10 @@
   justify-content: center;
   background: orange;
   border-radius: 5px;
-  padding: 4px;
+  padding: 5px;
   color: white;
+  width: 2rem;
+  height: 2.5rem;
 }
 .S-icon:hover {
   cursor: pointer;
