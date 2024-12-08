@@ -34,13 +34,14 @@ function Auth() {
   const { signup, isSigningUp, registerError } = useAuthStore();
 
   const validateForm = () => {
-    if (!formData.username.trim()) return toast.error("Full name is required");
-    if (!formData.email.trim()) return toast.error("Email is required");
+    if (!formData.username.trim())
+      return toast.error("Full name không được để trống");
+    if (!formData.email.trim()) return toast.error("Email không được để trống");
     if (!/\S+@\S+\.\S+/.test(formData.email))
-      return toast.error("Invalid email format");
-    if (!formData.password) return toast.error("Password is required");
+      return toast.error("Email không đúng định dạng");
+    if (!formData.password) return toast.error("Mật khẩu không được để trống");
     if (formData.password.length < 6)
-      return toast.error("Password must be at least 6 characters");
+      return toast.error("Password nên có 6 kí tự ");
 
     return true;
   };
@@ -130,17 +131,10 @@ function Auth() {
           </button>
         </div>
 
-        {/* Error message */}
-        {registerError && (
-          <div className="text-sm text-red-500">
-            <p>{registerError}</p>
-          </div>
-        )}
-
         {/* Submit button */}
         <button
           type="submit"
-          className="btn btn-primary w-full"
+          className="button infoButton"
           disabled={isSigningUp}
         >
           {isSigningUp ? (
@@ -149,16 +143,20 @@ function Auth() {
               Loading...
             </>
           ) : (
-            "Create Account"
+            "Tạo Tài Khoản"
           )}
         </button>
 
         {/* Link to Sign In */}
         <div className="text-center">
-          <p className="text-base-content/60">
-            Already have an account?{" "}
-            <Link to="/sign-in" className="link link-primary">
-              Sign in
+          <p className="text-base-content/60" style={{ fontSize: "15px" }}>
+            Đã có tài khoản?{" "}
+            <Link
+              to="/sign-in"
+              className="link link-primary "
+              style={{ color: "blue" }}
+            >
+              Đăng Nhập
             </Link>
           </p>
         </div>

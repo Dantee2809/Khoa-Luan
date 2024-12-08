@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { TfiEmail } from "react-icons/tfi";
 import { useNavigate, useParams } from "react-router-dom";
 import { axiosInstance } from "../../lib/axios";
+import "./Auth.css";
 
 const ResetPass = () => {
   const [password, setPassword] = useState("");

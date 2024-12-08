@@ -22,19 +22,21 @@ export const useAuthStore = create((set, get) => ({
   onlineUsers: [],
   socket: null,
   users: [], // Danh sách tất cả người dùng
+  user: null, // Thông tin người dùng
+  setUser: (user) => set({ user }),
 
-  fetchUsers: async () => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await axiosInstance.get("/admin/getUsers");
-      console.log("Fetched Users from API:", response.data); // Kiểm tra dữ liệu trả về từ API
-      set({ users: response.data || [], isLoading: false }); // Đảm bảo `users` luôn là một mảng
-      console.log("Users updated in Zustand store:", get().users); // Kiểm tra Zustand store
-    } catch (error) {
-      console.error("Error fetching users:", error.message);
-      set({ error: "Failed to fetch users", isLoading: false });
-    }
-  },
+  // fetchUsers: async () => {
+  //   set({ isLoading: true, error: null });
+  //   try {
+  //     const response = await axiosInstance.get("/admin/getUsers");
+  //     console.log("Fetched Users from API:", response.data); // Kiểm tra dữ liệu trả về từ API
+  //     set({ users: response.data || [], isLoading: false }); // Đảm bảo `users` luôn là một mảng
+  //     console.log("Users updated in Zustand store:", get().users); // Kiểm tra Zustand store
+  //   } catch (error) {
+  //     console.error("Error fetching users:", error.message);
+  //     set({ error: "Failed to fetch users", isLoading: false });
+  //   }
+  // },
 
   toggleBlockUser: async (userId) => {
     try {

@@ -19,11 +19,22 @@ export const usePostStore = create((set, get) => ({
       set((state) => ({
         posts: [response.data, ...state.posts], // Thêm bài viết mới vào danh sách
       }));
-      toast.success("Bài viết đã được đăng thành công !");
+      toast.success(response.data.message); // Hiển thị thông báo thành công từ backend
       set({ isCreating: false });
       return true; // Thành công
     } catch (error) {
+      // Log lỗi ra console để xem chi tiết
       console.error("Error creating post:", error);
+
+      // Nếu có phản hồi từ backend
+      if (error.response) {
+        const errorMessage =
+          error.response?.data?.message || "Đã có lỗi xảy ra";
+        toast.error(errorMessage); // Hiển thị thông báo lỗi từ backend
+      } else {
+        toast.error("Không thể kết nối với server"); // Trường hợp không thể kết nối
+      }
+
       set({ isCreating: false });
       return false; // Thất bại
     }

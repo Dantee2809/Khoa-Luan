@@ -1,7 +1,6 @@
 import "./ProfileCard.css";
 import React, { useState } from "react";
 import { Camera } from "lucide-react";
-import Cover from "../../img/cover.jpg";
 import { useAuthStore } from "../../store/useAuthStore";
 import { Link } from "react-router-dom";
 const ProfileCard = () => {
@@ -24,8 +23,7 @@ const ProfileCard = () => {
   return (
     <div className="ProfileCard">
       <div className="ProfileImg">
-        <img src={Cover} alt="" />
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-4 p-4">
           <div className="relative">
             <img
               src={selectedImg || authUser.profilePic || "avatar.jpg"}

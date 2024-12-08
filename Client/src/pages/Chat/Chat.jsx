@@ -1,42 +1,28 @@
 import { useChatStore } from "../../store/useChatStore";
-import Sidebar from "../../conpoments/ChatBox/Sidebar";
-import NoChatSelected from "../../conpoments/ChatBox/NoChatSelected";
-import ChatContainer from "../../conpoments/ChatBox/ChatContainer";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useAuthStore } from "../../store/useAuthStore";
+import { useNavigate } from "react-router-dom";
+import Sidebar from "../../conpoments/ChatBox/Sidebar.jsx";
+import NoChatSelected from "../../conpoments/ChatBox/NoChatSelected.jsx";
+import ChatContainer from "../../conpoments/ChatBox/ChatContainer.jsx";
 
 const Chat = () => {
-  const { selectedUser } = useChatStore(); // Giả sử useChatStore có action setSelectedUser
-  const location = useLocation(); // Lấy location để truy cập dữ liệu đã được truyền qua
+  const { selectedUser } = useChatStore();
+  const { onlineUsers } = useAuthStore();
   const navigate = useNavigate();
 
-  // Dữ liệu từ location.state mà bạn đã truyền qua
-  const { message, sender, userId } = location.state || {};
-
-  // Khi vào trang chatbox, bạn có thể lưu thông tin người gửi
-  useEffect(() => {
-    if (userId && sender) {
-      selectedUser({ sender, userId, initialMessage: message });
-    }
-  }, [userId, sender, message, selectedUser]);
-
   const handleReturn = () => {
-    navigate("/"); // Điều hướng về trang chủ
+    navigate("/"); // Navigate back to home or previous page
   };
-  return (
-    <div className="h-screen bg-base-200">
-      <div className="flex items-center justify-center pt-20 px-4">
-        <div className="p-4 flex items-center bg-base-300">
-          <button onClick={handleReturn} className="btn btn-secondary">
-            Return to Home
-          </button>
-        </div>
-        <div className="bg-base-100 rounded-lg shadow-cl w-full max-w-6xl h-[calc(100vh-8rem)]">
-          <div className="flex h-full rounded-lg overflow-hidden">
-            <Sidebar />
 
-            {!selectedUser ? <NoChatSelected /> : <ChatContainer />}
-          </div>
+  return (
+    <div className="w-full h-screen flex items-center justify-center bg-base-300">
+      <div className="bg-base-100 rounded-lg shadow-lg w-[90%] h-[90%]">
+        <div className="flex h-full rounded-lg overflow-hidden">
+          {/* Sidebar with Return Button inside */}
+          <Sidebar includeReturnButton />
+
+          {/* Chat Container or No Chat Selected */}
+          {!selectedUser ? <NoChatSelected /> : <ChatContainer />}
         </div>
       </div>
     </div>

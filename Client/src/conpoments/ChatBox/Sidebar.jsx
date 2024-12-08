@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { Users } from "lucide-react";
+import { MessageCircle, Users } from "lucide-react";
 import SidebarSkeleton from "../Skeletons/SidebarSkeleton";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useChatStore } from "../../store/useChatStore";
+import { useNavigate } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa"; // Import icon mũi tên từ react-icons
 
-const Sidebar = () => {
+const Sidebar = ({ includeReturnButton }) => {
   const {
     getContacts,
     contacts,
@@ -13,18 +15,33 @@ const Sidebar = () => {
     setSelectedUser,
   } = useChatStore();
   const { onlineUsers } = useAuthStore();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
+  const navigate = useNavigate();
+  const filteredUsers = contacts.filter((user) =>
+    user.username.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
+  const handleReturn = () => {
+    navigate("/"); // Quay về trang chủ
+  };
   // Lấy danh sách contacts từ server
   useEffect(() => {
     getContacts();
   }, [getContacts]);
 
   // Lọc users dựa trên trạng thái online/offline
-  const filteredContacts = showOnlineOnly
-    ? contacts.filter((contact) => onlineUsers.includes(contact._id))
-    : contacts;
+  // const filteredContacts = showOnlineOnly
+  //   ? contacts.filter((contact) => onlineUsers.includes(contact._id))
+  //   : contacts;
+  const filteredContacts = contacts
+    .filter((contact) =>
+      contact.username.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .filter((contact) =>
+      showOnlineOnly ? onlineUsers.includes(contact._id) : true
+    );
 
   // Hiển thị skeleton khi đang tải dữ liệu
   if (isContactsLoading) return <SidebarSkeleton />;
@@ -32,14 +49,29 @@ const Sidebar = () => {
   return (
     <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
       {/* Header */}
+      {includeReturnButton && (
+        <button onClick={handleReturn} className="btn text-black">
+          <FaArrowLeft size={20} />
+          Trở về
+        </button>
+      )}
+
       <div className="border-b border-base-300 w-full p-5">
         <div className="flex items-center gap-2">
-          <Users className="size-6" />
-          <span className="font-medium hidden lg:block">Contacts</span>
+          <MessageCircle className="size-6" />
+          <span className="font-medium hidden lg:block">Tin nhắn</span>
         </div>
+        {/* Input tìm kiếm người dùng */}
+        <input
+          type="text"
+          placeholder="Nhập tên người dùng để tìm kiếm..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="border-gray-500 rounded-lg p-2 w-full max-w-xs"
+        />
 
         {/* Tùy chọn lọc online */}
-        <div className="mt-3 hidden lg:flex items-center gap-2">
+        {/* <div className="mt-3 hidden lg:flex items-center gap-2">
           <label className="cursor-pointer flex items-center gap-2">
             <input
               type="checkbox"
@@ -50,9 +82,9 @@ const Sidebar = () => {
             <span className="text-sm">Show online only</span>
           </label>
           <span className="text-xs text-zinc-500">
-            ({Math.max(onlineUsers.length - 1, 0)} online)
+            ({onlineUsers.length - 1} online)
           </span>
-        </div>
+        </div> */}
       </div>
 
       {/* Danh sách contacts */}

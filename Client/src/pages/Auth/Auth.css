@@ -14,9 +14,13 @@
 }
 
 /* left side */
+.a-left {
+  gap: 2rem;
+}
+
 .a-left > img {
-  width: 15rem;
-  height: 15rem;
+  width: 4rem;
+  height: 4rem;
 }
 
 .Webname > h1 {
@@ -42,35 +46,7 @@
   font-size: 0.85rem;
 }
 
-.infoForm {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 2rem;
-}
-
-.infoInput {
-  border: none;
-  outline: none;
-  background-color: var(--inputColor);
-  border-radius: 8px;
-  padding: 20px;
-  flex: 1;
-}
-
-.infoForm > div {
-  display: flex;
-  gap: 1rem;
-  height: 2rem;
-  width: 90%;
-}
-
-.infoButton {
-  width: 6rem;
-  height: 2rem;
-  align-self: flex-end;
-}
+/* right side */
 
 .authForm {
   background-color: var(--cardColor);
@@ -82,4 +58,13 @@
   width: 100%;
   align-items: center;
   justify-content: center;
+}
+.infoButton {
+  font-size: 12px;
+}
+.authForm > h3 {
+  font-size: 20px;
+}
+.infoButton {
+  width: 100%;
 }

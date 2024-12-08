@@ -77,24 +77,43 @@ function Login({ isAdminLogin }) {
             }
           />
         </div>
+        <button
+          type="submit"
+          className="button infoButton"
+          disabled={isLoggingIn}
+        >
+          {isLoggingIn ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" />
+              Đang xử lý...
+            </>
+          ) : (
+            "Đăng nhập"
+          )}
+        </button>
         <div>
-          <span style={{ fontSize: "12px" }}>
-            <Link to="/sign-up">Không có tài khoản? Đăng ký!</Link>
-          </span>
-          <button
-            type="submit"
-            className="button infoButton"
-            disabled={isLoggingIn}
-          >
-            {isLoggingIn ? (
-              <>
-                <Loader2 className="h-5 w-5 animate-spin" />
-                Đang xử lý...
-              </>
-            ) : (
-              "Đăng nhập"
-            )}
-          </button>
+          <p className="text-base-content/60" style={{ fontSize: "12px" }}>
+            Chưa có tài khoản?{" "}
+            <Link
+              to="/sign-up"
+              className="link link-primary "
+              style={{ color: "blue" }}
+            >
+              Đăng Ký
+            </Link>
+          </p>
+        </div>
+        <div>
+          <p className="text-base-content/60" style={{ fontSize: "12px" }}>
+            {" "}
+            <Link
+              to="/forget-password"
+              className="link link-primary "
+              style={{ color: "blue" }}
+            >
+              Quên mật khẩu?
+            </Link>
+          </p>
         </div>
       </form>
     </div>

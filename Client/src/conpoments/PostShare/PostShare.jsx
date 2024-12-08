@@ -99,40 +99,53 @@ const PostShare = () => {
   }, [authUser]);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium">Description</label>
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 max-w-xl mx-auto p-6 bg-white rounded-lg shadow-md"
+    >
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-gray-700">
+          Description
+        </label>
         <textarea
           name="desc"
           value={formData.desc}
           onChange={handleChange}
-          className="textarea textarea-bordered w-full"
+          className="textarea textarea-bordered w-full p-3 rounded-md border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Enter description here..."
           required
         />
       </div>
-      <div>
-        <label className="block text-sm font-medium">Contact</label>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-gray-700">
+          Contact
+        </label>
         <input
           type="text"
           name="contact"
           value={formData.contact}
           onChange={handleChange}
-          className="input input-bordered w-full"
+          className="input input-bordered w-full p-3 rounded-md border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Your contact info"
           required
         />
       </div>
-      <div>
-        <label className="block text-sm font-medium">Location</label>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-gray-700">
+          Location
+        </label>
         <select
           name="location"
           value={formData.location}
           onChange={handleLocationChange}
-          className="input input-bordered w-full"
+          className="input input-bordered w-full p-3 rounded-md border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         >
-          <option value="">Chọn tỉnh thành</option>
+          <option value="">Select Province</option>
           {loadingProvinces ? (
-            <option disabled>Đang tải tỉnh thành...</option>
+            <option disabled>Loading provinces...</option>
           ) : (
             provinces.map((province) => (
               <option key={province.id} value={province.id}>
@@ -142,55 +155,63 @@ const PostShare = () => {
           )}
         </select>
       </div>
-      <div>
-        <label className="block text-sm font-medium">Select Image</label>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-gray-700">
+          Select Image
+        </label>
         <input
           type="file"
           name="image"
           accept="image/*"
           onChange={handleImageChange}
-          className="input input-bordered w-full"
+          className="input input-bordered w-full p-3 rounded-md border-gray-300 shadow-sm focus:outline-none"
         />
       </div>
-      <div className="flex space-x-4">
-        <div>
-          <label className="inline-flex items-center">
-            <input
-              type="checkbox"
-              name="isLost"
-              checked={formData.isLost}
-              onChange={handleCheckboxChange}
-              className="checkbox"
-            />
-            <span className="ml-2">Lost Item</span>
-          </label>
+
+      <div className="space-x-6 flex items-center justify-between">
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            name="isLost"
+            checked={formData.isLost}
+            onChange={handleCheckboxChange}
+            className="checkbox checkbox-primary h-5 w-5 text-blue-600 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+          />
+          <span className="ml-2 text-sm text-gray-700 font-medium">Mất Đồ</span>
         </div>
-        <div>
-          <label className="inline-flex items-center">
-            <input
-              type="checkbox"
-              name="isFound"
-              checked={formData.isFound}
-              onChange={handleCheckboxChange}
-              className="checkbox"
-            />
-            <span className="ml-2">Found Item</span>
-          </label>
+
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            name="isFound"
+            checked={formData.isFound}
+            onChange={handleCheckboxChange}
+            className="checkbox checkbox-primary h-5 w-5 text-green-600 border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
+          />
+          <span className="ml-2 text-sm text-gray-700 font-medium">
+            Đã tim thấy / Nhặt được
+          </span>
         </div>
       </div>
+
       <button
         type="submit"
-        className={`btn ${isCreating ? "btn-disabled loading" : "btn-primary"}`}
+        className={`btn w-full p-3 rounded-md bg-blue-200 ${
+          isCreating ? "btn-disabled loading" : "btn-primary hover:bg-blue-600"
+        }`}
         disabled={isCreating}
       >
         {isCreating ? "Creating..." : "Create Post"}
       </button>
 
       {createPostSuccess && (
-        <p style={{ color: "green" }}>Post created successfully!</p>
+        <p className="text-green-600 mt-4 text-sm">
+          Post created successfully!
+        </p>
       )}
       {createPostError && (
-        <p style={{ color: "red" }}>Error: {createPostError}</p>
+        <p className="text-red-600 mt-4 text-sm">Error: {createPostError}</p>
       )}
     </form>
   );

@@ -1,17 +1,11 @@
 .ProfileCard {
-  border-radius: 1.5rem;
+  border-radius: 0.5rem;
   display: flex;
   flex-direction: column;
   position: relative;
   gap: 1rem;
+  overflow-x: auto;
   background: var(--cardColor);
-  height: 100vh;
-  overflow-y: auto; /* Chỉ hiện thanh cuộn dọc khi cần thiết */
-  -ms-overflow-style: none; /* Ẩn thanh cuộn trên Internet Explorer */
-  scrollbar-width: none; /* Ẩn thanh cuộn trên Firefox */
-}
-.ProfileCard::-webkit-scrollbar {
-  display: none;
 }
 .ProfileImg {
   position: relative;

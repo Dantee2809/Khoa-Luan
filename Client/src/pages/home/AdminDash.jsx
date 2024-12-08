@@ -1,12 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { usePostStore } from "../../store/usePostStore";
 import { useDeletestore } from "../../store/useDeletestore";
-import { FaTrashAlt, FaCheck, FaTimes } from "react-icons/fa"; // Thêm icon
+import { FaTrashAlt, FaCheck, FaTimes } from "react-icons/fa";
 
 const AdminDash = () => {
-  const { posts, fetchPosts, toggleApproval, isLoading, error } =
+  const { posts, fetchPosts, toggleApproval, isLoading, error, setPosts } =
     usePostStore();
   const { deletePost } = useDeletestore();
+  const [loadingButtons, setLoadingButtons] = useState({}); // Trạng thái loading cho từng bài viết
 
   // Lấy danh sách bài viết khi component được render
   useEffect(() => {
@@ -14,10 +15,38 @@ const AdminDash = () => {
   }, [fetchPosts]);
 
   // Xử lý xóa bài viết và làm mới danh sách
+  // Xử lý xóa bài viết và làm mới danh sách
   const handleDelete = async (postId) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa bài viết này?")) {
-      await deletePost(postId); // Xóa bài viết
-      fetchPosts(); // Làm mới danh sách bài viết sau khi xóa
+      try {
+        setLoadingButtons((prev) => ({ ...prev, [postId]: true })); // Hiển thị trạng thái chờ
+        await deletePost(postId); // Xóa bài viết
+        fetchPosts(); // Làm mới danh sách bài viết sau khi xóa
+      } catch (error) {
+        console.error("Lỗi khi xóa bài viết:", error);
+      } finally {
+        setLoadingButtons((prev) => ({ ...prev, [postId]: false })); // Kết thúc trạng thái chờ
+      }
+    }
+  };
+
+  // Xử lý toggle trạng thái bài viết
+  const handleToggleApproval = async (postId, currentStatus) => {
+    try {
+      setLoadingButtons((prev) => ({ ...prev, [postId]: true })); // Hiển thị trạng thái chờ
+      await toggleApproval(postId, currentStatus); // Gọi API cập nhật trạng thái
+
+      // Cập nhật trạng thái bài viết trong store mà không cần fetch lại toàn bộ danh sách
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post._id === postId ? { ...post, isApproved: !currentStatus } : post
+        )
+      );
+    } catch (error) {
+      console.error("Lỗi khi cập nhật trạng thái:", error);
+      alert("Cập nhật trạng thái thành công.");
+    } finally {
+      setLoadingButtons((prev) => ({ ...prev, [postId]: false })); // Kết thúc trạng thái chờ
     }
   };
 
@@ -37,7 +66,6 @@ const AdminDash = () => {
 
   return (
     <div className="container mx-auto p-4">
-      {/* Nút load lại danh sách */}
       <div className="mb-4 flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Quản lý bài đăng</h2>
         <button
@@ -56,31 +84,27 @@ const AdminDash = () => {
         >
           <thead className="bg-gray-200">
             <tr>
-              <th className="px-4 py-2 text-left min-w-[50px]">#</th>
-              <th className="px-4 py-2 text-left min-w-[150px]">Tiêu đề</th>
-              <th className="px-4 py-2 text-left min-w-[150px]">Loại</th>
-              <th className="px-4 py-2 text-left min-w-[120px]">Trạng thái</th>
-              <th className="px-4 py-2 text-left min-w-[150px]">
-                Số lượng báo cáo
-              </th>{" "}
-              {/* Thêm cột này */}
-              <th className="px-4 py-2 text-left min-w-[100px]">Quản lý</th>
-              <th className="px-4 py-2 text-left min-w-[100px]">Xóa</th>
+              <th>#</th>
+              <th>Tiêu đề</th>
+              <th>Loại</th>
+              <th>Trạng thái</th>
+              <th>Quản lý</th>
+              <th>Xóa</th>
             </tr>
           </thead>
           <tbody>
             {posts.map((post, index) => (
               <tr key={post._id} className="hover:bg-gray-100">
-                <td className="px-4 py-2">{index + 1}</td>
-                <td className="px-4 py-2 truncate">{post.desc}</td>
-                <td className="px-4 py-2">
+                <td>{index + 1}</td>
+                <td className="truncate">{post.desc}</td>
+                <td>
                   {post.isLost
                     ? "Đồ bị mất"
                     : post.isFound
                     ? "Đã tìm được đồ"
                     : "Chưa xác định"}
                 </td>
-                <td className="px-4 py-2">
+                <td>
                   <span
                     className={`inline-block px-2 py-1 rounded-full text-sm font-semibold ${
                       post.isApproved
@@ -91,24 +115,40 @@ const AdminDash = () => {
                     {post.isApproved ? "Đã chặn" : "Đang được đăng"}
                   </span>
                 </td>
-                <td className="px-4 py-2">{post.reportsCount || 0}</td>{" "}
-                {/* Hiển thị số lượng báo cáo */}
-                <td className="px-4 py-2">
+                <td>
                   <button
-                    onClick={() => toggleApproval(post._id, post.isApproved)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleApproval(post._id, post.isApproved);
+                    }}
                     className={`btn btn-sm ${
-                      post.isApproved ? "btn-danger" : "btn-success"
+                      loadingButtons[post._id]
+                        ? "btn-disabled"
+                        : post.isApproved
+                        ? "btn-danger"
+                        : "btn-success"
                     }`}
+                    disabled={loadingButtons[post._id]}
                   >
-                    {post.isApproved ? <FaTimes /> : <FaCheck />}
+                    {loadingButtons[post._id] ? (
+                      "..."
+                    ) : post.isApproved ? (
+                      <FaTimes />
+                    ) : (
+                      <FaCheck />
+                    )}
                   </button>
                 </td>
-                <td className="px-4 py-2">
+                <td>
                   <button
-                    onClick={() => handleDelete(post._id)}
-                    className="btn btn-sm btn-error text-white"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(post._id);
+                    }}
+                    className="btn btn-sm btn-error text-red-950"
+                    disabled={loadingButtons[post._id]}
                   >
-                    <FaTrashAlt />
+                    {loadingButtons[post._id] ? "..." : <FaTrashAlt />}
                   </button>
                 </td>
               </tr>

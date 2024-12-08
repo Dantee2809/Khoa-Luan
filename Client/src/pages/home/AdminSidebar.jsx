@@ -1,35 +1,76 @@
 import React from "react";
-import { Link, Outlet } from "react-router-dom"; // Để tạo các liên kết điều hướng
+import { Link, Outlet } from "react-router-dom";
+import "./AdminSidebar.css";
+import { FaTachometerAlt, FaUsers, FaNewspaper, FaCogs } from "react-icons/fa";
+import { MessageCircleCode, Podcast } from "lucide-react";
+import {
+  MdLocalPostOffice,
+  MdPostAdd,
+  MdReport,
+  MdReportProblem,
+} from "react-icons/md";
 
 const AdminSidebar = () => {
+  const sidebarItems = [
+    {
+      to: "/admin-dashboard/admin-post",
+      icon: <MdPostAdd />,
+      label: "Bài viết",
+    },
+    {
+      to: "/admin-dashboard/admin-user",
+      icon: <FaUsers />,
+      label: "Người dùng",
+    },
+    {
+      to: "/admin-dashboard/admin-adv",
+      icon: <FaNewspaper />,
+      label: "Quảng cáo",
+    },
+    {
+      to: "/admin-dashboard/admin-report",
+      icon: <FaCogs />,
+      label: "Thống kê",
+    },
+    {
+      to: "/admin-dashboard/admin-message",
+      icon: <MessageCircleCode />,
+      label: "Tin nhắn",
+    },
+    {
+      to: "/admin-dashboard/admin-report-post",
+      icon: <MdReportProblem />,
+      label: "Báo cáo",
+    },
+  ];
+
   return (
-    <div className="admin-sidebar">
-      <div className="sidebar-header">
-        <h2>Admin Dashboard</h2>
+    <div className="admin-layout">
+      {/* Sidebar bên cạnh */}
+      <div className="admin-sidebar">
+        <div className="sidebar-header">
+          <span>Admin Dashboard</span>
+        </div>
+        <ul className="sidebar-nav">
+          {sidebarItems.map((item) => (
+            <li key={item.to} className="sidebar-item">
+              <Link to={item.to} className="sidebar-link">
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <span style={{ fontSize: "1.5rem", marginRight: "10px" }}>
+                    {item.icon}
+                  </span>
+                  <span style={{ marginLeft: "10px" }}>{item.label}</span>
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
-      <ul className="sidebar-nav">
-        <li className="sidebar-item">
-          <Link to="/admin-dashboard/admin-post" className="sidebar-link">
-            <i className="fas fa-tachometer-alt"></i> Dashboard
-          </Link>
-        </li>
-        <li className="sidebar-item">
-          <Link to="/admin-dashboard/admin-user" className="sidebar-link">
-            <i className="fas fa-users"></i> Users
-          </Link>
-        </li>
-        <li className="sidebar-item">
-          <Link to="/admin-dashboard/admin-adv" className="sidebar-link">
-            <i className="fas fa-newspaper"></i> Adv
-          </Link>
-        </li>
-        <li className="sidebar-item">
-          <Link to="/admin/settings" className="sidebar-link">
-            <i className="fas fa-cogs"></i> Settings
-          </Link>
-        </li>
+
+      {/* Nội dung chính */}
+      <div className="admin-content">
         <Outlet />
-      </ul>
+      </div>
     </div>
   );
 };

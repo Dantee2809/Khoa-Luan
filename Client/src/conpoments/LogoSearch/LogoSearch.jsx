@@ -15,7 +15,7 @@ const LogoSearch = () => {
   };
 
   return (
-    <div className="LogoSearch">
+    <div className="LogoSearch bg-base-100 rounded-xl">
       <img src={logo} alt="" />
       <div className="Search">
         <input

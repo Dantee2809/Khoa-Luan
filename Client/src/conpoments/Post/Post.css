@@ -1,3 +1,43 @@
+.share-btn {
+  margin-top: 10px;
+  background-color: #1877f2; /* Màu xanh của Facebook */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.share-btn:hover {
+  background-color: #145db2;
+}
+
+.post-container {
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.delete-btn {
+  margin-left: 750px;
+}
+/* .post-container:last-child {
+  margin-bottom: 0;
+} */
+.fc-button {
+  height: 2rem;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+.btn-danger {
+  height: 2rem;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
 .Post {
   display: flex;
   flex-direction: column;
@@ -14,7 +54,13 @@
   height: auto; /* Chiều cao tự động để giữ tỷ lệ */
   object-fit: contain; /* Đảm bảo hình ảnh không bị cắt */
 }
-
+.post-image {
+  width: 100%;
+  max-height: 20rem;
+  border-radius: 0.5rem;
+  height: auto; /* Chiều cao tự động để giữ tỷ lệ */
+  object-fit: contain; /* Đảm bảo hình ảnh không bị cắt */
+}
 .postReact {
   display: flex;
   align-items: flex-start;
@@ -33,22 +79,4 @@
 
 .share-btn:hover {
   background-color: #145db2;
-}
-
-/* .post-container {
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
-  background-color: #f9f9f9;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.post-container:last-child {
-  margin-bottom: 0;
-} */
-.fc-button {
-  height: 2rem;
-  padding-left: 20px;
-  padding-right: 20px;
 }

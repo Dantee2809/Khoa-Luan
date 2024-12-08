@@ -47,18 +47,6 @@ const AdvControl = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  // Thêm bài viết
-  const handleAddPost = async (e) => {
-    e.preventDefault();
-    try {
-      await axiosInstance.post("/adv", formData);
-      resetFormData();
-      alert("Đã thêm bài viết mới.");
-    } catch (error) {
-      console.error("Error adding post:", error);
-    }
-  };
-
   // Chỉnh sửa bài viết
   const handleEditPost = (adv) => {
     setEditingAd(adv);
@@ -91,47 +79,52 @@ const AdvControl = () => {
   };
 
   return (
-    <div className="admin-dashboard">
-      <h2>Admin Dashboard - Quản lý Quảng Cáo</h2>
-
-      {/* Form thêm hoặc chỉnh sửa bài viết */}
-      <div className="form-container">
-        {editingAd ? <h3>Chỉnh sửa quảng cáo</h3> : <h3>Thêm quảng cáo</h3>}
-        <form onSubmit={editingAd ? handleSaveEdit : handleAddPost}>
-          <label htmlFor="ND">Nội dung:</label>
-          <textarea
-            name="ND"
-            value={formData.ND}
-            onChange={handleChange}
-            placeholder="Nhập nội dung"
-            disabled={!editingAd} // Disable khi không chỉnh sửa
-          />
-          <label htmlFor="img">Link hình ảnh:</label>
-          <input
-            name="img"
-            value={formData.img}
-            onChange={handleChange}
-            placeholder="Nhập link hình ảnh"
-            disabled={!editingAd} // Disable khi không chỉnh sửa
-          />
-          <button type="submit">{editingAd ? "Lưu" : "Thêm"}</button>
-        </form>
-      </div>
-
+    <div className="dashboard-container">
       {/* Danh sách quảng cáo */}
-      <div className="ads-container">
+      <div className="ads-section">
         {ads.map((adv) => (
           <div key={adv._id} className="ad-card">
+            <button
+              className="btn btn-unblock"
+              onClick={() => handleEditPost(adv)}
+            >
+              Chỉnh sửa
+            </button>
             <div className="ad-card-image">
               <img src={adv.img} alt="Ad" />
             </div>
             <div className="ad-card-content">
               <p>{adv.ND}</p>
-              <button onClick={() => handleEditPost(adv)}>Chỉnh sửa</button>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Form chỉnh sửa (chỉ hiển thị khi có quảng cáo để chỉnh sửa) */}
+      {editingAd && (
+        <div className="form-section">
+          <h3>Chỉnh sửa quảng cáo</h3>
+          <form onSubmit={handleSaveEdit}>
+            <label htmlFor="ND">Nội dung:</label>
+            <textarea
+              name="ND"
+              value={formData.ND}
+              onChange={handleChange}
+              placeholder="Nhập nội dung"
+            />
+            <label htmlFor="img">Link hình ảnh:</label>
+            <input
+              name="img"
+              value={formData.img}
+              onChange={handleChange}
+              placeholder="Nhập link hình ảnh"
+            />
+            <button className="btn btn-block" type="submit">
+              Lưu
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 };

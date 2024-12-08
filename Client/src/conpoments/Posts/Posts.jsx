@@ -29,17 +29,12 @@ const Posts = () => {
 
   return (
     <div className="Posts">
-      <h4 className="text-3xl text-black">Các bài đăng được phê duyệt</h4>
-
       {/* Hiển thị Loader khi đang tải */}
       {isLoading && (
         <div className="flex items-center justify-center my-8">
           <Loader />
         </div>
       )}
-
-      {/* Hiển thị lỗi nếu có */}
-      {error && <p className="text-red-500">{error}</p>}
 
       {/* Hiển thị danh sách bài đăng đã phê duyệt */}
       <div>

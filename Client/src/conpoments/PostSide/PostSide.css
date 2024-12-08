@@ -18,3 +18,46 @@
 .SearchResults::-webkit-scrollbar {
   display: none;
 }
+/* Tiêu đề */
+.SearchResults h1 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333333;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 0.5rem;
+}
+
+/* Danh sách kết quả */
+.SearchResults .Post {
+  margin-bottom: 1.5rem;
+}
+
+/* Khi không có kết quả */
+.SearchResults p {
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #888888;
+  background-color: #f8f8f8;
+  padding: 1rem;
+  border-radius: 5px;
+  border: 1px solid #e0e0e0;
+  margin-top: 2rem;
+}
+
+/* Đáp ứng cho màn hình nhỏ */
+@media (max-width: 768px) {
+  .SearchResults {
+    padding: 1rem;
+  }
+
+  .SearchResults h1 {
+    font-size: 1.5rem;
+  }
+
+  .SearchResults p {
+    font-size: 1rem;
+  }
+}
