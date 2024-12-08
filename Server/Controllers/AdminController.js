@@ -80,14 +80,16 @@ export const loginAdmin = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
   try {
-    let users = await UserModel.find();
+    // Tìm tất cả người dùng không phải admin
+    let users = await UserModel.find({ role: "user" });
+    // Loại bỏ trường `password` khỏi kết quả trả về
     users = users.map((user) => {
       const { password, ...otherDetails } = user._doc;
       return otherDetails;
     });
-    res.status(200).json(users);
+    res.status(200).json(users); // Trả về danh sách người dùng
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json(error); // Trả về lỗi nếu có
   }
 };
 
@@ -164,25 +166,97 @@ export const logoutAdmin = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+export const getAllPostsByMonth = async (req, res) => {
+  try {
+    // Sử dụng Aggregate để nhóm các bài đăng theo tháng và đếm số bài viết
+    const allPosts = await PostModel.aggregate([
+      {
+        $project: {
+          year: { $year: "$createdAt" }, // Trích xuất năm
+          month: { $month: "$createdAt" }, // Trích xuất tháng
+        },
+      },
+      {
+        $group: {
+          _id: { year: "$year", month: "$month" }, // Nhóm theo năm và tháng
+          totalPosts: { $sum: 1 }, // Đếm số bài viết
+        },
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 }, // Sắp xếp theo tháng và năm
+      },
+    ]);
+
+    res.status(200).json(allPosts); // Trả về kết quả
+  } catch (error) {
+    console.error("Error fetching all posts data:", error);
+    res.status(500).json({ message: "Failed to fetch posts data" });
+  }
+};
+export const dashboard = async (req, res) => {
+  try {
+    const totalUsers = await UserModel.countDocuments({ role: "user" });
+    const totalIncidents = await PostModel.countDocuments();
+    const totalLostItems = await PostModel.countDocuments({ isLost: true });
+    const totalFoundItems = await PostModel.countDocuments({ isFound: true });
+
+    res.json({
+      totalUsers,
+      totalIncidents,
+      totalLostItems, // Tổng đồ bị mất
+      totalFoundItems, // Tổng đồ đã tìm thấy
+    });
+  } catch (error) {
+    console.error("Error fetching reports:", error);
+    res.status(500).json({ message: "Failed to fetch report data" });
+  }
+};
+
 export const blockUser = async (req, res) => {
   const { userId } = req.params;
 
+  // Kiểm tra nếu userId tồn tại
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is required" });
+  }
+
   try {
+    // Tìm người dùng trong cơ sở dữ liệu
     const user = await UserModel.findById(userId);
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    user.isBlocked = !user.isBlocked; // Đảo trạng thái block
+    // Kiểm tra quyền truy cập (Chỉ admin mới có thể block/unblock)
+    if (req.user.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to block users" });
+    }
+
+    // Đảo trạng thái block
+    user.isBlocked = !user.isBlocked;
     await user.save();
 
+    // Trả về thông báo và dữ liệu mới sau khi cập nhật
     res.status(200).json({
       message: `User ${user.isBlocked ? "blocked" : "unblocked"} successfully`,
-      isBlocked: user.isBlocked,
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        isBlocked: user.isBlocked,
+      },
     });
   } catch (error) {
+    // Ghi lại lỗi và trả về thông báo lỗi
+    console.error("Error updating user block status:", error);
     res
       .status(500)
-      .json({ message: "Error updating user block status", error });
+      .json({
+        message: "Error updating user block status",
+        error: error.message,
+      });
   }
 };

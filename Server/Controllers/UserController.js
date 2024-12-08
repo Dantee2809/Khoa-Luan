@@ -34,26 +34,26 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
-export const updateUser = async (req, res) => {
-  const id = req.params.id;
-  const { currentUserId, currentUserAdminStatus, password } = req.body;
-  if (id === currentUserId || currentUserAdminStatus) {
-    try {
-      if (password) {
-        const salt = await bcrypt.genSalt(10);
-        req.body.password = await bcrypt.hash(password, salt);
-      }
-      const user = await UserModel.findByIdAndUpdate(id, req.body, {
-        new: true,
-      });
-      res.status(200).json(user);
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  } else {
-    res.status(403).json("Forbidden: Access denied");
-  }
-};
+// export const updateUser = async (req, res) => {
+//   const id = req.params.id;
+//   const { currentUserId, currentUserAdminStatus, password } = req.body;
+//   if (id === currentUserId || currentUserAdminStatus) {
+//     try {
+//       if (password) {
+//         const salt = await bcrypt.genSalt(10);
+//         req.body.password = await bcrypt.hash(password, salt);
+//       }
+//       const user = await UserModel.findByIdAndUpdate(id, req.body, {
+//         new: true,
+//       });
+//       res.status(200).json(user);
+//     } catch (error) {
+//       res.status(500).json(error);
+//     }
+//   } else {
+//     res.status(403).json("Forbidden: Access denied");
+//   }
+// };
 
 export const deleteUser = async (req, res) => {
   const id = req.params.id;
@@ -138,7 +138,35 @@ export const unfollowUser = async (req, res) => {
     return res.status(500).json({ message: "Failed to unfollow the user!" });
   }
 };
+// Kiểm tra trạng thái follow giữa hai người dùng
+export const fetchFollowingStatus = async (req, res) => {
+  const { currentUserId } = req.query; // Lấy currentUserId từ query
+  const { targetUserId } = req.params; // Lấy targetUserId từ params
 
+  try {
+    // Kiểm tra nếu cả hai userId được truyền
+    if (!currentUserId || !targetUserId) {
+      return res.status(400).send({ message: "Missing parameters" });
+    }
+
+    // Tìm user được theo dõi
+    const targetUser = await UserModel.findById(targetUserId);
+
+    if (!targetUser) {
+      return res.status(404).json({ message: "Target user not found." });
+    }
+
+    // Kiểm tra currentUserId có trong danh sách followers không
+    const isFollowing = targetUser.followers.includes(currentUserId);
+
+    return res.status(200).json({ isFollowing }); // Trả về trạng thái follow
+  } catch (error) {
+    console.error("Error fetching follow status:", error);
+    return res
+      .status(500)
+      .json({ message: "Lỗi user đã xóa tài khoản hoặc không kết nối được." });
+  }
+};
 // Follow a User
 // export const followUser = async (req, res) => {
 //   const { currentUserId, followId } = req.body;

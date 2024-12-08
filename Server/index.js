@@ -10,7 +10,7 @@ import AdminRoute from "./Routes/AdminRoute.js";
 import AuthRoute from "./Routes/AuthRoute.js";
 import UserRoute from "./Routes/UserRoute.js";
 import PostRoute from "./Routes/PostRoute.js";
-
+import AdvRoute from "./Routes/AdvRoute.js";
 import MessageRoute from "./Routes/MessageRoute.js";
 import { app, server } from "./lib/socket.js";
 
@@ -41,3 +41,4 @@ app.use("/api/auth", AuthRoute);
 app.use("/api/user", UserRoute);
 app.use("/api/post", PostRoute);
 app.use("/api/message", MessageRoute);
+app.use("/api/adv", AdvRoute);

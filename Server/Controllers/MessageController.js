@@ -86,9 +86,11 @@ export const getUsersForSidebar = async (req, res) => {
     }
 
     // Tìm tất cả tin nhắn liên quan đến người dùng hiện tại
-    const messages = await messageModel.find({
-      $or: [{ senderId: loggedInUserId }, { receiverId: loggedInUserId }],
-    });
+    const messages = await messageModel
+      .find({
+        $or: [{ senderId: loggedInUserId }, { receiverId: loggedInUserId }],
+      })
+      .sort({ createdAt: -1 }); // Sắp xếp tin nhắn theo thời gian gửi mới nhất
 
     // Lấy danh sách ID của những người đã nhắn tin với người dùng hiện tại
     const userIdsWithMessages = new Set(
@@ -109,13 +111,45 @@ export const getUsersForSidebar = async (req, res) => {
         },
       ],
     }).select("-password");
+    const filteredUsers = users.filter(
+      (user) => user._id.toString() !== loggedInUserId.toString()
+    );
 
-    res.status(200).json(users);
+    // Sắp xếp lại danh sách người dùng theo người theo dõi mới nhất
+    const sortedUsers = filteredUsers.sort((a, b) => {
+      const aIsFollowedRecently = loggedInUser.followers.includes(a._id);
+      const bIsFollowedRecently = loggedInUser.followers.includes(b._id);
+
+      // Đưa người theo dõi gần đây lên đầu
+      if (aIsFollowedRecently && !bIsFollowedRecently) return -1;
+      if (!aIsFollowedRecently && bIsFollowedRecently) return 1;
+
+      return 0;
+    });
+
+    // Lấy tin nhắn mới nhất của từng người dùng
+    const usersWithLatestMessages = await Promise.all(
+      sortedUsers.map(async (user) => {
+        const latestMessage = messages.find(
+          (msg) =>
+            msg.senderId.toString() === user._id.toString() ||
+            msg.receiverId.toString() === user._id.toString()
+        );
+
+        return {
+          ...user.toObject(),
+          latestMessage: latestMessage ? latestMessage.text : null, // Gửi kèm tin nhắn mới nhất
+        };
+      })
+    );
+
+    res.status(200).json(usersWithLatestMessages);
   } catch (error) {
     console.error("Error in getUsersForSidebar:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 export const getMessages = async (req, res) => {
   try {
     const { id: userToChatId } = req.params;
@@ -172,6 +206,9 @@ export const getContacts = async (req, res) => {
   try {
     const loggedInUserId = req.user._id; // ID của user hiện tại
 
+    // Lấy danh sách admin
+    const adminUsers = await UserModel.find({ role: "admin" });
+
     // Tìm tất cả các cuộc hội thoại mà user đã nhắn tin
     const contacts = await messageModel.aggregate([
       {
@@ -210,9 +247,38 @@ export const getContacts = async (req, res) => {
       followers: { $in: [loggedInUserId] }, // Kiểm tra nếu người dùng đã theo dõi
     });
 
-    res.status(200).json(followingUsers);
+    // Gộp danh sách admin với danh sách người dùng đã liên lạc
+    const resultContacts = [
+      ...new Set([
+        ...adminUsers.map((admin) => admin._id.toString()),
+        ...followingUsers.map((user) => user._id.toString()),
+      ]),
+    ];
+
+    // Tìm thông tin chi tiết của các liên hệ
+    const detailedContacts = await UserModel.find({
+      _id: { $in: resultContacts },
+    });
+
+    res.status(200).json(detailedContacts);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error fetching contacts", error });
+  }
+};
+
+export const deleteMessage = async (req, res) => {
+  const { messageId } = req.params;
+
+  try {
+    const deletedMessage = await messageModel.findByIdAndDelete(messageId);
+    if (!deletedMessage) {
+      return res.status(404).json({ message: "Message not found" });
+    }
+    res
+      .status(200)
+      .json({ success: true, message: "Message deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting message", error });
   }
 };

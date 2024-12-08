@@ -23,6 +23,16 @@ const postSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    location: {
+      type: String,
+      default: "",
+    },
+    reports: [
+      {
+        reportedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Người báo cáo
+        reportedAt: { type: Date, default: Date.now }, // Thời gian báo cáo
+      },
+    ],
     contact: {
       type: String,
       validate: {

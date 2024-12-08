@@ -6,6 +6,18 @@ import { generateToken } from "../lib/utils.js";
 import cloudinary from "../lib/cloudinary.js";
 import messageModel from "../Models/messageModel.js";
 import nodemailer from "nodemailer";
+
+export const dataRoute = async (req, res) => {
+  const { role } = req.query;
+
+  try {
+    const users = await UserModel.find({ role }); // Lọc theo role
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching data" });
+  }
+};
+
 export const registerUser = async (req, res) => {
   const { username, password, firstname, lastname, email } = req.body;
 
@@ -94,36 +106,58 @@ export const registerUser = async (req, res) => {
 // }
 
 export const loginUser = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, isAdminLogin } = req.body;
+
+  // Kiểm tra dữ liệu đầu vào
+  if (!email?.trim()) {
+    return res.status(400).json({ message: "  " });
+  }
+  if (!/\S+@\S+\.\S+/.test(email)) {
+    return res.status(400).json({ message: "Email không đúng định dạng" });
+  }
+  if (!password?.trim()) {
+    return res.status(400).json({ message: "Mật khẩu không được để trống" });
+  }
+
   try {
+    // Logic xử lý đăng nhập
     const user = await UserModel.findOne({ email });
 
     if (!user) {
-      return res.status(400).json({ message: "Lỗi không xác định" });
+      return res.status(400).json({ message: "Tài khoản chưa đăng ký!" });
     }
-    // Kiểm tra trạng thái bị block
+
     if (user.isBlocked) {
       return res.status(403).json({ message: "Tài khoản của bạn đã bị khóa" });
     }
+
+    if (isAdminLogin && user.role !== "admin") {
+      return res.status(403).json({
+        message: "Bạn không có quyền truy cập Admin hoặc không phải Admin.",
+      });
+    }
+
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
       return res.status(400).json({ message: "Sai mật khẩu" });
     }
 
     generateToken(user._id, res);
-
-    res.status(200).json(user); // Trả về toàn bộ dữ liệu người dùng
+    res.status(200).json(user); // Trả về thông tin người dùng
   } catch (error) {
-    console.log("Error in login controller", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error("Error in login controller:", error.message);
+    res
+      .status(500)
+      .json({ message: "Đã xảy ra lỗi trên máy chủ. Vui lòng thử lại sau." });
   }
 };
+
 export const forgetPassword = async (req, res) => {
   const { email } = req.body;
   try {
     const user = await UserModel.findOne({ email });
     if (!user) {
-      return res.json({ message: "user not registered" });
+      return res.json({ message: "Tài khoản chưa đăng ký" });
     }
     const token = jwt.sign({ id: user._id }, process.env.JWT_KEY, {
       expiresIn: "1h",
@@ -172,7 +206,7 @@ export const resetPassword = async (req, res) => {
 export const logoutUser = async (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 });
-    res.status(200).json({ message: "Logged out successfully" });
+    res.status(200).json({ message: "Đăng xuất thành công" });
   } catch (error) {
     console.log("Error in logout controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
@@ -255,12 +289,22 @@ export const updateProfile = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
-export const checkAuth = (req, res) => {
+// Cập nhật thông tin người dùng
+export const updateUserInfo = async (req, res) => {
   try {
-    res.status(200).json(req.user);
+    const { username, firstname, lastname, email } = req.body;
+    const userId = req.user._id;
+
+    // Cập nhật các thông tin người dùng (không có ảnh)
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      userId,
+      { username, firstname, lastname, email },
+      { new: true }
+    );
+
+    res.status(200).json(updatedUser);
   } catch (error) {
-    console.log("Error in checkAuth controller", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.log("error in update user info:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

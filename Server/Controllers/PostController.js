@@ -1,18 +1,13 @@
 import PostModel from "../Models/postModel.js";
 import cloudinary from "../lib/cloudinary.js";
-
+import mongoose from "mongoose";
 export const createPost = async (req, res) => {
   try {
-    // Lấy các tham số từ req.body
-    const { image, userId, desc, contact, isLost, isFound } = req.body;
+    const { image, userId, desc, contact, location, isLost, isFound } =
+      req.body;
     // Kiểm tra nếu không có ảnh
     if (!image) {
-      return res.status(400).json({ message: "Image is required" });
-    }
-    if (isLost && isFound) {
-      return res
-        .status(400)
-        .json({ message: "A post cannot be both lost and found." });
+      return res.status(400).json({ message: "Image bị thiếu" });
     }
     // Upload ảnh lên Cloudinary
     const uploadResponse = await cloudinary.uploader.upload(image, {
@@ -24,6 +19,7 @@ export const createPost = async (req, res) => {
       userId, // ID người dùng
       desc, // Mô tả bài viết
       image: uploadResponse.secure_url, // Lưu URL ảnh từ Cloudinary
+      location,
       contact, // Liên hệ
       isLost: isLost || false, // Mặc định là false nếu không được gửi
       isFound: isFound || false, // Mặc định là false nếu không được gửi
@@ -34,10 +30,15 @@ export const createPost = async (req, res) => {
     await newPost.save();
 
     // Gửi phản hồi
-    res.status(200).json(newPost);
+    res
+      .status(200)
+      .json({ message: "Bài viết đã được đăng thành công!", post: newPost });
   } catch (error) {
-    console.error("Error creating post:", error);
-    res.status(500).json({ message: "Error creating post" });
+    console.error("Error:Lỗi đăng bài", error);
+    return res.status(500).json({
+      message: "Có lỗi xảy ra khi tạo bài viết",
+      error: error.message,
+    });
   }
 };
 
@@ -50,6 +51,19 @@ export const getPost = async (req, res) => {
     res.status(500).json(error);
   }
 };
+// Backend - Cập nhật trong hàm fetch posts
+// export const fetchPosts = async (req, res) => {
+//   try {
+//     const posts = await PostModel.find(); // Lấy tất cả bài viết
+//     const postsWithReportCount = posts.map((post) => ({
+//       ...post.toObject(),
+//       reportsCount: post.reports.length, // Đếm số lượng báo cáo
+//     }));
+//     res.status(200).json(postsWithReportCount);
+//   } catch (error) {
+//     res.status(500).json({ message: "Có lỗi xảy ra khi lấy bài viết." });
+//   }
+// };
 
 export const updatePost = async (req, res) => {
   const postId = req.params.id;
@@ -66,6 +80,35 @@ export const updatePost = async (req, res) => {
     res.status(500).json(error);
   }
 };
+export const reportPost = async (req, res) => {
+  const { postId } = req.params;
+  const { userId } = req.body;
+
+  try {
+    const post = await PostModel.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: "Bài viết không tồn tại." });
+    }
+
+    // Kiểm tra xem người dùng đã báo cáo bài viết này chưa
+    const alreadyReported = post.reports.some(
+      (report) => report.reportedBy.toString() === userId
+    );
+    if (alreadyReported) {
+      return res.status(400).json({ message: "Bạn đã báo cáo bài viết này." });
+    }
+
+    // Thêm báo cáo vào mảng reports
+    post.reports.push({ reportedBy: userId });
+    await post.save();
+
+    res.status(200).json({ message: "Bài viết đã được báo cáo thành công." });
+  } catch (error) {
+    res.status(500).json({ message: "Có lỗi xảy ra khi báo cáo bài viết." });
+    console.error(error); // Ghi log lỗi
+  }
+};
+
 // Backend code
 export const deletePost = async (req, res) => {
   const postId = req.params.id;
@@ -85,6 +128,33 @@ export const deletePost = async (req, res) => {
   }
 };
 
+export const delete1UserPost = async (req, res) => {
+  const postId = req.params.id;
+  const userId = req.query.userId;
+
+  try {
+    const post = await PostModel.findById(postId);
+    if (post.userId === userId) {
+      await post.deleteOne();
+      console.log("Post userId:", post.userId, "Request userId:", userId);
+      res.status(200).json("Post deleted");
+    } else {
+      res.status(403).json("Unauthorized to delete this post");
+    }
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+
+export const provinces = [
+  { id: 1, name: "Hà Nội" },
+  { id: 2, name: "Hồ Chí Minh" },
+  { id: 3, name: "Đà Nẵng" },
+  { id: 4, name: "Cần Thơ" },
+  { id: 5, name: "Hải Phòng" },
+  { id: 6, name: "Bình Dương" },
+  // Thêm các tỉnh thành khác của Việt Nam
+];
 // export const getTimelinepost = async (req, res) => {
 //   const userId = req.params.id;
 //   try {
@@ -137,6 +207,48 @@ export const deletePost = async (req, res) => {
 //     res.status(500).json({ message: "Error searching posts" });
 //   }
 // };
+// Tính ngày đầu và cuối tháng trước
+const getLastMonthDateRange = () => {
+  const now = new Date();
+
+  // Ngày đầu tháng trước
+  const firstDayLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+  // Ngày cuối tháng trước
+  const lastDayLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+
+  return { firstDayLastMonth, lastDayLastMonth };
+};
+
+const getLostItemsCountInLastMonth = async () => {
+  const { firstDayLastMonth, lastDayLastMonth } = getLastMonthDateRange();
+
+  try {
+    // Truy vấn MongoDB để đếm số bài viết trong tháng trước
+    const lostItemsCount = await PostModel.countDocuments({
+      createdAt: {
+        $gte: firstDayLastMonth, // Ngày đầu tháng trước
+        $lte: lastDayLastMonth, // Ngày cuối tháng trước
+      },
+    });
+
+    console.log(`Số bài viết báo mất đồ trong tháng qua: ${lostItemsCount}`);
+    return lostItemsCount;
+  } catch (error) {
+    console.error("Error fetching lost items count:", error);
+    return 0;
+  }
+};
+
+export const getLostItemsCount = async (req, res) => {
+  try {
+    const lostItemsCount = await getLostItemsCountInLastMonth();
+    res.json({ lostItemsCount });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching lost items count", error });
+  }
+};
+
 export const search = async (req, res) => {
   const { q } = req.query; // Lấy query từ request
   try {
@@ -153,16 +265,16 @@ export const search = async (req, res) => {
 export const getAllPosts = async (req, res) => {
   try {
     const posts = await PostModel.find().sort({ createdAt: -1 });
-
-    console.log("Posts found:", posts); // Log để kiểm tra dữ liệu
-
     if (posts.length === 0) {
       return res.status(404).json({ message: "No posts found" });
     }
-
+    const postsWithReportCount = posts.map((post) => ({
+      ...post.toObject(),
+      reportsCount: post.reports.length, // Đếm số lượng báo cáo
+    }));
     return res.json({
       status: "Success",
-      data: posts,
+      data: postsWithReportCount,
     });
   } catch (error) {
     console.log("Error:", error);
