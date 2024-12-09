@@ -23,7 +23,31 @@ export const useChatStore = create((set, get) => ({
       set({ error: "Không thể tải tin nhắn", loading: false }); // Nếu có lỗi, cập nhật error
     }
   },
+  deleteMessage: async (messageId) => {
+    try {
+      const response = await fetch(`/admin/messages/${messageId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Lỗi từ server:", errorText);
+        throw new Error(`Lỗi khi xóa tin nhắn: ${response.status}`);
+      }
 
+      const data = await response.json();
+      console.log("Kết quả xóa tin nhắn:", data);
+      if (response.ok) {
+        // Cập nhật lại danh sách tin nhắn sau khi xóa thành công
+        set((state) => ({
+          messages: state.messages.filter((msg) => msg._id !== messageId),
+        }));
+      } else {
+        console.error("Lỗi xóa tin nhắn:", await response.json());
+      }
+    } catch (error) {
+      console.error("Lỗi khi xóa tin nhắn:", error);
+    }
+  },
   getUsers: async () => {
     set({ isUsersLoading: true });
     try {

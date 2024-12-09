@@ -39,7 +39,12 @@ const Posts = () => {
       {/* Hiển thị danh sách bài đăng đã phê duyệt */}
       <div>
         {approvedPosts.map((item, i) => (
-          <Post key={i} data={item} currentUserId={currentUserId} />
+          <Post
+            key={i}
+            data={item}
+            currentUserId={currentUserId}
+            authUserId={authUser._id}
+          />
         ))}
 
         {/* Hiển thị thông báo nếu không có bài đăng nào được phê duyệt */}

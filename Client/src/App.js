@@ -24,28 +24,41 @@ import ReportPost from "./conpoments/Admin/ReportPost.jsx";
 import AllUserChat from "./conpoments/ChatBox/AllUserChat.jsx";
 import ChangePassword from "./pages/Auth/ChangePassword.jsx";
 import UserProfile from "./conpoments/Admin/UserProfile.jsx";
+import useCheckUserStatus from "./lib/check.js";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth, onlineUsers } = useAuthStore();
-  console.log({ onlineUsers });
+  const { checkStatus } = useCheckUserStatus();
 
+  // Kiểm tra trạng thái xác thực
   useEffect(() => {
-    checkAuth();
+    checkAuth(); // Xác thực người dùng
   }, [checkAuth]);
 
-  if (isCheckingAuth && !authUser)
+  // Kiểm tra trạng thái bị chặn sau khi đã xác thực
+  useEffect(() => {
+    if (authUser) {
+      checkStatus(); // Kiểm tra tài khoản bị chặn
+    }
+  }, [authUser, checkStatus]);
+
+  console.log({ onlineUsers });
+
+  // Hiển thị loader khi đang kiểm tra xác thực
+  if (isCheckingAuth && !authUser) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader className="size-10 animate-spin" />
       </div>
     );
+  }
 
-  // Protected Route Component that checks for authentication
+  // Protected Route Component để bảo vệ route
   const ProtectedRoute = ({ children }) => {
-    return authUser ? children : <Navigate to="/sign-in" />;
+    return authUser ? children : <Navigate to="/sign-in" replace />;
   };
   return (
-    <BrowserRouter>
+    <div>
       <Navbar />
       <div className="main-layout">
         <Routes>
@@ -107,7 +120,14 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route path="/search-results" element={<SearchPage />} />
+          <Route
+            path="/search-results"
+            element={
+              <ProtectedRoute>
+                <SearchPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/chatbox"
             element={
@@ -133,7 +153,7 @@ const App = () => {
         </Routes>
         <Toaster />
       </div>
-    </BrowserRouter>
+    </div>
   );
 };
 

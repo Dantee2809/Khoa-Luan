@@ -1,10 +1,16 @@
 import PostModel from "../Models/postModel.js";
+import UserModel from "../Models/userModel.js";
 import cloudinary from "../lib/cloudinary.js";
 import mongoose from "mongoose";
 export const createPost = async (req, res) => {
   try {
     const { image, userId, desc, contact, location, isLost, isFound } =
       req.body;
+    // Tìm thông tin người dùng dựa trên userId
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.status(400).json({ message: "User không tìm thấy" });
+    }
     // Kiểm tra nếu không có ảnh
     if (!image) {
       return res.status(400).json({ message: "Image bị thiếu" });
@@ -17,6 +23,7 @@ export const createPost = async (req, res) => {
     // Tạo bài viết mới với URL ảnh từ Cloudinary
     const newPost = new PostModel({
       userId: req.body.userId,
+      username: user.username, // Lấy username từ UserModel và lưu vào bài đăng
       desc: req.body.desc,
       image: uploadResponse.secure_url, // Lưu URL ảnh từ Cloudinary
       category: req.body.category,
@@ -268,9 +275,21 @@ export const getLostItemsCount = async (req, res) => {
 export const search = async (req, res) => {
   const { q } = req.query; // Lấy query từ request
   try {
+    // Kiểm tra nếu không có từ khóa tìm kiếm
+    if (!q || q.trim() === "") {
+      return res.status(400).json({ message: "Vui lòng nhập từ khóa cần tìm" });
+    }
+
+    // Tìm bài viết theo mô tả (không phân biệt chữ hoa/thường)
     const posts = await PostModel.find({
-      desc: { $regex: q, $options: "i" }, // Tìm theo mô tả (không phân biệt chữ hoa/thường)
+      desc: { $regex: q, $options: "i" },
     });
+
+    // Nếu không có bài viết nào tìm thấy
+    if (posts.length === 0) {
+      return res.status(404).json({ message: "Không tìm thấy bài viết nào" });
+    }
+
     res.status(200).json({ posts });
   } catch (err) {
     console.error(err);
@@ -278,25 +297,51 @@ export const search = async (req, res) => {
   }
 };
 
+// export const getAllPosts = async (req, res) => {
+//   try {
+//     // Truy vấn các bài đăng và sử dụng populate để lấy dữ liệu userId
+//     const posts = await PostModel.find()
+//       .sort({ createdAt: -1 })
+//       .populate({
+//         path: "userId", // Tên của trường cần populate
+//         select: "username _id", // Lấy username và _id từ UserModel
+//         match: { _id: { $type: "objectId" } }, // Đảm bảo rằng _id là ObjectId hợp lệ
+//       });
+//     if (posts.length === 0) {
+//       return res.status(404).json({ message: "No posts found" });
+//     }
+
+//     // Tạo một mảng mới với số lượng báo cáo được thêm vào mỗi bài đăng
+//     const postsWithReportCount = posts.map((post) => ({
+//       ...post.toObject(),
+//       reportsCount: post.reports.length, // Đếm số lượng báo cáo
+//     }));
+
+//     return res.json({
+//       status: "Success",
+//       data: postsWithReportCount, // Trả về danh sách bài đăng với thông tin báo cáo
+//     });
+//   } catch (error) {
+//     console.log("Error:", error);
+//     res.status(500).json({ message: "Error retrieving posts" });
+//   }
+// };
 export const getAllPosts = async (req, res) => {
   try {
-    const posts = await PostModel.find().sort({ createdAt: -1 });
-    if (posts.length === 0) {
+    const posts = await PostModel.find()
+      .populate("userId", "username _id") // Trả cả username và _id từ UserModel
+      .sort({ createdAt: -1 });
+
+    if (!posts) {
       return res.status(404).json({ message: "No posts found" });
     }
-    const postsWithReportCount = posts.map((post) => ({
-      ...post.toObject(),
-      reportsCount: post.reports.length, // Đếm số lượng báo cáo
-    }));
-    return res.json({
-      status: "Success",
-      data: postsWithReportCount,
-    });
+
+    return res.status(200).json({ data: posts });
   } catch (error) {
-    console.log("Error:", error);
     res.status(500).json({ message: "Error retrieving posts" });
   }
 };
+
 export const getPostApprove = async (req, res) => {
   try {
     // Lọc bài viết có isApproved: false và sắp xếp theo createdAt mới nhất

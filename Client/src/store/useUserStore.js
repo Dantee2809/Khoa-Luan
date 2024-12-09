@@ -9,60 +9,6 @@ export const useUserStore = create((set, get) => ({
   error: null, // Trạng thái lỗi
   // userProfile: {},
   setLoggedInUserId: (userId) => set({ loggedInUserId: userId }),
-
-  // isFollowing: (targetUserId) => {
-  //   return get().following.includes(targetUserId);
-  // },
-
-  // followUser: (currentUserId, targetUserId) => {
-  //   set((state) => ({
-  //     following: {
-  //       ...state.following,
-  //       [targetUserId]: true, // Mark the target user as followed
-  //     },
-  //   }));
-  // },
-  // unfollowUser: (currentUserId, targetUserId) => {
-  //   set((state) => ({
-  //     following: {
-  //       ...state.following,
-  //       [targetUserId]: false, // Mark the target user as unfollowed
-  //     },
-  //   }));
-  // },
-  // Theo dõi user
-  // followUser: async (currentUserId, targetUserId) => {
-  //   try {
-  //     await axiosInstance.post(`/user/${targetUserId}/follow`, {
-  //       userId: currentUserId,
-  //     });
-  //     set((state) => ({
-  //       following: [...state.following, targetUserId],
-  //     }));
-  //   } catch (error) {
-  //     console.error(
-  //       "Error following user:",
-  //       error.response?.data || error.message
-  //     );
-  //   }
-  // },
-
-  // // Hủy theo dõi user
-  // unfollowUser: async (currentUserId, targetUserId) => {
-  //   try {
-  //     await axiosInstance.post(`/user/${targetUserId}/unfollow`, {
-  //       userId: currentUserId,
-  //     });
-  //     set((state) => ({
-  //       following: state.following.filter((id) => id !== targetUserId),
-  //     }));
-  //   } catch (error) {
-  //     console.error(
-  //       "Error unfollowing user:",
-  //       error.response?.data || error.message
-  //     );
-  //   }
-  // },
   following: {}, // Key-Value pair: userId -> follow status (true/false)
 
   // API: Follow a user

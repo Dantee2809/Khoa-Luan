@@ -4,6 +4,11 @@ import PostShare from "../PostShare/PostShare";
 function ShareModal({ modalOpened, setModalOpened }) {
   const theme = useMantineTheme();
 
+  // Callback khi tạo bài thành công
+  const handlePostCreateSuccess = () => {
+    setModalOpened(false); // Đóng modal khi tạo bài thành công
+  };
+
   return (
     <Modal
       overlayColor={
@@ -17,7 +22,7 @@ function ShareModal({ modalOpened, setModalOpened }) {
       opened={modalOpened}
       onClose={() => setModalOpened(false)}
     >
-    <PostShare/>
+      <PostShare onPostCreateSuccess={handlePostCreateSuccess} />
     </Modal>
   );
 }

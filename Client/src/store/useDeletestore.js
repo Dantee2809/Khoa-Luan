@@ -41,6 +41,5 @@ export const useDeletestore = create((set) => ({
       toast.error("Lỗi khi xóa bài viết!");
     }
   },
-
   // Các hàm khác (fetchPosts, toggleApproval, ...)
 }));

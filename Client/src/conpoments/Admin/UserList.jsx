@@ -1,14 +1,29 @@
 import React, { useEffect, useState } from "react";
-import "./UserList.css";
+import { useNavigate } from "react-router-dom";
 import { axiosInstance } from "../../lib/axios";
 import { useAuthStore } from "../../store/useAuthStore";
+import "./UserList.css"; // Thêm nếu cần style
 
 const UserList = () => {
   const [users, setUsers] = useState([]); // Dữ liệu người dùng
+  const [searchUser, setSearchUser] = useState(""); // Tìm kiếm người dùng
   const [isLoading, setIsLoading] = useState(true); // Trạng thái tải
-  const [error, setError] = useState(null);
-  const { toggleBlockUser } = useAuthStore();
-  const [searchUser, setSearchUser] = useState(""); // Trạng thái tìm kiếm người dùng
+  const [error, setError] = useState(null); // Trạng thái lỗi
+  const { authUser } = useAuthStore(); // Lấy thông tin người dùng đã đăng nhập
+  const navigate = useNavigate();
+
+  // Kiểm tra tài khoản bị khóa
+  useEffect(() => {
+    if (authUser && authUser.isBlocked) {
+      const confirmExit = window.confirm(
+        "Tài khoản của bạn đã bị khóa. Bạn có muốn thoát khỏi trang không?"
+      );
+      if (confirmExit) {
+        localStorage.removeItem("token"); // Xóa token khi bị khóa
+        navigate("/sign-in"); // Điều hướng về trang đăng nhập
+      }
+    }
+  }, [authUser, navigate]);
 
   // Gọi API để lấy danh sách người dùng
   useEffect(() => {
@@ -16,45 +31,34 @@ const UserList = () => {
       try {
         setIsLoading(true);
         const response = await axiosInstance.get("/admin/getUsers");
-        setUsers(response.data); // Cập nhật dữ liệu người dùng
+        setUsers(response.data); // Cập nhật danh sách người dùng
       } catch (err) {
-        setError(err.response?.data?.error || "Failed to fetch users");
+        setError(
+          err.response?.data?.error || "Không thể lấy danh sách người dùng"
+        );
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchUsers();
-  }, []); // API chỉ gọi 1 lần khi component mount
+  }, []);
 
-  // Hàm tìm kiếm người dùng
+  // Hàm xử lý tìm kiếm người dùng
   const handleSearch = (e) => {
-    setSearchUser(e.target.value); // Cập nhật trạng thái tìm kiếm
+    setSearchUser(e.target.value);
   };
 
-  // Tìm kiếm người dùng trong dữ liệu
-  const filteredUsers = users.filter((user) =>
-    user.username.toLowerCase().includes(searchUser.toLowerCase())
+  // Lọc người dùng dựa trên từ khóa tìm kiếm
+  const filteredUsers = users.filter(
+    (user) =>
+      user.username.toLowerCase().includes(searchUser.toLowerCase()) ||
+      user.firstname.toLowerCase().includes(searchUser.toLowerCase()) ||
+      user.lastname.toLowerCase().includes(searchUser.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchUser.toLowerCase())
   );
 
-  // Sắp xếp lại danh sách, đưa người bị block xuống cuối
-  const sortedUsers = filteredUsers.sort((a, b) => {
-    if (a.isBlocked && !b.isBlocked) return 1;
-    if (!a.isBlocked && b.isBlocked) return -1;
-    return 0;
-  });
-
-  // Hiển thị trạng thái loading khi dữ liệu đang tải
-  if (isLoading) {
-    return <p>Loading users...</p>;
-  }
-
-  // Hiển thị lỗi nếu có
-  if (error) {
-    return <p className="error-message">Error: {error}</p>;
-  }
-
-  // Hàm để cập nhật ngay khi bấm nút Block/Unblock
+  // Hàm để toggle trạng thái Block/Unblock người dùng
   const handleBlockToggle = async (userId) => {
     try {
       const response = await axiosInstance.put(`/admin/block/${userId}`);
@@ -68,24 +72,35 @@ const UserList = () => {
         );
       }
     } catch (err) {
-      console.error("Error blocking user:", err);
+      console.error("Error blocking/unblocking user:", err);
+      setError("Có lỗi xảy ra khi thay đổi trạng thái người dùng.");
     }
   };
 
+  // Hiển thị trạng thái tải dữ liệu
+  if (isLoading) {
+    return <p>Loading users...</p>;
+  }
+
+  // Hiển thị lỗi nếu có
+  if (error) {
+    return <p className="error-message">Error: {error}</p>;
+  }
+
   return (
     <div className="user-list-container">
-      <h2 className="header">User List</h2>
-
+      <h2 className="header">Danh sách người dùng</h2>
+      {/* Ô tìm kiếm */}
       <input
         type="text"
-        placeholder="Tìm kiếm người dùng"
+        placeholder="Tìm kiếm người dùng..."
         value={searchUser}
         onChange={handleSearch}
         className="search-input"
       />
 
-      {sortedUsers.length === 0 ? (
-        <p className="empty-message">Không có người dùng nào</p>
+      {filteredUsers.length === 0 ? (
+        <p className="empty-message">Không có người dùng nào phù hợp</p>
       ) : (
         <table className="user-table">
           <thead>
@@ -95,10 +110,11 @@ const UserList = () => {
               <th>Username</th>
               <th>Email</th>
               <th>Trạng Thái</th>
+              <th>Hành Động</th>
             </tr>
           </thead>
           <tbody>
-            {sortedUsers.map((user) => (
+            {filteredUsers.map((user) => (
               <tr key={user._id} className={user.isBlocked ? "blocked" : ""}>
                 <td>
                   <img
@@ -110,6 +126,13 @@ const UserList = () => {
                 <td>{user.lastname}</td>
                 <td>{user.username}</td>
                 <td>{user.email}</td>
+                <td>
+                  {user.isBlocked ? (
+                    <span className="status blocked">Blocked</span>
+                  ) : (
+                    <span className="status active">Active</span>
+                  )}
+                </td>
                 <td>
                   <button
                     className={`btn ${

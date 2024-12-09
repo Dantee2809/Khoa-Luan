@@ -105,15 +105,58 @@ export const registerUser = async (req, res) => {
 //     }
 // }
 
+// export const loginUser = async (req, res) => {
+//   const { email, password, isAdminLogin } = req.body;
+
+//   try {
+//     if (isAdminLogin && user.role !== "admin") {
+//       return res.status(403).json({
+//         message: "Bạn không có quyền truy cập Admin hoặc không phải Admin.",
+//       });
+//     }
+
+//     if (!email || !password) {
+//       return res.status(400).json({
+//         message: "Vui lòng nhập đầy đủ thông tin tài khoản và mật khẩu!",
+//       });
+//     }
+
+//     // Tìm kiếm người dùng trong cơ sở dữ liệu
+//     const user = await UserModel.findOne({ email });
+
+//     // Log để kiểm tra người dùng tìm thấy hay không
+//     console.log("Found user:", user); // Kiểm tra người dùng có được tìm thấy không
+
+//     if (!user) {
+//       return res.status(400).json({ message: "Tài khoản chưa đăng ký!" });
+//     }
+
+//     // Kiểm tra trạng thái bị block
+//     if (user.isBlocked) {
+//       return res.status(403).json({ message: "Tài khoản của bạn đã bị khóa" });
+//     }
+
+//     // Kiểm tra mật khẩu
+//     const isPasswordCorrect = await bcrypt.compare(password, user.password);
+//     if (!isPasswordCorrect) {
+//       return res.status(400).json({ message: "Sai mật khẩu" });
+//     }
+
+//     // Tạo token đăng nhập và trả về thông tin người dùng
+//     generateToken(user._id, res);
+//     res.status(200).json(user);
+//   } catch (error) {
+//     console.error("Error in login controller:", error.message);
+//     res
+//       .status(500)
+//       .json({ message: "Đã xảy ra lỗi trên máy chủ. Vui lòng thử lại sau." });
+//   }
+// };
+
 export const loginUser = async (req, res) => {
   const { email, password, isAdminLogin } = req.body;
 
   try {
-    if (isAdminLogin && user.role !== "admin") {
-      return res.status(403).json({
-        message: "Bạn không có quyền truy cập Admin hoặc không phải Admin.",
-      });
-    }
     // Kiểm tra nếu thiếu thông tin đầu vào
     if (!email || !password) {
       return res.status(400).json({
@@ -134,6 +177,23 @@ export const loginUser = async (req, res) => {
       return res.status(403).json({ message: "Tài khoản của bạn đã bị khóa" });
     }
 
+    // Kiểm tra vai trò đăng nhập
+    if (isAdminLogin) {
+      // Yêu cầu vai trò admin
+      if (user.role !== "admin") {
+        return res.status(403).json({
+          message: "Bạn không có quyền truy cập Admin hoặc không phải Admin.",
+        });
+      }
+    } else {
+      // Người dùng không phải admin không thể đăng nhập qua admin-login
+      if (user.role === "admin") {
+        return res.status(403).json({
+          message: "Vui lòng truy cập trang đăng nhập Admin để đăng nhập.",
+        });
+      }
+    }
+
     // Kiểm tra mật khẩu
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
@@ -151,6 +211,25 @@ export const loginUser = async (req, res) => {
   }
 };
 
+export const checkUserStatus = async (req, res) => {
+  try {
+    const userId = req.user.id; // Lấy userId từ token (middleware auth)
+    const user = await UserModel.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "Người dùng không tồn tại" });
+    }
+
+    if (user.isBlocked) {
+      return res.status(403).json({ message: "Tài khoản đã bị khóa" });
+    }
+
+    res.status(200).json({ message: "Tài khoản hợp lệ" });
+  } catch (error) {
+    console.error("Error in checking user status:", error.message);
+    res.status(500).json({ message: "Lỗi server" });
+  }
+};
 export const forgetPassword = async (req, res) => {
   const { email } = req.body;
   try {

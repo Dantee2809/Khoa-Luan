@@ -2,16 +2,15 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 
 export const useSearchStore = create((set) => ({
-  query: "", // Câu truy vấn tìm kiếm
-  results: [], // Kết quả tìm kiếm
-  setQuery: (query) => set({ query }), // Cập nhật câu truy vấn
-  searchPosts: async () => {
+  query: "",
+  searchResults: [],
+  setQuery: (query) => set({ query }),
+  setSearchResults: (results) => set({ searchResults: results }),
+  searchPosts: async (query) => {
     try {
-      const { query } = useSearchStore.getState(); // Lấy câu query từ trạng thái hiện tại
-      const response = await axiosInstance.get(`/post/search`, {
-        params: { q: query }, // Truyền tham số query vào API
-      });
-      set({ results: response.data.posts }); // Lưu kết quả vào trạng thái
+      const response = await axiosInstance.get(`/post/search?q=${query}`);
+      // Kiểm tra nếu dữ liệu trả về là mảng
+      return Array.isArray(response.data.posts) ? response.data.posts : [];
     } catch (error) {
       console.error("Error searching posts:", error);
     }

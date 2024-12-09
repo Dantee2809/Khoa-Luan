@@ -98,6 +98,11 @@ export const useAuthStore = create((set, get) => ({
       set({ isLoggingIn: false });
     }
   },
+  fetchDataByRole: async (role) => {
+    // Hàm lấy dữ liệu theo vai trò (role)
+    const response = await axiosInstance.get(`/auth/data?role=${role}`);
+    return response.data;
+  },
   logout: async () => {
     try {
       await axiosInstance.post("/auth/logout");

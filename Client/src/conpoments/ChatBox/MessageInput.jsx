@@ -48,7 +48,7 @@ const MessageInput = () => {
   };
 
   return (
-    <div className="p-4 w-full">
+    <div className="p-4 w-full bg-neutral-200 rounded-lg shadow-lg">
       {imagePreview && (
         <div className="mb-3 flex items-center gap-2">
           <div className="relative">
@@ -59,21 +59,20 @@ const MessageInput = () => {
             />
             <button
               onClick={removeImage}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300
-              flex items-center justify-center"
+              className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-zinc-600 text-white hover:bg-red-600 transition duration-300 flex items-center justify-center"
               type="button"
             >
-              <X className="size-3" />
+              <X className="size-4" />
             </button>
           </div>
         </div>
       )}
 
-      <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-        <div className="flex-1 flex gap-2 items-center">
+      <form onSubmit={handleSendMessage} className="flex items-center gap-3">
+        <div className="flex-1 flex gap-3 items-center">
           <input
             type="text"
-            className="w-full input input-bordered rounded-lg input-sm sm:input-md"
+            className="w-full input input-bordered bg-zinc-700 text-white placeholder-zinc-400 rounded-lg input-sm sm:input-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             placeholder="Type a message..."
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -89,10 +88,11 @@ const MessageInput = () => {
 
           <button
             type="button"
-            className={`hidden sm:flex btn btn-circle ${
+            className={`sm:flex btn btn-circle ${
               imagePreview ? "text-emerald-500" : "text-zinc-400"
             }`}
             onClick={() => fileInputRef.current?.click()}
+            title="Upload image"
           >
             <Image size={20} />
           </button>
@@ -100,8 +100,9 @@ const MessageInput = () => {
 
         <button
           type="submit"
-          className="btn btn-sm btn-circle "
+          className="btn btn-circle text-white bg-emerald-500 hover:bg-emerald-400 focus:ring-2 focus:ring-emerald-500"
           disabled={!text.trim() && !imagePreview}
+          title="Send message"
         >
           <Send size={25} />
         </button>
@@ -109,4 +110,5 @@ const MessageInput = () => {
     </div>
   );
 };
+
 export default MessageInput;

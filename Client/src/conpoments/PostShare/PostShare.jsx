@@ -4,7 +4,8 @@ import { usePostStore } from "../../store/usePostStore";
 import { useAuthStore } from "../../store/useAuthStore";
 import axios from "axios";
 
-const PostShare = () => {
+const PostShare = ({ onPostCreateSuccess }) => {
+  // Nhận props callback
   const { authUser } = useAuthStore(); // Lấy thông tin người dùng đăng nhập từ Zustand
   const { createPost, isCreating, createPostSuccess, createPostError } =
     usePostStore(); // Lấy store từ Zustand
@@ -13,6 +14,7 @@ const PostShare = () => {
   // State quản lý form data
   const [formData, setFormData] = useState({
     userId: authUser?._id || "", // Lấy ID người dùng từ Zustand
+    username: authUser?.username || "", // Lấy username từ authUser
     desc: "",
     contact: "",
     location: "", // Sẽ lưu ID của tỉnh thành
@@ -79,6 +81,7 @@ const PostShare = () => {
     if (success) {
       setFormData({
         userId: authUser?._id || "",
+        username: authUser?.username || "",
         desc: "",
         contact: "",
         location: "",
@@ -89,12 +92,20 @@ const PostShare = () => {
       if (fileInputRef.current) {
         fileInputRef.current.value = ""; // Reset input file
       }
+      // Gọi callback sau khi tạo bài thành công
+      if (onPostCreateSuccess) {
+        onPostCreateSuccess(); // Đóng modal
+      }
     }
   };
 
   useEffect(() => {
     if (authUser) {
-      setFormData((prev) => ({ ...prev, userId: authUser._id })); // Cập nhật userId nếu authUser thay đổi
+      setFormData((prev) => ({
+        ...prev,
+        userId: authUser._id,
+        username: authUser.username,
+      })); // Cập nhật userId và username nếu authUser thay đổi
     }
   }, [authUser]);
 
@@ -165,7 +176,6 @@ const PostShare = () => {
           className="input input-bordered w-full p-3 rounded-md border-gray-300 shadow-sm focus:outline-none"
         />
       </div>
-
       <div className="space-x-6 flex items-center justify-between">
         <div className="flex items-center">
           <input
@@ -201,7 +211,6 @@ const PostShare = () => {
       >
         {isCreating ? "Đang tạo bài..." : "Đăng bài"}
       </button>
-
       {createPostSuccess && (
         <p className="text-green-600 mt-4 text-sm">
           Post created successfully!
