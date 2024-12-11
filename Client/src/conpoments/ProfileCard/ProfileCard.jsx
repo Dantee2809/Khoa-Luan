@@ -61,13 +61,13 @@ const ProfileCard = () => {
         </div>
       </div>
       <div className="ProfileName">
-        <span>{authUser?.username}</span>
+        <span>@{authUser?.username}</span>
         <span style={{ fontSize: "23px" }}>
           {authUser.firstname} {authUser.lastname}
         </span>
         {/* Hiển thị "Tôi là admin" nếu role là admin */}
         {authUser?.role === "admin" && (
-          <p className="text-red-500 font-extrabold mt-2">Tôi là admin</p>
+          <p className="text-red-900 font-extrabold mt-2">Admin</p>
         )}
       </div>
       <div className="FollowStatus">

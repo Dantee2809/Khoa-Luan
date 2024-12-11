@@ -14,10 +14,9 @@ const RightSide = () => {
   const { createPost, isCreatingPost, createPostError, createPostSuccess } =
     usePostStore();
 
-  // Hàm handleSubmit gửi form dữ liệu đến store
   const handleSubmit = async (formData) => {
-    const success = await createPost(formData);
-    if (success) {
+    const newPost = await createPost(formData); // Tạo bài viết mới
+    if (newPost) {
       setModalOpened(false); // Đóng modal nếu tạo bài thành công
     }
   };
@@ -33,10 +32,6 @@ const RightSide = () => {
             className="w-8 h-8 hover:scale-110 transition-transform"
           />
         </Link>
-        {/* <Link to="/">
-          <img src={Noti} alt="" />
-        </Link> */}
-        {/* Modal for Creating Posts */}
         <Link to="/chatbox">
           <img
             src={Comment}
@@ -55,7 +50,7 @@ const RightSide = () => {
           onClick={() => setModalOpened(true)}
         >
           <MdOutlinePostAdd />
-          Thêm Bài Đăng mới{" "}
+          Thêm Bài Đăng mới
         </button>
         <ShareModal
           modalOpened={modalOpened}

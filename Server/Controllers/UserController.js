@@ -1,3 +1,4 @@
+import PostModel from "../Models/postModel.js";
 import UserModel from "../Models/userModel.js";
 import bcrypt from "bcrypt";
 
@@ -167,15 +168,43 @@ export const fetchFollowingStatus = async (req, res) => {
       .json({ message: "Lỗi user đã xóa tài khoản hoặc không kết nối được." });
   }
 };
-
+export const searchUser = async (req, res) => {
+  try {
+    const query = req.query.q || "";
+    const users = await UserModel.find({
+      $or: [
+        { username: { $regex: query, $options: "i" } },
+        { firstname: { $regex: query, $options: "i" } },
+        { lastname: { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } },
+      ],
+    });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: "Lỗi khi tìm kiếm người dùng" });
+  }
+};
+export const searchPost = async (req, res) => {
+  try {
+    const query = req.query.q || "";
+    const posts = await PostModel.find({
+      desc: { $regex: query, $options: "i" },
+    }).populate("userId", "username profilePic");
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ error: "Lỗi khi tìm kiếm bài đăng" });
+  }
+};
 export const changePassword = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   const userId = req.user._id;
 
+  // Kiểm tra xem mật khẩu cũ và mới đã được nhập đầy đủ chưa
   if (!oldPassword || !newPassword) {
     return res.status(400).json({ message: "Vui lòng nhập đầy đủ thông tin" });
   }
 
+  // Kiểm tra độ dài của mật khẩu mới
   if (newPassword.length < 6) {
     return res
       .status(400)
@@ -183,17 +212,27 @@ export const changePassword = async (req, res) => {
   }
 
   try {
+    // Tìm người dùng trong cơ sở dữ liệu
     const user = await UserModel.findById(userId);
-    if (!user)
+    if (!user) {
       return res.status(404).json({ message: "Người dùng không tồn tại" });
+    }
 
+    // Kiểm tra mật khẩu cũ
     const isMatch = await bcrypt.compare(oldPassword, user.password);
-    if (!isMatch)
+    if (!isMatch) {
       return res.status(400).json({ message: "Mật khẩu cũ không chính xác" });
+    }
 
-    user.password = newPassword;
+    // Băm mật khẩu mới
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Cập nhật mật khẩu mới
+    user.password = hashedPassword;
     await user.save();
 
+    // Trả về thông báo thành công
     res.status(200).json({ message: "Mật khẩu đã được thay đổi thành công" });
   } catch (error) {
     console.error("Error changing password:", error);

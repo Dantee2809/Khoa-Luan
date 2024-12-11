@@ -1,3 +1,4 @@
+// Posts.js
 import React, { useState, useEffect } from "react";
 import "./Posts.css";
 import Loader from "../Loader/Loader";
@@ -6,37 +7,27 @@ import { usePostStore } from "../../store/usePostStore";
 import { useAuthStore } from "../../store/useAuthStore";
 
 const Posts = () => {
-  const { posts, isLoading, error, fetchPosts, createPostSuccess } =
-    usePostStore(); // Truy xuất dữ liệu từ store
-  const { authUser } = useAuthStore(); // Lấy thông tin người dùng hiện tại
-  const currentUserId = authUser?._id; // Lấy ID của người dùng từ auth store
-
-  const [newPost, setNewPost] = useState(null);
+  const { posts, isLoading, fetchPosts, createPostSuccess } = usePostStore();
+  const { authUser } = useAuthStore();
+  const currentUserId = authUser?._id;
 
   useEffect(() => {
-    fetchPosts(); // Gọi API để tải bài đăng khi component mount
+    fetchPosts(); // Lấy danh sách bài viết khi component mount
   }, [fetchPosts]);
 
-  // Lắng nghe khi có bài viết mới được tạo thành công
   useEffect(() => {
-    if (createPostSuccess && newPost) {
-      window.scrollTo({ top: 0, behavior: "smooth" }); // Cuộn lên đầu trang khi có bài viết mới
+    if (createPostSuccess) {
+      // Cuộn lên đầu trang khi có bài viết mới
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
-  }, [createPostSuccess, newPost]);
+  }, [createPostSuccess]); // Chỉ chạy khi createPostSuccess thay đổi
 
-  // Lọc danh sách bài đăng chỉ chứa những bài có isApproved: true
+  // Lọc danh sách bài viết đã duyệt
   const approvedPosts = posts.filter((post) => !post.isApproved);
 
   return (
     <div className="Posts">
-      {/* Hiển thị Loader khi đang tải */}
-      {isLoading && (
-        <div className="flex items-center justify-center my-8">
-          <Loader />
-        </div>
-      )}
-
-      {/* Hiển thị danh sách bài đăng đã phê duyệt */}
+      {isLoading && <Loader />}
       <div>
         {approvedPosts.map((item, i) => (
           <Post
@@ -46,8 +37,6 @@ const Posts = () => {
             authUserId={authUser._id}
           />
         ))}
-
-        {/* Hiển thị thông báo nếu không có bài đăng nào được phê duyệt */}
         {approvedPosts.length === 0 && !isLoading && (
           <p>Hiện không có bài đăng nào được phê duyệt.</p>
         )}

@@ -27,7 +27,7 @@ router.get("/approvePost", getApprovedPosts);
 router.get("/check", protectRoute, checkAuth);
 router.get("/getUsers", getAllUsers);
 router.get("/messages", getAllMessages);
-router.delete("/messages/:id", deleteMessage);
+router.delete("/message/:id", deleteMessage);
 router.get("/user/:userId", getUserById);
 router.post("/ban-users-from-chat", banUsers);
 router.get("/checkAuth/user/:id", checkUserStatus);

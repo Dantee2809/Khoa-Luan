@@ -1,109 +1,249 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { usePostStore } from "../../store/usePostStore"; // Import zustand store
-import "./PostDetail.css"; // Thêm file CSS vào
+import { usePostStore } from "../../store/usePostStore";
 import { useAuthStore } from "../../store/useAuthStore";
+import { useFollowStore } from "../../store/useFollowStore";
+import "./PostDetail.css";
 
 const PostDetail = () => {
-  const { id } = useParams(); // Lấy id từ URL
-  const navigate = useNavigate(); // Dùng để điều hướng
-  const {
-    getPostById,
-    post,
-    isLoading,
-    error,
-    followUser,
-    unfollowUser,
-    isFollowing,
-  } = usePostStore(); // Lấy các trạng thái và hành động từ zustand store
-
-  // const currentUserId = localStorage.getItem("userId");
-  const { authUser } = useAuthStore(); // Lấy thông tin người dùng hiện tại (có thể lưu trong store)
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { getPostById, post, isLoading, error, updatePost, deletePost } =
+    usePostStore(); // Add deletePost
+  const { authUser } = useAuthStore();
+  const { followUser, unfollowUser, fetchFollowingStatus } = useFollowStore();
   const [user, setUser] = useState(null);
-  // Lấy dữ liệu bài viết khi có thay đổi id
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedPost, setEditedPost] = useState({
+    desc: "",
+    contact: "",
+    location: "",
+    image: "",
+  });
+  const { provinces, fetchProvinces, reportPost } = usePostStore();
+
+  const [isUserFollowing, setIsUserFollowing] = useState(false);
+  const [isFollowLoading, setIsFollowLoading] = useState(false);
+  // Lấy danh sách tỉnh thành nếu chưa tải
+  useEffect(() => {
+    if (provinces.length === 0) fetchProvinces();
+  }, [provinces, fetchProvinces]);
+
   useEffect(() => {
     if (id) {
-      getPostById(id); // Gọi hàm từ store để lấy dữ liệu bài viết theo id
+      getPostById(id);
     }
   }, [id, getPostById]);
-  const handleGoBack = () => {
-    // Chức năng quay lại (có thể điều hướng về trang trước đó hoặc trang chủ)
-    navigate(-1); // Quay lại trang trước đó
-  };
-  // Thêm SDK Facebook vào trang
+
   useEffect(() => {
-    // Tạo một script để tải SDK Facebook
+    if (post) {
+      setEditedPost({
+        desc: post.desc,
+        contact: post.contact,
+        location: post.location,
+        image: post.image,
+      });
+    }
+  }, [post]);
+
+  useEffect(() => {
+    const checkFollowStatus = async () => {
+      if (authUser && post && post.userId) {
+        const status = await fetchFollowingStatus(authUser._id, post.userId);
+        setIsUserFollowing(status);
+      }
+    };
+    checkFollowStatus();
+  }, [authUser, post, fetchFollowingStatus]);
+
+  const handleGoBack = () => navigate(-1);
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+  // Lấy tên tỉnh thành dựa vào ID
+  const getProvinceNameById = (location) => {
+    const locationId = Number(location);
+    const province = provinces.find((p) => p.id === locationId);
+    return province ? province.name : "Không xác định";
+  };
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedPost((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleSave = () => {
+    updatePost({ ...post, ...editedPost });
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditedPost({
+      desc: post.desc,
+      contact: post.contact,
+      location: post.location,
+      image: post.image,
+    });
+    setIsEditing(false);
+  };
+
+  const handleFollowToggle = async () => {
+    if (!authUser || !post.userId) return;
+    setIsFollowLoading(true);
+    try {
+      if (isUserFollowing) {
+        await unfollowUser(authUser._id, post.userId);
+        setIsUserFollowing(false);
+      } else {
+        await followUser(authUser._id, post.userId);
+        setIsUserFollowing(true);
+      }
+    } catch (error) {
+      console.error("Failed to toggle follow status:", error);
+    } finally {
+      setIsFollowLoading(false);
+    }
+  };
+
+  const handleMessage = () => {
+    if (!isUserFollowing) {
+      alert("Bạn cần theo dõi trước khi nhắn tin!");
+    } else {
+      navigate("/chatbox");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm("Bạn chắc chắn muốn xóa bài đăng này?")) {
+      try {
+        await deletePost(post._id); // Call deletePost to remove the post
+        navigate("/"); // Navigate to the homepage or any other page
+      } catch (error) {
+        console.error("Error deleting post:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
     const script = document.createElement("script");
     script.src =
       "https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v21.0";
     script.async = true;
     script.defer = true;
     document.body.appendChild(script);
-
-    // Cleanup khi component unmount
-    return () => {
-      document.body.removeChild(script);
-    };
+    return () => document.body.removeChild(script);
   }, []);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
-
-  if (!post) {
-    return <div>Post not found!</div>;
-  }
-
-  // const handleFollow = () => {
-  //   followUser(currentUserId, post.userId); // Theo dõi người dùng
-  // };
-
-  // const handleUnfollow = () => {
-  //   unfollowUser(currentUserId, post.userId); // Hủy theo dõi người dùng
-  // };
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
+  if (!post) return <div>Post not found!</div>;
 
   return (
     <div className="post-detail">
       <div className="post-header">
-        <h1>{user ? user.username : "Người dùng ẩn danh"}</h1>{" "}
-        {/* Hiển thị tên người dùng */}
-        {/* Ẩn nút "Quay lại" nếu là admin */}
+        <h1>{user ? user.username : "Người dùng ẩn danh"}</h1>
         <button className="go-back-btn" onClick={handleGoBack}>
           Quay lại
         </button>
       </div>
-      <p className="post-description">{post.desc}</p>
-      {post.image && <img src={post.image} alt="Post" className="post-image" />}
-      <p className="post-contact">Liên hệ: {post.contact}</p>
-      <p className="post-location">Địa điểm: {post.location}</p>
 
-      {/* <div className="post-actions">
-        {isFollowing ? (
-          <button className="follow-btn unfollow" onClick={handleUnfollow}>
-            Hủy theo dõi
+      {isEditing ? (
+        <div className="edit-form">
+          <textarea
+            name="desc"
+            value={editedPost.desc}
+            onChange={handleInputChange}
+            placeholder="Mô tả"
+          />
+          <input
+            type="text"
+            name="contact"
+            value={editedPost.contact}
+            onChange={handleInputChange}
+            placeholder="Liên hệ"
+          />
+          <input
+            type="text"
+            name="location"
+            value={editedPost.location}
+            onChange={handleInputChange}
+            placeholder="Địa điểm"
+          />
+          <input
+            type="text"
+            name="image"
+            value={editedPost.image}
+            onChange={handleInputChange}
+            placeholder="Link hình ảnh"
+          />
+          <div className="edit-actions">
+            <button onClick={handleSave}>Lưu</button>
+            <button onClick={handleCancel}>Hủy</button>
+          </div>
+        </div>
+      ) : (
+        <div className="post-info">
+          <p className="post-description">{post.desc}</p>
+          {post.image && (
+            <img src={post.image} alt="Post" className="post-image" />
+          )}
+          <p className="post-contact">
+            <button className="contact-button">📞 {post.contact}</button>
+          </p>
+          <p className="post-location">
+            Địa điểm: {getProvinceNameById(post.location)}
+          </p>
+        </div>
+      )}
+
+      {/* Edit Button */}
+      {authUser && authUser._id === post.userId && !isEditing && (
+        <>
+          <button className="edit-btn" onClick={handleEditClick}>
+            Sửa
           </button>
-        ) : (
-          <button className="follow-btn follow" onClick={handleFollow}>
-            Theo dõi
+          <button className="delete-btn" onClick={handleDelete}>
+            Xóa
           </button>
+        </>
+      )}
+
+      <div className="postReact">
+        {authUser && authUser._id !== post.userId && (
+          <>
+            <button
+              className={`button fc-button ${
+                isUserFollowing ? "unfollow" : "follow"
+              }`}
+              onClick={handleFollowToggle}
+              disabled={isFollowLoading}
+            >
+              {isFollowLoading
+                ? "Đang tải..."
+                : isUserFollowing
+                ? "Đã theo dõi"
+                : "Theo dõi"}
+            </button>
+            <button className="button fc-button" onClick={handleMessage}>
+              Nhắn Tin
+            </button>
+          </>
         )}
-      </div> */}
+      </div>
 
-      {/* Plugin chia sẻ Facebook */}
       <div id="fb-root"></div>
       <div
         className="fb-share-button"
-        data-href={`http://localhost:3000/post/${post._id}`} // Không mã hóa URL
+        data-href={`http://localhost:3000/post/${post._id}`}
         data-layout="button_count"
         data-size="large"
       >
         <a
           target="_blank"
-          href={`https://www.facebook.com/sharer/sharer.php?u=http://localhost:3000/post/${post._id}`} // Không mã hóa URL
+          href={`https://www.facebook.com/sharer/sharer.php?u=http://localhost:3000/post/${post._id}`}
           className="fb-xfbml-parse-ignore"
         >
           Chia sẻ

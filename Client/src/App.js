@@ -57,9 +57,11 @@ const App = () => {
   const ProtectedRoute = ({ children }) => {
     return authUser ? children : <Navigate to="/sign-in" replace />;
   };
+
   return (
     <div>
-      <Navbar />
+      {/* Chỉ hiển thị Navbar nếu user là admin */}
+      {authUser?.role === "admin" && <Navbar />}
       <div className="main-layout">
         <Routes>
           <Route
@@ -146,6 +148,7 @@ const App = () => {
           />
           <Route
             path="/sign-up"
+            // element={<Auth />}
             element={!authUser ? <RegisterUser /> : <Navigate to="/" />}
           />
           <Route path="/post/:id" element={<PostDetail />} />{" "}

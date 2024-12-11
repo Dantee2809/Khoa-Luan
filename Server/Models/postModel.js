@@ -27,12 +27,15 @@ const postSchema = mongoose.Schema(
       type: String,
       default: "",
     },
-    reports: [
-      {
-        reportedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Người báo cáo
-        reportedAt: { type: Date, default: Date.now }, // Thời gian báo cáo
-      },
-    ],
+    reports: {
+      type: [
+        {
+          reportedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+          reportedAt: { type: Date, default: Date.now },
+        },
+      ],
+      default: [], // Thêm giá trị mặc định là mảng rỗng
+    },
     contact: {
       type: String,
       validate: {

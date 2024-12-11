@@ -36,7 +36,9 @@ const ReportPost = () => {
   }
 
   // Lọc chỉ các bài viết có báo cáo
-  const reportedPosts = posts.filter((post) => post.reportsCount > 0);
+  const reportedPosts = posts.filter(
+    (post) => post.reportsCount && post.reportsCount > 0
+  );
 
   const handleDelete = async (postId) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa bài viết này?")) {

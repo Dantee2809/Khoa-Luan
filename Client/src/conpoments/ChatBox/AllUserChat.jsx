@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 import { useChatStore } from "../../store/useChatStore";
 
 const AllUserChat = () => {
-  const { messages, loading, error, fetchMessages, deleteMessage, markAsRead } =
+  const { messages, loading, error, fetchMessages, deleteMessage } =
     useChatStore();
   const chatContainerRef = useRef(null);
-  const [searchQuery, setSearchQuery] = useState(""); // state để lưu trữ từ khóa tìm kiếm
-  const [filteredMessages, setFilteredMessages] = useState(messages);
+  const [searchQuery, setSearchQuery] = useState(""); // Từ khóa tìm kiếm
+  const [filteredMessages, setFilteredMessages] = useState(messages); // Lọc tin nhắn
 
   // Gọi fetchMessages khi component được mount
   useEffect(() => {
@@ -54,26 +54,18 @@ const AllUserChat = () => {
 
   // Xử lý xóa tin nhắn
   const handleDeleteMessage = async (messageId) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa tin nhắn này?")) {
-      return;
-    }
+    const confirmDelete = window.confirm(
+      "Bạn có chắc chắn muốn xóa tin nhắn này?"
+    );
+    if (!confirmDelete) return;
 
     try {
-      console.log("Đang xóa tin nhắn ID:", messageId);
-
-      await deleteMessage(messageId); // Gọi từ store
-
+      await deleteMessage(messageId); // Gọi API xóa tin nhắn
       alert("Xóa tin nhắn thành công!");
     } catch (err) {
       console.error("Lỗi xóa tin nhắn:", err);
       alert("Có lỗi xảy ra khi xóa tin nhắn");
     }
-  };
-
-  // Xử lý đánh dấu tin nhắn là đã đọc
-  const handleMarkAsRead = async (messageId) => {
-    await markAsRead(messageId);
-    fetchMessages(); // Tải lại tin nhắn
   };
 
   if (loading) {
@@ -138,7 +130,7 @@ const AllUserChat = () => {
                     href={msg.image}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-500 underline"
+                    className="text-blue-500 no-underline"
                   >
                     Nhấn vào để xem ảnh
                   </a>
@@ -151,12 +143,12 @@ const AllUserChat = () => {
                 >
                   Đánh dấu là đã đọc
                 </button> */}
-                {/* <button
+                <button
                   onClick={() => handleDeleteMessage(msg._id)}
                   className="text-red-500 hover:underline"
                 >
                   Xóa
-                </button> */}
+                </button>
               </div>
             </div>
           ))}

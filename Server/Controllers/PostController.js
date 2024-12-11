@@ -27,6 +27,7 @@ export const createPost = async (req, res) => {
       desc: req.body.desc,
       image: uploadResponse.secure_url, // Lưu URL ảnh từ Cloudinary
       category: req.body.category,
+      location: req.body.location,
       contact: req.body.contact,
       isApproved: false, // Mặc định chưa duyệt
       isLost: isLost || false, // Mặc định là false nếu không được gửi
@@ -89,18 +90,39 @@ export const getPostToProfile = async (req, res) => {
 // };
 
 export const updatePost = async (req, res) => {
-  const postId = req.params.id;
-  const { userId } = req.body;
+  //   const postId = req.params.id;
+  //   const { userId } = req.body;
+  //   try {
+  //     const post = await PostModel.findById(postId);
+  //     if (post.userId === userId) {
+  //       await post.updateOne({ $set: req.body });
+  //       res.status(200).json("Post update");
+  //     } else {
+  //       res.status(403).json("Unauthorized to update this post");
+  //     }
+  //   } catch (error) {
+  //     res.status(500).json(error);
+  //   }
+  // };
+  const { id } = req.params;
+  const { desc, location, contact } = req.body; // Assuming these are the fields you're updating
+
   try {
-    const post = await PostModel.findById(postId);
-    if (post.userId === userId) {
-      await post.updateOne({ $set: req.body });
-      res.status(200).json("Post update");
-    } else {
-      res.status(403).json("Unauthorized to update this post");
+    // Find the post by ID and update it
+    const updatedPost = await PostModel.findByIdAndUpdate(
+      id,
+      { desc, location, contact },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedPost) {
+      return res.status(404).json({ message: "Post not found" });
     }
+
+    res.status(200).json(updatedPost);
   } catch (error) {
-    res.status(500).json(error);
+    console.error(error);
+    res.status(500).json({ message: "Server error while updating the post" });
   }
 };
 export const reportPost = async (req, res) => {
@@ -132,7 +154,6 @@ export const reportPost = async (req, res) => {
   }
 };
 
-// Backend code
 export const deletePost = async (req, res) => {
   const postId = req.params.id;
   const { userId, role } = req.body; // Lấy role từ body, role là thông tin quyền
@@ -152,20 +173,16 @@ export const deletePost = async (req, res) => {
 };
 
 export const delete1UserPost = async (req, res) => {
-  const postId = req.params.id;
-  const userId = req.query.userId;
-
+  const { id } = req.params;
   try {
-    const post = await PostModel.findById(postId);
-    if (post.userId === userId) {
-      await post.deleteOne();
-      console.log("Post userId:", post.userId, "Request userId:", userId);
-      res.status(200).json("Post deleted");
-    } else {
-      res.status(403).json("Unauthorized to delete this post");
+    // Find and delete the post by ID
+    const post = await PostModel.findByIdAndDelete(id);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
     }
+    res.status(200).json({ message: "Post deleted successfully" });
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({ message: "Failed to delete post", error });
   }
 };
 
@@ -176,8 +193,60 @@ export const provinces = [
   { id: 4, name: "Cần Thơ" },
   { id: 5, name: "Hải Phòng" },
   { id: 6, name: "Bình Dương" },
-  // Thêm các tỉnh thành khác của Việt Nam
+  { id: 7, name: "An Giang" },
+  { id: 8, name: "Bắc Giang" },
+  { id: 9, name: "Bắc Kạn" },
+  { id: 10, name: "Bến Tre" },
+  { id: 11, name: "Bình Định" },
+  { id: 12, name: "Bình Phước" },
+  { id: 13, name: "Bình Thuận" },
+  { id: 14, name: "Cà Mau" },
+  { id: 15, name: "Cao Bằng" },
+  { id: 16, name: "Đắk Lắk" },
+  { id: 17, name: "Đắk Nông" },
+  { id: 18, name: "Điện Biên" },
+  { id: 19, name: "Đồng Nai" },
+  { id: 20, name: "Đồng Tháp" },
+  { id: 21, name: "Gia Lai" },
+  { id: 22, name: "Hà Giang" },
+  { id: 23, name: "Hà Nam" },
+  { id: 24, name: "Hà Tĩnh" },
+  { id: 25, name: "Hải Dương" },
+  { id: 26, name: "Hòa Bình" },
+  { id: 27, name: "Hưng Yên" },
+  { id: 28, name: "Khánh Hòa" },
+  { id: 29, name: "Kiên Giang" },
+  { id: 30, name: "Kon Tum" },
+  { id: 31, name: "Lai Châu" },
+  { id: 32, name: "Lâm Đồng" },
+  { id: 33, name: "Lạng Sơn" },
+  { id: 34, name: "Lào Cai" },
+  { id: 35, name: "Long An" },
+  { id: 36, name: "Nam Định" },
+  { id: 37, name: "Nghệ An" },
+  { id: 38, name: "Ninh Bình" },
+  { id: 39, name: "Ninh Thuận" },
+  { id: 40, name: "Phú Thọ" },
+  { id: 41, name: "Phú Yên" },
+  { id: 42, name: "Quảng Bình" },
+  { id: 43, name: "Quảng Nam" },
+  { id: 44, name: "Quảng Ngãi" },
+  { id: 45, name: "Quảng Ninh" },
+  { id: 46, name: "Sóc Trăng" },
+  { id: 47, name: "Sơn La" },
+  { id: 48, name: "Tây Ninh" },
+  { id: 49, name: "Thái Bình" },
+  { id: 50, name: "Thái Nguyên" },
+  { id: 51, name: "Thanh Hóa" },
+  { id: 52, name: "Thừa Thiên-Huế" },
+  { id: 53, name: "Tiền Giang" },
+  { id: 54, name: "Trà Vinh" },
+  { id: 55, name: "Tuyên Quang" },
+  { id: 56, name: "Vĩnh Long" },
+  { id: 57, name: "Vĩnh Phúc" },
+  { id: 58, name: "Yên Bái" },
 ];
+
 // export const getTimelinepost = async (req, res) => {
 //   const userId = req.params.id;
 //   try {
@@ -273,27 +342,25 @@ export const getLostItemsCount = async (req, res) => {
 };
 
 export const search = async (req, res) => {
-  const { q } = req.query; // Lấy query từ request
   try {
-    // Kiểm tra nếu không có từ khóa tìm kiếm
-    if (!q || q.trim() === "") {
-      return res.status(400).json({ message: "Vui lòng nhập từ khóa cần tìm" });
+    const { query } = req.query; // Lấy query từ URL
+    if (!query) {
+      return res
+        .status(400)
+        .json({ error: "Từ khóa tìm kiếm không được để trống." });
     }
 
-    // Tìm bài viết theo mô tả (không phân biệt chữ hoa/thường)
+    // Tìm kiếm trong tiêu đề hoặc mô tả của bài viết
     const posts = await PostModel.find({
-      desc: { $regex: q, $options: "i" },
+      $or: [
+        { desc: { $regex: query, $options: "i" } }, // Tìm theo mô tả
+      ],
     });
 
-    // Nếu không có bài viết nào tìm thấy
-    if (posts.length === 0) {
-      return res.status(404).json({ message: "Không tìm thấy bài viết nào" });
-    }
-
-    res.status(200).json({ posts });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Lỗi server" });
+    res.status(200).json(posts); // Trả về kết quả tìm kiếm
+  } catch (error) {
+    console.error("Lỗi tìm kiếm bài viết:", error);
+    res.status(500).json({ error: "Đã xảy ra lỗi máy chủ." });
   }
 };
 
@@ -336,20 +403,46 @@ export const getAllPosts = async (req, res) => {
       return res.status(404).json({ message: "No posts found" });
     }
 
-    return res.status(200).json({ data: posts });
+    // Tạo một mảng mới với số lượng báo cáo được thêm vào mỗi bài đăng
+    const postsWithReportCount = posts.map((post) => ({
+      ...post.toObject(),
+      reportsCount: Array.isArray(post.reports) ? post.reports.length : 0, // Kiểm tra nếu reports là mảng
+    }));
+
+    return res.json({
+      status: "Success",
+      data: postsWithReportCount, // Trả về danh sách bài đăng với thông tin báo cáo
+    });
   } catch (error) {
     res.status(500).json({ message: "Error retrieving posts" });
   }
 };
 
 export const getPostApprove = async (req, res) => {
-  try {
-    // Lọc bài viết có isApproved: false và sắp xếp theo createdAt mới nhất
-    const posts = await PostModel.find({ isApproved: false }).sort({
-      createdAt: -1,
-    });
+  // try {
+  //   // Lọc bài viết có isApproved: false và sắp xếp theo createdAt mới nhất
+  //   const posts = await PostModel.find({ isApproved: false }).sort({
+  //     createdAt: -1,
+  //   });
 
-    console.log("Filtered Posts found:", posts); // Log để kiểm tra dữ liệu
+  //   console.log("Filtered Posts found:", posts); // Log để kiểm tra dữ liệu
+
+  //   if (posts.length === 0) {
+  //     return res.status(404).json({ message: "No posts found" });
+  //   }
+
+  //   return res.json({
+  //     status: "Success",
+  //     data: posts,
+  //   });
+  // } catch (error) {
+  //   console.log("Error:", error);
+  //   res.status(500).json({ message: "Error retrieving posts" });
+  // }
+  try {
+    const posts = await PostModel.find().sort({ createdAt: -1 });
+
+    console.log("Posts found:", posts); // Log để kiểm tra dữ liệu
 
     if (posts.length === 0) {
       return res.status(404).json({ message: "No posts found" });

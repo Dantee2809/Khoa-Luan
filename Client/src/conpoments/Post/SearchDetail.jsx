@@ -4,6 +4,7 @@ import Post from "./Post";
 import "../PostSide/PostSide.css";
 import { usePostStore } from "../../store/usePostStore";
 import { useAuthStore } from "../../store/useAuthStore";
+import Posts from "../Posts/Posts";
 
 const SearchDetail = () => {
   const { results } = useSearchStore(); // Lấy kết quả tìm kiếm từ store

@@ -211,14 +211,6 @@ const PostShare = ({ onPostCreateSuccess }) => {
       >
         {isCreating ? "Đang tạo bài..." : "Đăng bài"}
       </button>
-      {createPostSuccess && (
-        <p className="text-green-600 mt-4 text-sm">
-          Post created successfully!
-        </p>
-      )}
-      {createPostError && (
-        <p className="text-red-600 mt-4 text-sm">Error: {createPostError}</p>
-      )}
     </form>
   );
 };

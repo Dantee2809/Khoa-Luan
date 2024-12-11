@@ -320,16 +320,16 @@ export const banUsers = async (req, res) => {
 };
 // Controller để xóa tin nhắn
 export const deleteMessage = async (req, res) => {
-  const { id } = req.params; // ID của tin nhắn cần xóa
+  const { id } = req.params; // Lấy ID của tin nhắn từ request params
 
   try {
-    const message = await messageModel.findById(id);
+    const message = await messageModel.findById(id); // Tìm tin nhắn theo ID
 
     if (!message) {
       return res.status(404).json({ message: "Không tìm thấy tin nhắn" });
     }
 
-    await message.remove(); // Xóa tin nhắn
+    await message.deleteOne(); // Xóa tin nhắn khỏi cơ sở dữ liệu
     res.status(200).json({ message: "Xóa tin nhắn thành công" });
   } catch (err) {
     console.error("Lỗi xóa tin nhắn:", err);

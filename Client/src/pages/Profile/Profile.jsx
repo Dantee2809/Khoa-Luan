@@ -4,6 +4,7 @@ import ProfileCard from "../../conpoments/ProfileCard/ProfileCard";
 import RightSide from "../../conpoments/RightSide/RightSide";
 import "./Profile.css";
 import PostSide from "../../conpoments/PostSide/PostSide";
+import Posts from "../../conpoments/Posts/Posts";
 
 const Profile = () => {
   return (
@@ -11,7 +12,8 @@ const Profile = () => {
       <ProfileLeft />
       <div className="Profile-center">
         <ProfileCard />
-        <PostSide />
+        {/* <PostSide /> */}
+        <Posts />
       </div>
       <RightSide />
     </div>

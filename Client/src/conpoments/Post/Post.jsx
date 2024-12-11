@@ -6,8 +6,8 @@ import { useFollowStore } from "../../store/useFollowStore";
 import { usePostStore } from "../../store/usePostStore";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
-import { axiosInstance } from "../../lib/axios";
 import { X } from "lucide-react";
+import { useDeletestore } from "../../store/useDeletestore";
 
 const Post = ({ data, currentUserId }) => {
   const {
@@ -18,15 +18,17 @@ const Post = ({ data, currentUserId }) => {
     setFollowing,
   } = useFollowStore();
 
-  const { provinces, fetchProvinces, reportPost } = usePostStore();
+  const { provinces, fetchProvinces, reportPost, deletePost } = usePostStore();
+  const { deleteMinePost } = useDeletestore(); // Lấy hàm deletePost từ store
   const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
 
-  // Lấy thông tin bài viết
-  const isCurrentUserPost = currentUserId === data.userId._id;
-  const userId = data.userId._id;
-  const username = data.userId.username;
+  // Kiểm tra xem bài viết có thuộc về người dùng hiện tại không
+  const isCurrentUserPost = currentUserId === (data.userId?._id || data.userId);
+
+  const userId = data?.userId?._id || null;
+  const username = data?.userId?.username || "Người dùng ẩn danh";
 
   // Lấy danh sách tỉnh thành nếu chưa tải
   useEffect(() => {
@@ -51,11 +53,10 @@ const Post = ({ data, currentUserId }) => {
   // Xử lý xóa bài viết
   const handleDeletePost = async () => {
     try {
-      await axiosInstance.delete(`/post/user/${data._id}`);
+      await deletePost(data._id); // Sử dụng deletePost từ store
       toast.success("Bài đăng đã bị xóa.");
     } catch (error) {
       console.error("Error deleting post:", error);
-      toast.error("Có lỗi xảy ra khi xóa bài đăng.");
     }
   };
 
@@ -93,7 +94,6 @@ const Post = ({ data, currentUserId }) => {
   const handleReport = async () => {
     try {
       await reportPost(data._id, currentUserId);
-      toast.success("Đã báo cáo bài viết.");
     } catch (error) {
       console.error("Failed to report post:", error);
       toast.error("Không thể báo cáo bài viết.");
@@ -124,7 +124,7 @@ const Post = ({ data, currentUserId }) => {
       {/* Hình ảnh bài đăng */}
       {data.image && (
         <div className="post-image-container">
-          {!isCurrentUserPost && (
+          {isCurrentUserPost && (
             <button
               className="delete-btn absolute top-2 right-2 p-2 text-black rounded-full focus:outline-none"
               onClick={handleDeletePost}
@@ -132,6 +132,7 @@ const Post = ({ data, currentUserId }) => {
               <X />
             </button>
           )}
+
           <Link to={`/post/${data._id}`}>
             <img src={data.image} alt="post" className="post-image" />
           </Link>
@@ -143,7 +144,7 @@ const Post = ({ data, currentUserId }) => {
         {!isCurrentUserPost && (
           <>
             <button
-              className="button fc-button"
+              className="report-btn button btn-danger"
               onClick={() => {
                 if (!isUserFollowing) {
                   alert("Bạn cần theo dõi trước khi nhắn tin!");
@@ -155,7 +156,7 @@ const Post = ({ data, currentUserId }) => {
               Nhắn Tin
             </button>
             <button
-              className={`button fc-button ${
+              className={`report-btn button btn-danger ${
                 isUserFollowing ? "unfollow" : "follow"
               }`}
               onClick={isUserFollowing ? handleUnfollow : handleFollow}

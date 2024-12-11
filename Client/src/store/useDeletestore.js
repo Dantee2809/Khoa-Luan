@@ -9,6 +9,7 @@ export const useDeletestore = create((set) => ({
   pendingPosts: [],
   isLoading: false,
   error: null,
+  isDeleting: {}, // Trạng thái xóa bài (theo postId)
 
   // Hàm xóa bài viết
   deletePost: async (postId) => {
@@ -41,5 +42,24 @@ export const useDeletestore = create((set) => ({
       toast.error("Lỗi khi xóa bài viết!");
     }
   },
+
+  // Hàm xóa bài viết
+  deleteMinePost: async (postId) => {
+    set({ isDeleting: true }); // Bắt đầu trạng thái xóa bài
+    try {
+      await axiosInstance.delete(`/post/user/${postId}`);
+      // Cập nhật trạng thái "đang xóa" cho bài viết hiện tại
+      set((state) => ({
+        isDeleting: { ...state.isDeleting, [postId]: true },
+      }));
+      return true; // Trả về thành công
+    } catch (error) {
+      set({ isDeleting: false }); // Kết thúc trạng thái xóa bài
+      console.error("Error deleting post:", error);
+      toast.error("Có lỗi xảy ra khi xóa bài đăng.");
+      throw error; // Ném lỗi để try...catch của handleDeletePost nhận diện được
+    }
+  },
+
   // Các hàm khác (fetchPosts, toggleApproval, ...)
 }));

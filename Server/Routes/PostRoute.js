@@ -14,6 +14,7 @@ import {
   reportPost,
   delete1UserPost,
   getPostToProfile,
+  getPostApprove,
 } from "../Controllers/PostController.js";
 import { protectRoute } from "../middleware/auth_middleware.js";
 import authenticateToken from "../lib/auth.js";
@@ -25,7 +26,8 @@ router.get("/posts/:id", getPost); // Để lấy một bài viết theo id
 router.get("/posts/user/:id", getPostToProfile); // Để lấy một bài viết theo id
 // router.get("/getFetch", fetchPosts); // Để lấy một bài viết theo id
 
-router.put("/posts/:id", updatePost); // Để cập nhật bài viết
+// router.put("/posts/:id", updatePost); // Để cập nhật bài viết
+router.put("/update/:id", protectRoute, updatePost);
 router.delete("/posts/:id", protectRoute, deletePost); // Để xóa bài viết
 router.delete("/user/:id", protectRoute, delete1UserPost); // Để xóa bài viết
 
@@ -39,6 +41,7 @@ router.get("/search", search);
 router.get("/posts/detail/:id", getPostbyid); // Để lấy bài viết theo id
 router.get("/postsId/getRecently", getRecentlyPosts); // Để lấy bài viết theo id
 router.get("/postsId/getOldest", getOldestPosts); // Để lấy bài viết theo id
+router.get("/getPostAp", getPostApprove); // Để lấy bài viết theo id
 router.put("/approve/:id", approvePosts);
 
 export default router;

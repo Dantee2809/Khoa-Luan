@@ -1,78 +1,300 @@
-.post-detail {
-  max-width: 100%; /* Tăng chiều rộng của bảng */
-  background-color: #f9f9f9; /* Màu nền nhẹ nhàng */
-  padding: 20px; /* Khoảng cách bên trong */
-  border-radius: 10px; /* Góc bo tròn */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
-  font-family: Arial, sans-serif; /* Phông chữ dễ đọc */
+/* .post-detail {
+  font-family: Arial, sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 .post-header {
   display: flex;
-  justify-content: space-between; /* Canh đều tiêu đề và nút quay lại */
+  justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #ddd; /* Đường phân cách tiêu đề */
-  padding-bottom: 10px;
   margin-bottom: 20px;
 }
 
 .post-header h1 {
-  font-size: 24px; /* Kích thước tiêu đề lớn hơn */
+  font-size: 24px;
   font-weight: bold;
-  margin: 0;
+}
+
+.go-back-btn {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.go-back-btn:hover {
+  background-color: #0056b3;
+}
+
+.post-info {
+  margin-bottom: 20px;
 }
 
 .post-description {
-  font-size: 18px; /* Tăng kích thước chữ */
-  line-height: 1.6; /* Khoảng cách giữa các dòng */
-  color: #333; /* Màu chữ đậm hơn */
-  margin-bottom: 15px;
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 10px;
 }
 
 .post-image {
-  max-width: 100%; /* Đảm bảo hình ảnh hiển thị đầy đủ */
-  border-radius: 10px;
-  margin: 20px 0;
+  width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.post-contact,
+.post-location {
+  font-size: 14px;
+  color: #555;
+}
+.edit-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.edit-btn:hover {
+  background-color: #0056b3;
+}
+
+.save-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.save-btn:hover {
+  background-color: #218838;
+}
+
+.edit-input {
+  width: 100%;
+  margin: 10px 0;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.fc-button {
+  height: 2rem;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+.postReact {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+textarea.edit-input {
+  height: 150px;
+} */
+/* PostDetail.css */
+
+/* Main Container */
+/* Add this to your PostDetail.css */
+.delete-btn {
+  padding: 8px 16px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+}
+
+.post-detail {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: "Arial", sans-serif;
+}
+
+/* Post Header */
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.post-header h1 {
+  font-size: 24px;
+  color: #333;
+}
+
+.go-back-btn {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.go-back-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Edit Form */
+.edit-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-form textarea,
+.edit-form input {
+  margin-bottom: 12px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  width: 100%;
+}
+
+.edit-form textarea {
+  resize: vertical;
+  height: 150px;
+}
+
+.edit-actions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-actions button:first-child {
+  background-color: #28a745;
+  color: white;
+  margin-right: 10px;
+}
+
+.edit-actions button:first-child:hover {
+  background-color: #218838;
+}
+
+.edit-actions button:last-child {
+  background-color: #dc3545;
+  color: white;
+}
+
+.edit-actions button:last-child:hover {
+  background-color: #c82333;
+}
+
+/* Post Information */
+.post-info {
+  margin-bottom: 20px;
+}
+
+.post-description {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.post-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 20px;
 }
 
 .post-contact,
 .post-location {
   font-size: 16px;
-  margin-bottom: 10px;
+  color: #555;
 }
 
-.post-actions {
+.contact-button {
+  background: none;
+  border: none;
+  color: #007bff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.contact-button:hover {
+  color: #0056b3;
+}
+
+/* Edit Button */
+.edit-btn {
+  padding: 8px 16px;
+  background-color: #ffc107;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.edit-btn:hover {
+  background-color: #e0a800;
+}
+
+/* Post Interaction Buttons */
+.postReact {
   display: flex;
-  gap: 15px; /* Khoảng cách giữa các nút */
+  gap: 15px;
   margin-top: 20px;
 }
 
-.follow-btn {
+.fc-button {
   padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
   font-size: 16px;
-  font-weight: bold;
-}
-
-.follow-btn.follow {
-  background-color: #007bff; /* Màu xanh khi chưa theo dõi */
   color: white;
   border: none;
-}
-
-.follow-btn.unfollow {
-  background-color: #dc3545; /* Màu đỏ khi đã theo dõi */
-  color: white;
-  border: none;
-}
-
-.go-back-btn {
-  padding: 10px 15px;
-  font-size: 14px;
-  border: none;
-  background-color: #6c757d; /* Màu xám cho nút quay lại */
-  color: white;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.fc-button.follow {
+  background-color: #28a745;
+}
+
+.fc-button.unfollow {
+  background-color: #dc3545;
+}
+
+.fc-button:hover {
+  opacity: 0.8;
+}
+
+.fb-share-button {
+  margin-top: 20px;
+  display: inline-block;
+}
+
+.fb-share-button a {
+  color: #3b5998;
+  text-decoration: none;
+  font-size: 16px;
+  padding: 10px;
+  border: 1px solid #3b5998;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.fb-share-button a:hover {
+  background-color: #f0f2f5;
 }

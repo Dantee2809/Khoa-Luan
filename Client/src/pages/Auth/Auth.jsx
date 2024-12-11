@@ -47,7 +47,6 @@ function Login({ isAdminLogin, setIsAdminLogin }) {
         if (user.role === expectedRole) {
           // Vai trò khớp
           await fetchDataByRole(user.role); // Lấy dữ liệu theo vai trò
-          navigate(isAdminLogin ? "/admin-dashboard" : "/"); // Chuyển hướng đến trang tương ứng
         } else {
           // Vai trò không khớp
           setError(

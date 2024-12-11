@@ -4,9 +4,22 @@ import toast from "react-hot-toast";
 import axios from "axios";
 
 export const usePostStore = create((set, get) => ({
+  // posts: [], // Lưu danh sách bài đăng
+  // post: null, // A single post
+  // provinces: [],
+  // isCreating: false, // Trạng thái đang tạo bài viết
+  // createPostError: null,
+  // createPostSuccess: false,
+  // approvedPosts: [],
+  // pendingPosts: [],
+  // isLoading: false, // Trạng thái đang tải
+  // error: null, // Lưu thông báo lỗi nếu có
   posts: [], // Lưu danh sách bài đăng
+  post: null, // A single post
   provinces: [],
   isCreating: false, // Trạng thái đang tạo bài viết
+  createPostError: null,
+  createPostSuccess: false,
   approvedPosts: [],
   pendingPosts: [],
   isLoading: false, // Trạng thái đang tải
@@ -18,16 +31,25 @@ export const usePostStore = create((set, get) => ({
       const response = await axiosInstance.post("/post/posts", formData);
       set((state) => ({
         posts: [response.data, ...state.posts], // Thêm bài viết mới vào danh sách
+        createPostSuccess: true,
       }));
       toast.success("Bài viết đã được đăng thành công !");
       set({ isCreating: false });
-      return true; // Thành công
+      return response.data; // Trả về bài viết mới tạo
     } catch (error) {
-      console.error("Error creating post:", error);
+      set({
+        isCreating: false,
+        createPostError: error.message,
+        createPostSuccess: false,
+      });
+      return false; // Trả về false nếu có lỗi
+    } finally {
       set({ isCreating: false });
-      return false; // Thất bại
     }
   },
+
+  // Reset createPostSuccess sau khi thông báo đã được xử lý
+  resetCreatePostSuccess: () => set({ createPostSuccess: false }),
   // Lấy bài viết theo ID
   getPostById: async (id) => {
     set({ isLoading: true, error: null }); // Bắt đầu loading
@@ -53,6 +75,31 @@ export const usePostStore = create((set, get) => ({
       set({ error: "Có lỗi xảy ra khi tải bài đăng" }); // Lưu lỗi
     } finally {
       set({ isLoading: false }); // Kết thúc quá trình tải
+    }
+  },
+  fetchPostSearch: async () => {
+    set({ isLoading: true, error: null }); // Bắt đầu tải, đặt error về null
+    try {
+      const res = await axiosInstance.get("/post/getPostAp");
+      set({ posts: res.data.data });
+    } catch (error) {
+      console.error("Error:", error);
+      set({ error: "Có lỗi xảy ra khi tải bài đăng" }); // Lưu lỗi
+    } finally {
+      set({ isLoading: false }); // Kết thúc quá trình tải
+    }
+  },
+  // Delete post
+  deletePost: async (postId) => {
+    try {
+      await axiosInstance.delete(`/post/user/${postId}`); // API call to delete the post
+      // Cập nhật danh sách bài viết bằng cách lọc ra bài bị xóa
+      set((state) => ({
+        posts: state.posts.filter((post) => post._id !== postId), // Xóa bài khỏi danh sách
+      }));
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      throw error; // Rethrow error to handle it in the component
     }
   },
   fetchPendingPosts: async () => {
@@ -163,4 +210,37 @@ export const usePostStore = create((set, get) => ({
   //     );
   //   }
   // },
+  // Action to update the post
+  updatePost: async (updatedPost) => {
+    set({ isLoading: true, error: null });
+    try {
+      // Use axiosInstance.put() to update the post
+      const response = await axiosInstance.put(
+        `/post/update/${updatedPost._id}`,
+        updatedPost,
+        {
+          headers: {
+            "Content-Type": "application/json", // Optional, but you can include this if needed
+          },
+        }
+      );
+
+      // If the response is successful, update the store
+      if (response.status === 200) {
+        set((state) => ({
+          posts: state.posts.map((post) =>
+            post._id === updatedPost._id ? response.data : post
+          ),
+          post: response.data, // Update the current post
+          isLoading: false,
+        }));
+        toast.success("Bài viết đã được cập nhật thành công!"); // Success message
+      } else {
+        set({ error: response.data.message, isLoading: false });
+      }
+    } catch (error) {
+      set({ error: error.message, isLoading: false });
+      toast.error("Có lỗi xảy ra khi cập nhật bài viết.");
+    }
+  },
 }));

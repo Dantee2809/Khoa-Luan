@@ -23,29 +23,23 @@ export const useChatStore = create((set, get) => ({
       set({ error: "Không thể tải tin nhắn", loading: false }); // Nếu có lỗi, cập nhật error
     }
   },
+  // Phương thức xóa tin nhắn
   deleteMessage: async (messageId) => {
     try {
-      const response = await fetch(`/admin/messages/${messageId}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Lỗi từ server:", errorText);
-        throw new Error(`Lỗi khi xóa tin nhắn: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log("Kết quả xóa tin nhắn:", data);
-      if (response.ok) {
-        // Cập nhật lại danh sách tin nhắn sau khi xóa thành công
+      const response = await axiosInstance.delete(
+        `/admin/message/${messageId}`
+      ); // Gọi API xóa tin nhắn
+      if (response.status === 200) {
+        // Nếu API trả về thành công, xóa tin nhắn trong state
         set((state) => ({
           messages: state.messages.filter((msg) => msg._id !== messageId),
         }));
-      } else {
-        console.error("Lỗi xóa tin nhắn:", await response.json());
+        toast.success("Xóa tin nhắn thành công!");
       }
     } catch (error) {
-      console.error("Lỗi khi xóa tin nhắn:", error);
+      console.error("Lỗi xóa tin nhắn:", error);
+      toast.error("Có lỗi xảy ra khi xóa tin nhắn");
+      throw error; // Ném lỗi để component bắt lỗi
     }
   },
   getUsers: async () => {
