@@ -14,27 +14,35 @@ const AllUserChat = () => {
     fetchMessages();
   }, [fetchMessages]);
 
-  // Hàm để định dạng thời gian tin nhắn
+  // Hàm để định dạng thời gian tin nhắn (hiển thị ngày, tháng, năm và giờ, phút, giây)
   const formatMessageTime = (timestamp) => {
     const messageDate = new Date(timestamp);
-    return messageDate.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return (
+      messageDate.toLocaleDateString("vi-VN", {
+        weekday: "short", // Hiển thị thứ (T2, T3, v.v.)
+        day: "2-digit", // Hiển thị ngày
+        month: "2-digit", // Hiển thị tháng
+        year: "numeric", // Hiển thị năm
+      }) +
+      " - " +
+      messageDate.toLocaleTimeString("vi-VN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      })
+    );
   };
 
-  // Cuộn xuống cuối khi tin nhắn thay đổi
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop =
-        chatContainerRef.current.scrollHeight;
+        chatContainerRef.current.scrollHeight; // Cuộn xuống khi có tin nhắn mới
     }
   }, [messages]);
 
-  // Lọc tin nhắn theo từ khóa tìm kiếm
   useEffect(() => {
     if (searchQuery.trim() === "") {
-      setFilteredMessages(messages);
+      setFilteredMessages(messages); // Hiển thị tất cả tin nhắn nếu không có tìm kiếm
     } else {
       const filtered = messages.filter((msg) => {
         const senderUsername = msg.senderId?.username || "";
@@ -48,7 +56,7 @@ const AllUserChat = () => {
         );
       });
 
-      setFilteredMessages(filtered);
+      setFilteredMessages(filtered); // Lọc tin nhắn theo tìm kiếm
     }
   }, [searchQuery, messages]);
 
@@ -95,8 +103,8 @@ const AllUserChat = () => {
 
       <div
         ref={chatContainerRef}
-        className="chat-box overflow-y-auto p-3 border border-gray-300 rounded-lg"
-        style={{ height: "400px" }}
+        className="chat-box overflow-y-auto p-4 border border-gray-300 rounded-lg"
+        style={{ height: "600px" }}
       >
         {filteredMessages
           .filter((msg) => msg.senderId && msg.receiverId) // Kiểm tra tồn tại
@@ -121,9 +129,13 @@ const AllUserChat = () => {
                 </Link>
               </div>
               <div className="text-gray-800 mt-1">
-                {msg.text || "Không có nội dung"} - Nhắn vào lúc:{" "}
-                {formatMessageTime(msg.createdAt)}
+                {msg.text || "Không có nội dung"}
               </div>
+
+              <div className="text-gray-500 text-sm mt-1">
+                Nhắn vào lúc: {formatMessageTime(msg.createdAt)}
+              </div>
+
               {msg.image && (
                 <div className="mt-2">
                   <a
@@ -137,12 +149,6 @@ const AllUserChat = () => {
                 </div>
               )}
               <div className="mt-2 flex space-x-2">
-                {/* <button
-                  onClick={() => handleMarkAsRead(msg._id)}
-                  className="text-green-500 hover:underline"
-                >
-                  Đánh dấu là đã đọc
-                </button> */}
                 <button
                   onClick={() => handleDeleteMessage(msg._id)}
                   className="text-red-500 hover:underline"

@@ -4,6 +4,7 @@ import { usePostStore } from "../../store/usePostStore";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useFollowStore } from "../../store/useFollowStore";
 import "./PostDetail.css";
+import FacebookShareButton from "./FacebookShareButton";
 
 const PostDetail = () => {
   const { id } = useParams();
@@ -235,20 +236,15 @@ const PostDetail = () => {
       </div>
 
       <div id="fb-root"></div>
-      <div
-        className="fb-share-button"
-        data-href={`http://localhost:3000/post/${post._id}`}
-        data-layout="button_count"
-        data-size="large"
-      >
-        <a
-          target="_blank"
-          href={`https://www.facebook.com/sharer/sharer.php?u=http://localhost:3000/post/${post._id}`}
-          className="fb-xfbml-parse-ignore"
-        >
-          Chia sẻ
-        </a>
-      </div>
+      <script
+        async
+        defer
+        crossorigin="anonymous"
+        src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v16.0"
+        nonce="ABC123"
+      ></script>
+
+      <FacebookShareButton className="fb-share-button" postId={post._id} />
     </div>
   );
 };

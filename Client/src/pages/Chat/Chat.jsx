@@ -16,8 +16,8 @@ const Chat = () => {
 
   return (
     <div className="w-full h-screen flex items-center justify-center bg-base-300">
-      <div className="bg-base-100 rounded-lg shadow-lg w-[90%] h-[90%]">
-        <div className="flex h-full rounded-lg overflow-hidden">
+      <div className="bg-base-100 rounded-lg shadow-lg w-full h-full flex">
+        <div className="flex h-full w-full overflow-hidden">
           {/* Sidebar with Return Button inside */}
           <Sidebar includeReturnButton />
 

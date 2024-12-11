@@ -58,23 +58,14 @@ export const getPost = async (req, res) => {
 
 export const getPostToProfile = async (req, res) => {
   try {
-    const { userId } = req.params; // Lấy ID người dùng từ URL
-
-    // Lấy tất cả bài viết của người dùng này
-    const posts = await PostModel.find({ author: userId }).sort({
-      createdAt: -1,
-    });
-
-    if (posts.length === 0) {
-      return res.status(404).json({ message: "No posts found" });
-    }
-
-    return res.status(200).json(posts);
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ message: "Error retrieving posts" });
+    const userId = req.params.id;
+    const posts = await PostModel.find({ userId }); // Cần đảm bảo userId được lưu đúng
+    res.status(200).json(posts);
+  } catch (err) {
+    res.status(500).json(err);
   }
 };
+
 // Backend - Cập nhật trong hàm fetch posts
 // export const fetchPosts = async (req, res) => {
 //   try {

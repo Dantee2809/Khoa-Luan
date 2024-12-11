@@ -1,25 +1,26 @@
 import React, { useState } from "react";
 import { axiosInstance } from "../../lib/axios";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const ChangePassword = () => {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const handleGoBack = () => navigate(-1);
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
 
     if (newPassword !== confirmNewPassword) {
-      setError("Mật khẩu mới và mật khẩu xác nhận không khớp");
+      toast.error("Mật khẩu mới và mật khẩu xác nhận không khớp");
       return;
     }
 
     if (newPassword.length < 6) {
-      setError("Mật khẩu mới phải có ít nhất 6 ký tự");
+      toast.error("Mật khẩu mới phải có ít nhất 6 ký tự");
       return;
     }
 
@@ -31,86 +32,89 @@ const ChangePassword = () => {
         { oldPassword, newPassword },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      // Hiển thị thông báo thành công bằng toast
-      toast.success(response.data.message);
-      setError(""); // Xóa lỗi khi thành công
-      setMessage(response.data.message); // Xóa lỗi khi thành công
+      toast.success(response.data.message || "Đổi mật khẩu thành công!");
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmNewPassword("");
     } catch (error) {
-      setError(error.response?.data?.message || "Có lỗi xảy ra.");
-      setMessage("");
+      const errorMessage =
+        error.response?.data?.message || "Có lỗi xảy ra trong quá trình xử lý.";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <h1 className="text-2xl font-semibold text-center mb-6">
-        Thay đổi mật khẩu
-      </h1>
-
-      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-
-      <form onSubmit={handleChangePassword}>
-        <div className="mb-4">
-          <label
-            htmlFor="oldPassword"
-            className="block text-gray-700 font-medium mb-2"
-          >
-            Mật khẩu cũ
-          </label>
-          <input
-            type="password"
-            id="oldPassword"
-            value={oldPassword}
-            onChange={(e) => setOldPassword(e.target.value)}
-            required
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label
-            htmlFor="newPassword"
-            className="block text-gray-700 font-medium mb-2"
-          >
-            Mật khẩu mới
-          </label>
-          <input
-            type="password"
-            id="newPassword"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            required
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div className="mb-6">
-          <label
-            htmlFor="confirmNewPassword"
-            className="block text-gray-700 font-medium mb-2"
-          >
-            Nhập lại mật khẩu mới
-          </label>
-          <input
-            type="password"
-            id="confirmNewPassword"
-            value={confirmNewPassword}
-            onChange={(e) => setConfirmNewPassword(e.target.value)}
-            required
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full px-4 py-2 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          {loading ? "Đang xử lý..." : "Đổi mật khẩu"}
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
+        <button className="go-back-btn" onClick={handleGoBack}>
+          Quay lại
         </button>
-      </form>
+        <h1 className="text-2xl font-semibold text-center text-gray-700 mb-6">
+          Thay đổi mật khẩu
+        </h1>
+        <form onSubmit={handleChangePassword} className="space-y-4">
+          <div>
+            <label
+              htmlFor="oldPassword"
+              className="block text-gray-700 font-medium mb-2"
+            >
+              Mật khẩu cũ
+            </label>
+            <input
+              type="password"
+              id="oldPassword"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+              required
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="newPassword"
+              className="block text-gray-700 font-medium mb-2"
+            >
+              Mật khẩu mới
+            </label>
+            <input
+              type="password"
+              id="newPassword"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="confirmNewPassword"
+              className="block text-gray-700 font-medium mb-2"
+            >
+              Nhập lại mật khẩu mới
+            </label>
+            <input
+              type="password"
+              id="confirmNewPassword"
+              value={confirmNewPassword}
+              onChange={(e) => setConfirmNewPassword(e.target.value)}
+              required
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-blue-600 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {loading ? "Đang xử lý..." : "Đổi mật khẩu"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

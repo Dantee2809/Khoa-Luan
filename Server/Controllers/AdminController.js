@@ -285,12 +285,25 @@ export const getAllMessages = async (req, res) => {
       .find()
       .populate("senderId", "username") // Lấy thông tin người gửi
       .populate("receiverId", "username"); // Lấy thông tin người nhận
+    console.log(messages.length); // Kiểm tra số lượng tin nhắn trả về
     res.status(200).json(messages);
   } catch (error) {
     console.error("Error fetching messages:", error);
     res.status(500).json({ error: "Lỗi khi lấy tin nhắn" });
   }
 };
+// export const getAllMessages = async (req, res) => {
+//   try {
+//     const messages = await messageModel.find(); // Không dùng populate
+
+//     console.log(messages.length); // Kiểm tra số lượng tin nhắn trả về
+//     res.status(200).json(messages);
+//   } catch (error) {
+//     console.error("Error fetching messages:", error);
+//     res.status(500).json({ error: "Lỗi khi lấy tin nhắn" });
+//   }
+// };
+
 export const banUsers = async (req, res) => {
   const { senderId, receiverId } = req.body; // Lấy ID người gửi và người nhận từ body của request
 

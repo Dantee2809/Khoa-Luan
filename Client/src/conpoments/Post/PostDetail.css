@@ -285,7 +285,7 @@ textarea.edit-input {
   display: inline-block;
 }
 
-.fb-share-button a {
+/* .fb-share-button a {
   color: #3b5998;
   text-decoration: none;
   font-size: 16px;
@@ -293,8 +293,8 @@ textarea.edit-input {
   border: 1px solid #3b5998;
   border-radius: 4px;
   transition: background-color 0.3s ease;
-}
+}  */
 
-.fb-share-button a:hover {
+/* .fb-share-button a:hover {
   background-color: #f0f2f5;
-}
+} */

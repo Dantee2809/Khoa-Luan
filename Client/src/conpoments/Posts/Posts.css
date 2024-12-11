@@ -6,5 +6,18 @@
   -ms-overflow-style: none; /* Ẩn thanh cuộn trên Internet Explorer */
   scrollbar-width: none; /* Ẩn thanh cuộn trên Firefox */
   margin: 0; /* Đảm bảo không có khoảng cách ngoài */
-  padding: 0;
+  padding: 1rem; /* Đảm bảo có khoảng cách nội bộ */
+  height: 100%; /* Đảm bảo phần Posts chiếm toàn bộ chiều cao của phần chứa nó */
+  box-sizing: border-box; /* Đảm bảo padding và border không ảnh hưởng đến chiều rộng/chiều cao */
+}
+
+.Posts::-webkit-scrollbar {
+  display: none; /* Ẩn thanh cuộn trên Chrome, Safari và Opera */
+}
+
+@media (max-width: 768px) {
+  .Posts {
+    padding: 0.5rem; /* Giảm padding trên màn hình nhỏ */
+    gap: 0.8rem; /* Giảm khoảng cách giữa các bài viết */
+  }
 }

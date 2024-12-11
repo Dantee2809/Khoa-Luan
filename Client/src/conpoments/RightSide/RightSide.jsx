@@ -8,11 +8,14 @@ import ShareModal from "../ShareModal/ShareModal";
 import { usePostStore } from "../../store/usePostStore";
 import { MdOutlinePostAdd } from "react-icons/md";
 import { Link } from "react-router-dom";
+import { useAuthStore } from "../../store/useAuthStore";
 
 const RightSide = () => {
   const [modalOpened, setModalOpened] = useState(false);
   const { createPost, isCreatingPost, createPostError, createPostSuccess } =
     usePostStore();
+  const { authUser } = useAuthStore(); // Sử dụng Zustand store để lấy thông tin người dùng
+  const isAdmin = authUser?.role === "admin"; // Nếu là admin thì không được phép đăng bài
 
   const handleSubmit = async (formData) => {
     const newPost = await createPost(formData); // Tạo bài viết mới
@@ -45,33 +48,23 @@ const RightSide = () => {
       <AdvCard />
 
       <div className="a-bottom">
-        <button
-          className="button r-button"
-          onClick={() => setModalOpened(true)}
-        >
-          <MdOutlinePostAdd />
-          Thêm Bài Đăng mới
-        </button>
+        {/* Chỉ hiển thị nút "Thêm Bài Đăng mới" nếu không phải admin */}
+        {!isAdmin && (
+          <button
+            className="button r-button"
+            onClick={() => setModalOpened(true)}
+          >
+            <MdOutlinePostAdd />
+            Thêm Bài Đăng mới
+          </button>
+        )}
+
         <ShareModal
           modalOpened={modalOpened}
           setModalOpened={setModalOpened}
           onSubmit={handleSubmit}
         />
       </div>
-      {/* Feedback Notifications */}
-      {/* <div className="mt-4">
-        {isCreatingPost && (
-          <p className="text-sm text-blue-600 animate-pulse">
-            Đang tạo bài đăng...
-          </p>
-        )}
-        {createPostError && (
-          <p className="text-sm text-red-500">❌ Lỗi: {createPostError}</p>
-        )}
-        {createPostSuccess && (
-          <p className="text-sm text-green-600">✔️ Tạo bài đăng thành công!</p>
-        )}
-      </div> */}
     </div>
   );
 };

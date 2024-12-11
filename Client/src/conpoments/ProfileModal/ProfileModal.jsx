@@ -7,10 +7,6 @@ import "./ProfileModal.css";
 const isValidEmail = (email) => {
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-  console.log(emailRegex.test("gsjdjd.com")); // false
-  console.log(emailRegex.test("test@gsjdjd.com")); // true
-  console.log(emailRegex.test("test@gmail.com")); // true
-
   return emailRegex.test(email);
 };
 

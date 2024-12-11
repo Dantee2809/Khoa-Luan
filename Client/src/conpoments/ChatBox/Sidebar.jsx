@@ -123,7 +123,11 @@ const Sidebar = ({ includeReturnButton }) => {
               <div className="hidden lg:block text-left min-w-0">
                 <div className="font-medium truncate">{contact.username}</div>
                 <div className="text-sm text-zinc-400">
-                  {onlineUsers.includes(contact._id) ? "Online" : "Offline"}
+                  {contact.latestMessage
+                    ? contact.latestMessage // Hiển thị tin nhắn mới nhất nếu có
+                    : onlineUsers.includes(contact._id) // Nếu không có tin nhắn, hiển thị trạng thái Online/Offline
+                    ? "Online"
+                    : "Offline"}
                 </div>
               </div>
             </button>

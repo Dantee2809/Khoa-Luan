@@ -127,14 +127,34 @@ const Post = ({ data, currentUserId }) => {
           {isCurrentUserPost && (
             <button
               className="delete-btn absolute top-2 right-2 p-2 text-black rounded-full focus:outline-none"
-              onClick={handleDeletePost}
+              onClick={() => {
+                const confirmDelete = window.confirm(
+                  "Bạn có chắc chắn muốn xóa bài đăng này không?"
+                );
+                if (confirmDelete) {
+                  handleDeletePost();
+                }
+              }}
             >
               <X />
             </button>
           )}
 
           <Link to={`/post/${data._id}`}>
-            <img src={data.image} alt="post" className="post-image" />
+            <div className="relative w-full max-w-md mx-auto overflow-hidden rounded-lg aspect-[4/4]">
+              {/* Blurred background image */}
+              <div
+                className="absolute inset-0 bg-cover bg-center blur-md scale-110"
+                style={{ backgroundImage: `url(${data.image})` }}
+              ></div>
+
+              {/* Main image */}
+              <img
+                src={data.image}
+                alt="post"
+                className="relative w-full h-full object-contain z-10"
+              />
+            </div>
           </Link>
         </div>
       )}
@@ -190,15 +210,14 @@ const Post = ({ data, currentUserId }) => {
         <br />
         <span>Ngày tạo: {formattedDate}</span>
         <br />
-        <span>
+        {/* <span>
           Liên hệ:{" "}
           {data.contact
             ? `${data.contact.substring(0, 3)}***${data.contact.substring(
                 data.contact.length - 3
               )}`
             : "Không có thông tin liên hệ"}
-        </span>
-        <br />
+        </span> */}
         <span
           className={`font-bold border rounded px-2 py-1 ${
             data.isLost
@@ -208,11 +227,11 @@ const Post = ({ data, currentUserId }) => {
               : "text-gray-500 border-gray-500"
           }`}
         >
-          Loại:{" "}
+          Tin :{" "}
           {data.isLost
-            ? "Đồ bị mất"
+            ? "Cần tìm"
             : data.isFound
-            ? "Đã tìm thấy"
+            ? "Nhặt được"
             : "Chưa xác định"}
         </span>
       </div>

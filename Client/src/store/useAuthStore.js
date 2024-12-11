@@ -136,7 +136,7 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await axiosInstance.put("/auth/update-profile", data);
       set({ authUser: res.data });
-      toast.success("Cập nhật thông tin cá nhân thành công!");
+      toast.success("Cập nhật ảnh đại diện cá nhân thành công!");
     } catch (error) {
       // Xử lý lỗi: Kiểm tra xem error có response từ server hay không
       if (error.response) {

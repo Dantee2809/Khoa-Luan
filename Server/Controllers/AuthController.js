@@ -270,17 +270,48 @@ export const forgetPassword = async (req, res) => {
 };
 export const resetPassword = async (req, res) => {
   const { token } = req.params;
-  const { password } = req.body;
+  const { oldPassword, newPassword, confirmPassword } = req.body;
+
   try {
-    const decoded = await jwt.verify(token, process.env.JWT_KEY);
-    const id = decoded.id;
-    const hashPassword = await bcrypt.hash(password, 10);
-    await UserModel.findByIdAndUpdate({ _id: id }, { password: hashPassword });
-    return res.json({ status: true, message: "Updated password success" });
-  } catch (err) {
-    return res.json("Token ko hợp lệ");
+    // Kiểm tra nếu token hợp lệ
+    const decoded = jwt.verify(token, process.env.JWT_KEY);
+    const userId = decoded.id;
+
+    // Kiểm tra người dùng
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "Người dùng không tồn tại!" });
+    }
+
+    // Xác thực: Trường nào bị để trống?
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      return res
+        .status(400)
+        .json({ error: "Vui lòng điền tất cả các trường thông tin!" });
+    }
+
+    // Xác thực: Mật khẩu cũ có đúng không?
+    const isOldPasswordCorrect = await bcrypt.compare(
+      oldPassword,
+      user.password
+    );
+    if (!isOldPasswordCorrect) {
+      return res.status(400).json({ error: "Mật khẩu cũ không đúng!" });
+    }
+
+    // Mã hóa mật khẩu mới và cập nhật
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await UserModel.findByIdAndUpdate(userId, { password: hashedPassword });
+
+    return res.status(200).json({ message: "Đổi mật khẩu thành công!" });
+  } catch (error) {
+    console.error("Lỗi trong quá trình resetPassword:", error);
+    return res
+      .status(500)
+      .json({ error: "Token không hợp lệ hoặc đã hết hạn!" });
   }
 };
+
 export const logoutUser = async (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 });

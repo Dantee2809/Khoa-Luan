@@ -85,63 +85,52 @@ export const getUsersForSidebar = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Tìm tất cả tin nhắn liên quan đến người dùng hiện tại
+    // Lấy tất cả tin nhắn liên quan đến người dùng hiện tại, sắp xếp theo thời gian gần nhất
     const messages = await messageModel
       .find({
         $or: [{ senderId: loggedInUserId }, { receiverId: loggedInUserId }],
       })
-      .sort({ createdAt: -1 }); // Sắp xếp tin nhắn theo thời gian gửi mới nhất
+      .sort({ createdAt: -1 }); // Tin nhắn mới nhất sẽ ở trên cùng
 
-    // Lấy danh sách ID của những người đã nhắn tin với người dùng hiện tại
-    const userIdsWithMessages = new Set(
-      messages
-        .flatMap((msg) => [msg.senderId.toString(), msg.receiverId.toString()])
-        .filter((id) => id !== loggedInUserId.toString())
+    // Lấy danh sách ID người dùng đã nhắn tin (không bao gồm ID của chính mình)
+    const userIdsWithMessages = Array.from(
+      new Set(
+        messages
+          .flatMap((msg) => [
+            msg.senderId.toString(),
+            msg.receiverId.toString(),
+          ])
+          .filter((id) => id !== loggedInUserId.toString())
+      )
     );
 
-    // Lấy danh sách người dùng thỏa mãn ít nhất một trong hai điều kiện
+    // Lấy thông tin chi tiết của những người dùng này
     const users = await UserModel.find({
-      $or: [
-        { _id: { $in: [...userIdsWithMessages] } },
-        {
-          $or: [
-            { _id: { $in: loggedInUser.followers } },
-            { _id: { $in: loggedInUser.following } },
-          ],
-        },
-      ],
+      _id: { $in: userIdsWithMessages },
     }).select("-password");
-    const filteredUsers = users.filter(
-      (user) => user._id.toString() !== loggedInUserId.toString()
-    );
 
-    // Sắp xếp lại danh sách người dùng theo người theo dõi mới nhất
-    const sortedUsers = filteredUsers.sort((a, b) => {
-      const aIsFollowedRecently = loggedInUser.followers.includes(a._id);
-      const bIsFollowedRecently = loggedInUser.followers.includes(b._id);
+    // Tạo một danh sách người dùng kèm tin nhắn mới nhất
+    const usersWithLatestMessages = users.map((user) => {
+      const latestMessage = messages.find(
+        (msg) =>
+          msg.senderId.toString() === user._id.toString() ||
+          msg.receiverId.toString() === user._id.toString()
+      );
 
-      // Đưa người theo dõi gần đây lên đầu
-      if (aIsFollowedRecently && !bIsFollowedRecently) return -1;
-      if (!aIsFollowedRecently && bIsFollowedRecently) return 1;
-
-      return 0;
+      return {
+        ...user.toObject(),
+        latestMessage: latestMessage ? latestMessage.text : null,
+        latestMessageTime: latestMessage ? latestMessage.createdAt : null,
+      };
     });
 
-    // Lấy tin nhắn mới nhất của từng người dùng
-    const usersWithLatestMessages = await Promise.all(
-      sortedUsers.map(async (user) => {
-        const latestMessage = messages.find(
-          (msg) =>
-            msg.senderId.toString() === user._id.toString() ||
-            msg.receiverId.toString() === user._id.toString()
-        );
-
-        return {
-          ...user.toObject(),
-          latestMessage: latestMessage ? latestMessage.text : null, // Gửi kèm tin nhắn mới nhất
-        };
-      })
-    );
+    // Sắp xếp danh sách dựa trên thời gian tin nhắn mới nhất
+    usersWithLatestMessages.sort((a, b) => {
+      if (b.latestMessageTime && a.latestMessageTime) {
+        return new Date(b.latestMessageTime) - new Date(a.latestMessageTime);
+      }
+      return 0; // Nếu không có tin nhắn mới nhất, giữ nguyên vị trí
+    });
 
     res.status(200).json(usersWithLatestMessages);
   } catch (error) {
