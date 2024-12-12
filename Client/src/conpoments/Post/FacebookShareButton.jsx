@@ -1,33 +1,41 @@
 import React, { useEffect } from "react";
 
 const FacebookShareButton = ({ postId }) => {
-  const postUrl = `http://localhost:3000/post/${postId}`;
+  const postUrl = `https://52a0-14-233-191-63.ngrok-free.app/post/${postId}`;
 
+  // Khởi tạo lại Facebook SDK nếu cần
   useEffect(() => {
-    // Kiểm tra và khởi tạo lại Facebook SDK nếu đã tải
-    if (window.FB) {
+    if (!window.FB) {
+      window.fbAsyncInit = function () {
+        window.FB.init({
+          appId: `${postUrl}`, // Thay 'your-app-id' bằng appId của bạn
+          autoLogAppEvents: true,
+          xfbml: true,
+          version: "v16.0",
+        });
+      };
+      const script = document.createElement("script");
+      script.src = "https://connect.facebook.net/en_US/sdk.js";
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    } else {
       window.FB.XFBML.parse();
     }
   }, []);
 
+  const handleShare = () => {
+    const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+      postUrl
+    )}`;
+    window.open(fbShareUrl, "_blank");
+  };
+
   return (
     <div>
-      {/* Facebook Share Button */}
-      <div
-        className="fb-share-button"
-        data-href={postUrl}
-        data-layout="button_count"
-        data-size="large"
-      >
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href={`https://www.facebook.com/sharer/sharer.php?u=${postUrl}`}
-          className="fb-xfbml-parse-ignore"
-        >
-          Chia sẻ
-        </a>
-      </div>
+      <button onClick={handleShare} className="custom-share-button">
+        Chia sẻ trên Facebook
+      </button>
     </div>
   );
 };

@@ -64,6 +64,17 @@ function Login({ isAdminLogin, setIsAdminLogin }) {
 
   return (
     <div className="a-right">
+      {/* Checkbox để chuyển đổi giữa admin login và user login */}
+      <div>
+        <label>
+          <input
+            type="checkbox"
+            checked={isAdminLogin}
+            onChange={() => setIsAdminLogin(!isAdminLogin)} // Đảo trạng thái khi thay đổi checkbox
+          />
+          Đăng nhập với tư cách admin
+        </label>
+      </div>
       <form className="infoForm authForm" onSubmit={handleSubmit}>
         <h3>{isAdminLogin ? "Đăng Nhập Admin" : "Đăng Nhập Người Dùng"}</h3>
         {error && <p style={{ color: "red", fontSize: "12px" }}>{error}</p>}
@@ -88,18 +99,6 @@ function Login({ isAdminLogin, setIsAdminLogin }) {
               setFormData({ ...formData, password: e.target.value })
             }
           />
-        </div>
-
-        {/* Checkbox để chuyển đổi giữa admin login và user login */}
-        <div>
-          <label>
-            <input
-              type="checkbox"
-              checked={isAdminLogin}
-              onChange={() => setIsAdminLogin(!isAdminLogin)} // Đảo trạng thái khi thay đổi checkbox
-            />
-            Đăng nhập với tư cách admin
-          </label>
         </div>
 
         <button

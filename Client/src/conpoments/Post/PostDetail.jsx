@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Helmet } from "react-helmet"; // Import React Helmet
 import { usePostStore } from "../../store/usePostStore";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useFollowStore } from "../../store/useFollowStore";
@@ -141,9 +142,23 @@ const PostDetail = () => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
   if (!post) return <div>Post not found!</div>;
+  const postUrl = `https://52a0-14-233-191-63.ngrok-free.app/post/${id}`;
 
   return (
     <div className="post-detail">
+      {/* Thêm thẻ meta Open Graph */}
+      <Helmet>
+        <meta property="og:title" content={post.title || "Chi tiết bài viết"} />
+        <meta
+          property="og:description"
+          content={post.desc || "Xem chi tiết bài viết"}
+        />
+        <meta
+          property="og:image"
+          content={post.image || "https://your-domain.com/default-image.jpg"}
+        />
+        <meta property="og:url" content={postUrl} />
+      </Helmet>
       <div className="post-header">
         <h1>{user ? user.username : "Người dùng ẩn danh"}</h1>
         <button className="go-back-btn" onClick={handleGoBack}>

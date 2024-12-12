@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { axiosInstance } from "./axios";
 
@@ -34,6 +33,7 @@ const useCheckUserStatus = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        withCredentials: true,
       });
       console.log(response.data.message); // "Tài khoản hợp lệ"
     } catch (error) {

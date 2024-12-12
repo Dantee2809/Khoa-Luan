@@ -14,12 +14,46 @@ import AdvRoute from "./Routes/AdvRoute.js";
 import MessageRoute from "./Routes/MessageRoute.js";
 import { app, server } from "./lib/socket.js";
 
+// const allowedOrigins = ["http://localhost:3000", /ngrok-free\.app$/]; // Chấp nhận localhost và tất cả các subdomain của ngrok
+// const socket = new WebSocket("https://dcb0-14-233-191-63.ngrok-free.app");
+// socket.onopen = () => {
+//   console.log("WebSocket connection established");
+// };
+// socket.onerror = (error) => {
+//   console.error("WebSocket Error: ", error);
+// };
+// socket.onclose = () => {
+//   console.log("WebSocket connection closed");
+// };
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: [
+      "http://localhost:3000",
+      "https://52a0-14-233-191-63.ngrok-free.app",
+    ],
     credentials: true,
   })
 );
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       if (
+//         !origin ||
+//         allowedOrigins.some((allowedOrigin) =>
+//           allowedOrigin instanceof RegExp
+//             ? allowedOrigin.test(origin)
+//             : allowedOrigin === origin
+//         )
+//       ) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error("Not allowed by CORS"));
+//       }
+//     },
+//     credentials: true, // Cho phép gửi cookie, token
+//   })
+// );
+
 app.use(cookieParser());
 app.use(bodyparser.json({ limit: "20mb", extended: true }));
 app.use(bodyparser.urlencoded({ limit: "20mb", extended: true }));

@@ -60,11 +60,11 @@ function Forget() {
   return (
     <div className="a-right">
       <form className="infoForm authForm" onSubmit={handleSubmit}>
-        <h3>Nhập email của bạn</h3>
+        <h3>Quên mật khẩu</h3>
         <div>
           <input
             type="email"
-            placeholder="you@example.com"
+            placeholder="Nhập email của bạn"
             className="infoInput"
             autoComplete="off"
             value={email}
