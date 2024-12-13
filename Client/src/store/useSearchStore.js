@@ -2,42 +2,39 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 
 export const useSearchStore = create((set) => ({
-  query: "", // Từ khóa tìm kiếm
-  searchResults: [], // Kết quả tìm kiếm
-  isLoading: false, // Trạng thái tải tìm kiếm
-  error: null, // Lỗi nếu có
+  provinces: [], // Danh sách tỉnh thành
+  query: "",
+  location: "",
+  lostDate: "",
+  searchResults: [],
+  isLoading: false,
+  error: null,
 
-  // Cập nhật từ khóa tìm kiếm
+  // Tải danh sách tỉnh thành từ API
+  fetchProvinces: async () => {
+    try {
+      const response = await axiosInstance.get("/post/provinces"); // Địa chỉ của API
+      set({ provinces: response.data });
+    } catch (error) {
+      console.error("Error fetching provinces:", error);
+      set({ error: "Không thể tải danh sách tỉnh thành." });
+    }
+  },
+
   setQuery: (query) => set({ query }),
+  setLocation: (location) => set({ location }),
+  setLostDate: (lostDate) => set({ lostDate }),
 
   // Gọi API tìm kiếm bài đăng
-  searchPosts: async (query) => {
-    set({ isLoading: true });
+  searchPosts: async (query, location, lostDate) => {
+    set({ isLoading: true, error: null }); // Đặt trạng thái loading
     try {
-      const response = await axiosInstance.get(`/post/search?query=${query}`);
-      set({ searchResults: response.data, isLoading: false });
+      const response = await axiosInstance.get(`/post/search`, {
+        params: { q: query, location, lostDate }, // Gửi tất cả tham số tìm kiếm vào API
+      });
+      set({ searchResults: response.data, isLoading: false }); // Cập nhật kết quả tìm kiếm
     } catch (error) {
       set({ error: "Lỗi khi tìm kiếm bài đăng", isLoading: false });
     }
   },
 }));
-
-// query: "", // Trạng thái mặc định của query
-// results: [], // Kết quả tìm kiếm
-// userResults: [], // Kết quả tìm kiếm người dùng
-// setQuery: (newQuery) => set({ query: newQuery }), // Cập nhật query
-// setResults: (newResults) => set({ results: newResults || [] }),
-// setUserResults: (newUserResults) => set({ userResults: newUserResults || [] }),
-
-// fetchSearchResults: async (searchQuery) => {
-//   try {
-//     const [postResponse, userResponse] = await Promise.all([
-//       axiosInstance.get(`/user/search/posts?q=${searchQuery}`),
-//       axiosInstance.get(`/user/search/users?q=${searchQuery}`),
-//     ]);
-//     set({ results: postResponse.data, userResults: userResponse.data });
-//   } catch (error) {
-//     console.error("Lỗi khi tìm kiếm:", error);
-//     set({ results: [], userResults: [] });
-//   }
-// }

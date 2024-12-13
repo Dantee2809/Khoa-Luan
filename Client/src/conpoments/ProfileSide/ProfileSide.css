@@ -4,9 +4,9 @@
   align-items: center;
   overflow: auto;
 
-  padding: 1rem;
+  padding: 2rem;
   background-color: var(--cardColor);
-  border-radius: 1rem;
+  border-radius: 2rem;
   gap: 1rem;
 }
 .SearchPage {

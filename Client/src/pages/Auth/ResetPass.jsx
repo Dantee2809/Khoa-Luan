@@ -12,7 +12,7 @@ const ResetPass = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     axiosInstance
-      .post("/auth/reset-password/" + token, { password })
+      .post("/auth/reset-password-from-forget/" + token, { password })
       .then((response) => {
         if (response.data.status) {
           toast.success("Bạn đã đổi pass thành công!");
@@ -32,7 +32,7 @@ const ResetPass = () => {
     <div className="a-right">
       <form className="infoForm authForm" onSubmit={handleSubmit}>
         <div className="form-control">
-          <h1 className="text-2xl font-bold mt-2">Forgot Password</h1>
+          <h1 className="text-2xl font-bold mt-2">Reset Password</h1>
 
           <TfiEmail className="w-6 h-6 text-primary" />
           <h3>Enter your email</h3>

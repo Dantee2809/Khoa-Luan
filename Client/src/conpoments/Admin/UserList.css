@@ -35,6 +35,35 @@ input {
 /* .btn-unblock {
   background-color: grey;
   color: white; */
+.dashboard-container {
+  padding: 20px;
+}
+
+.report-cards {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.report-cards button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.report-cards button:hover {
+  background-color: #0056b3;
+}
+
+.chart-container {
+  width: 100%;
+  max-width: 800px;
+  margin: auto;
+}
 
 /* Tiêu đề */
 .header {

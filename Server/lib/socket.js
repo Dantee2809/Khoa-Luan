@@ -4,14 +4,15 @@ import express from "express";
 
 const app = express();
 const server = http.createServer(app);
+// const socket = io("https://52a0-14-233-191-63.ngrok-free.app", {
+//   transports: ["websocket", "polling"],
+//   withCredentials: true,
+// });
 
 const io = new Server(server, {
   cors: {
-    origin: [
-      "http://localhost:3000",
-      "https://52a0-14-233-191-63.ngrok-free.app",
-    ],
-    methods: ["GET", "POST"],
+    origin: ["http://localhost:3000", "https://pink-comics-mate.loca.lt"],
+    allowedHeaders: ["Authorization"],
     credentials: true,
   },
 });
@@ -35,4 +36,5 @@ io.on("connection", (socket) => {
   });
 });
 
+// export { io, app, server, socket };
 export { io, app, server };

@@ -268,6 +268,19 @@ export const forgetPassword = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+export const resetPasswordFromForget = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+  try {
+    const decoded = await jwt.verify(token, process.env.JWT_KEY);
+    const id = decoded.id;
+    const hashPassword = await bcrypt.hash(password, 10);
+    await UserModel.findByIdAndUpdate({ _id: id }, { password: hashPassword });
+    return res.json({ status: true, message: "Updated password success" });
+  } catch (err) {
+    return res.json("Token ko hợp lệ");
+  }
+};
 export const resetPassword = async (req, res) => {
   const { token } = req.params;
   const { oldPassword, newPassword, confirmPassword } = req.body;

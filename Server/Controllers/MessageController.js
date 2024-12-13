@@ -111,37 +111,54 @@ export const getUsersForSidebar = async (req, res) => {
         },
       ],
     }).select("-password");
+
     const filteredUsers = users.filter(
       (user) => user._id.toString() !== loggedInUserId.toString()
     );
 
-    // Sắp xếp lại danh sách người dùng theo người theo dõi mới nhất
+    // Sắp xếp người dùng theo tin nhắn gần đây nhất
     const sortedUsers = filteredUsers.sort((a, b) => {
-      const aIsFollowedRecently = loggedInUser.followers.includes(a._id);
-      const bIsFollowedRecently = loggedInUser.followers.includes(b._id);
+      const aRecentMessage = messages.find(
+        (msg) =>
+          msg.senderId.toString() === a._id.toString() ||
+          msg.receiverId.toString() === a._id.toString()
+      );
 
-      // Đưa người theo dõi gần đây lên đầu
-      if (aIsFollowedRecently && !bIsFollowedRecently) return -1;
-      if (!aIsFollowedRecently && bIsFollowedRecently) return 1;
+      const bRecentMessage = messages.find(
+        (msg) =>
+          msg.senderId.toString() === b._id.toString() ||
+          msg.receiverId.toString() === b._id.toString()
+      );
 
+      // Nếu a có tin nhắn gần đây và b không có, a lên đầu
+      if (aRecentMessage && !bRecentMessage) return -1;
+      if (!aRecentMessage && bRecentMessage) return 1;
+
+      // Nếu cả hai đều có tin nhắn gần đây, so sánh thời gian gửi tin nhắn
+      if (aRecentMessage && bRecentMessage) {
+        return (
+          new Date(bRecentMessage.createdAt) -
+          new Date(aRecentMessage.createdAt)
+        );
+      }
+
+      // Nếu không có tin nhắn gần đây, giữ nguyên vị trí
       return 0;
     });
 
     // Lấy tin nhắn mới nhất của từng người dùng
-    const usersWithLatestMessages = await Promise.all(
-      sortedUsers.map(async (user) => {
-        const latestMessage = messages.find(
-          (msg) =>
-            msg.senderId.toString() === user._id.toString() ||
-            msg.receiverId.toString() === user._id.toString()
-        );
+    const usersWithLatestMessages = sortedUsers.map((user) => {
+      const latestMessage = messages.find(
+        (msg) =>
+          msg.senderId.toString() === user._id.toString() ||
+          msg.receiverId.toString() === user._id.toString()
+      );
 
-        return {
-          ...user.toObject(),
-          latestMessage: latestMessage ? latestMessage.text : null, // Gửi kèm tin nhắn mới nhất
-        };
-      })
-    );
+      return {
+        ...user.toObject(),
+        latestMessage: latestMessage ? latestMessage.text : null, // Gửi kèm tin nhắn mới nhất
+      };
+    });
 
     res.status(200).json(usersWithLatestMessages);
   } catch (error) {

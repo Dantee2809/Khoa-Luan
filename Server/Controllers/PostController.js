@@ -333,25 +333,37 @@ export const getLostItemsCount = async (req, res) => {
 };
 
 export const search = async (req, res) => {
+  const { q, category, location, lostDate } = req.query;
+
   try {
-    const { query } = req.query; // Lấy query từ URL
-    if (!query) {
-      return res
-        .status(400)
-        .json({ error: "Từ khóa tìm kiếm không được để trống." });
+    // Tạo điều kiện tìm kiếm động
+    let query = {};
+
+    // Tìm kiếm theo từ khóa trong mô tả
+    if (q) {
+      query.desc = { $regex: q, $options: "i" }; // Tìm kiếm không phân biệt chữ hoa chữ thường
     }
 
-    // Tìm kiếm trong tiêu đề hoặc mô tả của bài viết
-    const posts = await PostModel.find({
-      $or: [
-        { desc: { $regex: query, $options: "i" } }, // Tìm theo mô tả
-      ],
-    });
+    // Tìm kiếm theo vị trí
+    if (location) {
+      query.location = { $regex: location, $options: "i" };
+    }
 
-    res.status(200).json(posts); // Trả về kết quả tìm kiếm
-  } catch (error) {
-    console.error("Lỗi tìm kiếm bài viết:", error);
-    res.status(500).json({ error: "Đã xảy ra lỗi máy chủ." });
+    // Tìm kiếm theo ngày mất
+    if (lostDate) {
+      const date = new Date(lostDate); // Chuyển đổi chuỗi ngày thành đối tượng Date
+      query.createdAt = { $gte: date }; // Tìm kiếm sau ngày bị mất
+    }
+
+    // Tìm kiếm bài đăng mất
+    query.isLost = true; // Chỉ lấy các bài đăng mất
+
+    const posts = await PostModel.find(query); // Tìm bài đăng theo điều kiện
+
+    return res.json(posts); // Trả về kết quả tìm kiếm
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send("Error fetching posts");
   }
 };
 

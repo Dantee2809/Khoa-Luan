@@ -3,7 +3,7 @@ import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
-const BASE_URL = "http://localhost:5001";
+const BASE_URL = ["http://localhost:5001", "https://pink-comics-mate.loca.lt"];
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -86,7 +86,11 @@ export const useAuthStore = create((set, get) => ({
   login: async (data) => {
     set({ isLoggingIn: true });
     try {
-      const res = await axiosInstance.post("/auth/login", data);
+      const res = await axiosInstance.post(
+        "/auth/login",
+        data,
+        { withCredentials: true } // Bật chế độ gửi cookie
+      );
       set({ authUser: res.data, isLoggingIn: false });
       toast.success("Đăng nhập thành công");
       get().connectSocket();
@@ -184,6 +188,8 @@ export const useAuthStore = create((set, get) => ({
     const socket = io(BASE_URL, {
       query: {
         userId: authUser._id,
+        transports: ["websocket"], // Dùng WebSocket thay vì long polling
+        withCredentials: true,
       },
     });
 

@@ -73,7 +73,7 @@ const MessageInput = () => {
           <input
             type="text"
             className="w-full input input-bordered bg-zinc-700 text-white placeholder-zinc-400 rounded-lg input-sm sm:input-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            placeholder="Type a message..."
+            placeholder="Mời bạn nhập tin nhắn..."
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
@@ -104,7 +104,7 @@ const MessageInput = () => {
           disabled={!text.trim() && !imagePreview}
           title="Send message"
         >
-          <Send size={25} />
+          <Send size={20} />
         </button>
       </form>
     </div>

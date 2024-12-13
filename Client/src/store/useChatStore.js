@@ -80,9 +80,18 @@ export const useChatStore = create((set, get) => ({
   getContacts: async () => {
     set({ isUsersLoading: true });
     try {
-      const token = localStorage.getItem("token"); // Lấy token từ localStorage
+      const token = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("jwt="))
+        ?.split("=")[1];
+
+      console.log(token); // Xem token có hợp lệ không
+
       const response = await axiosInstance.get("/message/users", {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`, // Gửi token trong header
+        },
+        withCredentials: true, // Đảm bảo cookie được gửi
       });
       set({ contacts: response.data, isUsersLoading: false });
     } catch (error) {

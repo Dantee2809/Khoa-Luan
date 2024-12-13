@@ -223,15 +223,27 @@ export const getUserById = async (req, res) => {
 export const dashboard = async (req, res) => {
   try {
     const totalUsers = await UserModel.countDocuments({ role: "user" });
+    const monthlyUsers = await UserModel.aggregate([
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
+          },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
     const totalIncidents = await PostModel.countDocuments();
     const totalLostItems = await PostModel.countDocuments({ isLost: true });
     const totalFoundItems = await PostModel.countDocuments({ isFound: true });
 
     res.json({
       totalUsers,
+      monthlyUsers,
       totalIncidents,
-      totalLostItems, // Tổng đồ bị mất
-      totalFoundItems, // Tổng đồ đã tìm thấy
+      totalLostItems,
+      totalFoundItems,
     });
   } catch (error) {
     console.error("Error fetching reports:", error);

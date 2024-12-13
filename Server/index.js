@@ -25,15 +25,29 @@ import { app, server } from "./lib/socket.js";
 // socket.onclose = () => {
 //   console.log("WebSocket connection closed");
 // };
+const allowedOrigins = ["http://localhost:3000", /\.loca\.lt$/]; // Regex for Localtunnel subdomains
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "https://52a0-14-233-191-63.ngrok-free.app",
-    ],
-    credentials: true,
+    origin: (origin, callback) => {
+      if (
+        !origin ||
+        allowedOrigins.some((allowedOrigin) =>
+          allowedOrigin instanceof RegExp
+            ? allowedOrigin.test(origin)
+            : allowedOrigin === origin
+        )
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true, // Allow cookies to be sent
   })
 );
+
 // app.use(
 //   cors({
 //     origin: function (origin, callback) {
@@ -76,3 +90,9 @@ app.use("/api/user", UserRoute);
 app.use("/api/post", PostRoute);
 app.use("/api/message", MessageRoute);
 app.use("/api/adv", AdvRoute);
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send({ error: "Something went wrong" });
+});
+export default app;

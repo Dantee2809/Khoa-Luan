@@ -13,12 +13,19 @@ const DeleteAccount = () => {
     );
 
     if (confirmed) {
-      const success = await deleteAccount();
-      if (success) {
-        navigate("/sign-in"); // Redirect to login page
+      try {
+        const success = await deleteAccount();
+        if (success) {
+          navigate("/sign-in");
+        } else {
+          alert("Có lỗi xảy ra khi xóa tài khoản. Vui lòng thử lại.");
+        }
+      } catch (error) {
+        alert("Đã xảy ra lỗi không mong muốn.");
       }
     }
   };
+
   return (
     <div className="deleteForm">
       <div>

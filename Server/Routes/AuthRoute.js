@@ -11,6 +11,7 @@ import {
   updateUserInfo,
   dataRoute,
   checkUserStatus,
+  resetPasswordFromForget,
 } from "../Controllers/AuthController.js";
 import { protectRoute } from "../middleware/auth_middleware.js";
 import authenticateToken from "../lib/auth.js";
@@ -22,6 +23,8 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
 router.post("/forgot-password", forgetPassword);
+router.post("/reset-password-from-forget/:token", resetPasswordFromForget);
+
 router.post("/reset-password/:token", resetPassword);
 router.get("/get-user-info", authenticateToken, authUser);
 router.put("/update-profile", protectRoute, updateProfile);

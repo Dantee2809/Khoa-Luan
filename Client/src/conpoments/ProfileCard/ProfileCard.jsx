@@ -22,6 +22,11 @@ const ProfileCard = () => {
       await updateProfile({ profilePic: base64Image });
     };
   };
+  const handleLogout = () => {
+    if (window.confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
+      logout();
+    }
+  };
   return (
     <div className="ProfileCard">
       <div className="ProfileImg">
@@ -95,7 +100,7 @@ const ProfileCard = () => {
             </li>
           </ul>
           <ul>
-            <button className="i-profile" onClick={logout}>
+            <button className="i-profile" onClick={handleLogout}>
               Đăng xuất
             </button>
           </ul>

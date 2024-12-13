@@ -142,13 +142,12 @@ const PostDetail = () => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
   if (!post) return <div>Post not found!</div>;
-  const postUrl = `https://52a0-14-233-191-63.ngrok-free.app/post/${id}`;
+  const postUrl = `https://localhost:3000/post/${id}`;
 
   return (
     <div className="post-detail">
       {/* Thêm thẻ meta Open Graph */}
       <Helmet>
-        <meta property="og:title" content={post.title || "Chi tiết bài viết"} />
         <meta
           property="og:description"
           content={post.desc || "Xem chi tiết bài viết"}
@@ -158,6 +157,10 @@ const PostDetail = () => {
           content={post.image || "https://your-domain.com/default-image.jpg"}
         />
         <meta property="og:url" content={postUrl} />
+        <meta
+          property="og:description"
+          content={`Tìm giúp bài viết: ${post.title}`}
+        />
       </Helmet>
       <div className="post-header">
         <h1>{user ? user.username : "Người dùng ẩn danh"}</h1>
