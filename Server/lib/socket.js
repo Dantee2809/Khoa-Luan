@@ -9,7 +9,7 @@ const io = new Server(server, {
   cors: {
     origin: [
       "http://localhost:3000",
-      "https://b432-117-2-254-194.ngrok-free.app",
+      "https://06c3-42-112-70-205.ngrok-free.app",
     ],
     methods: ["GET", "POST"],
   },

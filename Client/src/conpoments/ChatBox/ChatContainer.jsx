@@ -18,6 +18,13 @@ const ChatContainer = () => {
   const { authUser } = useAuthStore();
   const [messageList, setMessageList] = useState(messages);
   const messageEndRef = useRef(null);
+  const [canScroll, setCanScroll] = useState(true);
+
+  useEffect(() => {
+    if (messageEndRef.current && messages) {
+      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   useEffect(() => {
     getMessages(selectedUser._id);
@@ -30,12 +37,6 @@ const ChatContainer = () => {
     subscribeToMessages,
     unsubscribeFromMessages,
   ]);
-
-  useEffect(() => {
-    if (messageEndRef.current && messageList) {
-      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messageList]);
 
   const handleDeleteMessage = async (messageId) => {
     try {
@@ -82,12 +83,12 @@ const ChatContainer = () => {
     <div className="chat-container flex-1 flex flex-col overflow-auto">
       <ChatHeader />
 
-      <div className="chat-messages flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message) => (
           <div
             key={message._id}
-            className={`chat-message ${
-              message.senderId === authUser._id ? "self" : "other"
+            className={`chat ${
+              message.senderId === authUser._id ? "chat-end" : "chat-start"
             }`}
             ref={messageEndRef}
           >
@@ -133,6 +134,8 @@ const ChatContainer = () => {
             </div>
           </div>
         ))}
+        {/* Phần này dùng để cuộn xuống dưới */}
+        <div ref={messageEndRef} />
       </div>
 
       <MessageInput />

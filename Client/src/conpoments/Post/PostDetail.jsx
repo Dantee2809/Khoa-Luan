@@ -148,19 +148,11 @@ const PostDetail = () => {
     <div className="post-detail">
       {/* Thêm thẻ meta Open Graph */}
       <Helmet>
-        <meta property="og:title" content={post.title || "Chi tiết bài viết"} />
-        <meta
-          property="og:description"
-          content={post.desc || "Xem chi tiết bài viết"}
-        />
-        <meta
-          property="og:image"
-          content={post.image || "https://your-domain.com/default-image.jpg"}
-        />
+        <meta property="og:title" content={post.desc || "Chi tiết bài viết"} />
         <meta property="og:url" content={postUrl} />
       </Helmet>
       <div className="post-header">
-        <h1>{user ? user.username : "Người dùng ẩn danh"}</h1>
+        <h1>{user?.username || "Người dùng ẩn danh"}</h1>
         <button className="go-back-btn" onClick={handleGoBack}>
           Quay lại
         </button>

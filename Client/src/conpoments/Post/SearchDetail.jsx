@@ -3,6 +3,7 @@ import { useSearchStore } from "../../store/useSearchStore";
 import Post from "./Post";
 import { useAuthStore } from "../../store/useAuthStore";
 import "./SearchDetail.css";
+import toast from "react-hot-toast";
 
 const SearchDetail = () => {
   const {
@@ -33,7 +34,6 @@ const SearchDetail = () => {
     );
     return province ? province.id : null;
   };
-
   const handleLocationChange = (e) => {
     const text = e.target.value;
     setLocationText(text);
@@ -47,6 +47,11 @@ const SearchDetail = () => {
 
   const handleSearch = async (e) => {
     e.preventDefault();
+    if (!query.trim() && !locationText.trim() && !lostDate) {
+      toast.error("Vui lòng nhập thông tin tìm kiếm!");
+
+      return;
+    }
     try {
       // 1️⃣ Clear kết quả tìm kiếm cũ
       await clearSearchResults();

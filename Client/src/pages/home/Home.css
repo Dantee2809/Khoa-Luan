@@ -1,7 +1,54 @@
 .Home {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
   position: relative;
-  display: grid;
-  grid-template-columns: 18rem auto 20rem;
-  gap: 1rem;
   height: 100vh;
+  flex-wrap: wrap; /* Cho phép các phần tử co lại */
+}
+
+.Home > div {
+  min-width: 250px; /* Đảm bảo mỗi phần tử có kích thước tối thiểu */
+}
+
+.ProfileSide {
+  width: 18rem; /* Giữ chiều rộng cố định cho ProfileSide */
+  flex: 0 0 auto; /* Không cho ProfileSide co lại */
+}
+
+.Posts {
+  flex: 2 1 auto; /* Phần Posts giữ kích thước vừa đủ để đọc */
+}
+
+.RightSide {
+  flex: 1 1 20rem; /* RightSide co lại nhưng không nhỏ hơn 20rem */
+}
+
+@media (max-width: 768px) {
+  .Home {
+    flex-direction: column; /* Chuyển các phần tử thành cột */
+    align-items: center; /* Căn giữa nội dung theo chiều ngang */
+  }
+
+  .Home > div {
+    width: 100%; /* Các phần tử chiếm toàn bộ chiều rộng */
+    margin-bottom: 10px; /* Thêm khoảng cách giữa các phần tử */
+  }
+
+  .ProfileSide {
+    order: 1; /* ProfileSide lên đầu */
+    width: 18rem; /* Giữ kích thước cố định cho ProfileSide */
+    margin-bottom: 10px;
+  }
+
+  .Posts {
+    order: 2; /* Posts nằm ở giữa */
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .RightSide {
+    order: 3; /* RightSide xuống dưới cùng */
+    width: 100%;
+  }
 }

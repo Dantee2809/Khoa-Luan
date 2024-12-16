@@ -16,8 +16,9 @@ import { app, server } from "./lib/socket.js";
 
 app.use(
   cors({
-    origin: ["https://b432-117-2-254-194.ngrok-free.app"],
+    origin: "https://06c3-42-112-70-205.ngrok-free.app",
     credentials: true,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS", // Cho phép các method
   })
 );
 app.use(cookieParser());
