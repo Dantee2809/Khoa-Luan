@@ -8,21 +8,12 @@ import PostSide from "../../conpoments/PostSide/PostSide";
 const Profile = () => {
   return (
     <div className="Profile">
-      {/* Cột bên trái */}
-      <div className="Profile-left">
-        <ProfileLeft />
-      </div>
-
-      {/* Phần giữa */}
+      <ProfileLeft />
       <div className="Profile-center">
         <ProfileCard />
         <PostSide />
       </div>
-
-      {/* Cột bên phải */}
-      <div className="Profile-right">
-        <RightSide />
-      </div>
+      <RightSide />
     </div>
   );
 };

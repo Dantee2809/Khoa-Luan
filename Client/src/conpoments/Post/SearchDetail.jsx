@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useSearchStore } from "../../store/useSearchStore"; // Nhập store zustand để lấy trạng thái tìm kiếm
-import Post from "./Post"; // Component Post để hiển thị mỗi bài đăng
-import { useAuthStore } from "../../store/useAuthStore"; // Để lấy thông tin người dùng hiện tại
-// import "./SearchDetail.css";
-import "./Post.css";
+import { useSearchStore } from "../../store/useSearchStore";
+import Post from "./Post";
+import { useAuthStore } from "../../store/useAuthStore";
+import "./SearchDetail.css";
 
 const SearchDetail = () => {
   const {
@@ -19,43 +18,49 @@ const SearchDetail = () => {
     setLostDate,
     provinces,
     fetchProvinces,
+    clearSearchResults, // đảm bảo clear dữ liệu trước khi tìm kiếm
   } = useSearchStore();
 
   const { authUser } = useAuthStore();
   const currentUserId = authUser?._id;
 
-  const [locationText, setLocationText] = useState(""); // Trạng thái cho input location (text)
+  const [locationText, setLocationText] = useState("");
 
   // Lấy ID tỉnh thành dựa vào tên
   const getLocationIdByName = (name) => {
     const province = provinces.find((p) =>
       p.name.toLowerCase().includes(name.toLowerCase())
     );
-    return province ? province.id : null; // Trả về ID nếu tìm thấy, nếu không trả về null
+    return province ? province.id : null;
   };
 
   const handleLocationChange = (e) => {
     const text = e.target.value;
-    setLocationText(text); // Cập nhật input location
+    setLocationText(text);
     const locationId = getLocationIdByName(text);
-    if (locationId) {
-      setLocation(locationId); // Cập nhật ID location khi tìm thấy
-    } else {
-      setLocation(""); // Nếu không tìm thấy tỉnh thành, reset location
-    }
+    setLocation(locationId || "");
   };
 
   useEffect(() => {
-    fetchProvinces(); // Gọi API lấy tỉnh thành khi component mount
-    if (query || location || lostDate) {
-      searchPosts(query, location, lostDate); // Gọi action searchPosts từ store
-    }
-  }, [query, location, lostDate, fetchProvinces, searchPosts]);
+    fetchProvinces();
+  }, [fetchProvinces]);
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
-    // Khi người dùng submit form, gọi searchPosts với các tham số đã nhập
-    searchPosts(query, location, lostDate);
+    try {
+      // 1️⃣ Clear kết quả tìm kiếm cũ
+      await clearSearchResults();
+
+      // 2️⃣ Format ngày theo định dạng chính xác
+      const formattedLostDate = lostDate
+        ? new Date(`${lostDate}T00:00:00.000Z`).toISOString()
+        : "";
+
+      // 3️⃣ Gọi API tìm kiếm bài viết
+      searchPosts(query, location, formattedLostDate);
+    } catch (err) {
+      console.error("Lỗi khi tìm kiếm:", err);
+    }
   };
 
   return (
@@ -69,30 +74,26 @@ const SearchDetail = () => {
             type="text"
             placeholder="Tìm kiếm đồ..."
             value={query}
-            onChange={(e) => setQuery(e.target.value)} // Cập nhật từ khóa tìm kiếm
+            onChange={(e) => setQuery(e.target.value)}
           />
           <input
-            type="text" // Giữ đây là input text cho tỉnh thành
+            type="text"
             placeholder="Tên tỉnh thành"
-            value={locationText} // Giá trị của input location
-            onChange={handleLocationChange} // Cập nhật ID location khi thay đổi
+            value={locationText}
+            onChange={handleLocationChange}
           />
           <input
             type="date"
             value={lostDate}
-            onChange={(e) => setLostDate(e.target.value)} // Cập nhật ngày mất
+            onChange={(e) => setLostDate(e.target.value)}
           />
           <button type="submit">Tìm kiếm</button>
         </div>
       </form>
 
-      {/* Hiển thị trạng thái tìm kiếm */}
       {isLoading && <p className="loading">Đang tải...</p>}
-
-      {/* Hiển thị lỗi nếu có */}
       {error && <p className="error">{error}</p>}
 
-      {/* Hiển thị kết quả tìm kiếm */}
       {searchResults.length > 0 ? (
         <ul>
           {searchResults.map((post, i) => (

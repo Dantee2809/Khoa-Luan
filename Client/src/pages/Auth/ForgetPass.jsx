@@ -40,9 +40,10 @@ function Forget() {
       .then((response) => {
         console.log("API Response:", response.data); // Log phản hồi từ API
         setLoading(false);
+
         if (response.data.status) {
           // Thông báo khi gửi thành công
-          toast.success("Email gửi thành công!");
+          toast.success("Email gửi thành công! Kiểm tra email của bạn.");
           navigate("/sign-in");
         } else {
           toast.error(response.data.message || "Có lỗi xảy ra!");
@@ -52,7 +53,7 @@ function Forget() {
         console.error("API Error:", error.response); // Log lỗi từ API
         setLoading(false);
         const errorMessage =
-          error.response?.data?.message || "Email không tồn tại!";
+          error.response?.data?.message || "Có lỗi xảy ra khi gửi email!";
         toast.error(errorMessage);
       });
   };

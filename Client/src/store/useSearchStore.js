@@ -37,4 +37,5 @@ export const useSearchStore = create((set) => ({
       set({ error: "Lỗi khi tìm kiếm bài đăng", isLoading: false });
     }
   },
+  clearSearchResults: () => set({ searchResults: [] }),
 }));

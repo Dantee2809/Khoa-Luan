@@ -1,21 +1,16 @@
 import React from "react";
 import { Link, Outlet } from "react-router-dom";
 import "./AdminSidebar.css";
-import { FaTachometerAlt, FaUsers, FaNewspaper, FaCogs } from "react-icons/fa";
-import { MessageCircleCode, MessageCircleMore, Podcast } from "lucide-react";
-import {
-  MdLocalPostOffice,
-  MdPostAdd,
-  MdReport,
-  MdReportProblem,
-} from "react-icons/md";
+import { FaUsers, FaNewspaper, FaCogs } from "react-icons/fa";
+import { MessageCircleCode, MessageCircleMore } from "lucide-react";
+import { MdPostAdd, MdReportProblem } from "react-icons/md";
 
 const AdminSidebar = () => {
   const sidebarItems = [
     {
       to: "/admin-dashboard/admin-post",
       icon: <MdPostAdd />,
-      label: "Quản lý Bài viết",
+      label: "Quản lý Bài đăng",
     },
     {
       to: "/admin-dashboard/admin-user",

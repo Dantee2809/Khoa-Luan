@@ -3,7 +3,7 @@ import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
-const BASE_URL = ["http://localhost:5001", "https://pink-comics-mate.loca.lt"];
+const BASE_URL = "http://localhost:5001";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -86,11 +86,7 @@ export const useAuthStore = create((set, get) => ({
   login: async (data) => {
     set({ isLoggingIn: true });
     try {
-      const res = await axiosInstance.post(
-        "/auth/login",
-        data,
-        { withCredentials: true } // Bật chế độ gửi cookie
-      );
+      const res = await axiosInstance.post("/auth/login", data);
       set({ authUser: res.data, isLoggingIn: false });
       toast.success("Đăng nhập thành công");
       get().connectSocket();
@@ -140,7 +136,7 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await axiosInstance.put("/auth/update-profile", data);
       set({ authUser: res.data });
-      toast.success("Cập nhật ảnh đại diện cá nhân thành công!");
+      toast.success("Cập nhật thông tin cá nhân thành công!");
     } catch (error) {
       // Xử lý lỗi: Kiểm tra xem error có response từ server hay không
       if (error.response) {
@@ -188,23 +184,16 @@ export const useAuthStore = create((set, get) => ({
     const socket = io(BASE_URL, {
       query: {
         userId: authUser._id,
-        transports: ["websocket"], // Dùng WebSocket thay vì long polling
-        withCredentials: true,
       },
     });
-
     socket.connect();
-    set({ socket });
+
+    set({ socket: socket });
 
     socket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
     });
-
-    socket.on("connect_error", (err) => {
-      console.error("Socket connection error:", err);
-    });
   },
-
   disconnectSocket: () => {
     if (get().socket?.connected) get().socket.disconnect();
   },

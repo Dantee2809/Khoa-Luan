@@ -8,9 +8,9 @@ import Posts from "../../conpoments/Posts/Posts";
 function Home() {
   return (
     <div className="Home">
-      <ProfileSide className="ProfileSide" />
-      <Posts className="Posts" />
-      <RightSide className="RightSide" />
+      <ProfileSide />
+      <Posts />
+      <RightSide />
     </div>
   );
 }

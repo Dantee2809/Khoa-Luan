@@ -11,7 +11,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import "./UserList.css";
+import "./Report.css";
 
 // Đăng ký các thành phần của Chart.js
 ChartJS.register(
@@ -26,14 +26,16 @@ ChartJS.register(
 
 const ReportDashboard = () => {
   const [reportData, setReportData] = useState({});
-  const [chartData, setChartData] = useState(null);
+  const [chartData, setChartData] = useState(null); // Dữ liệu biểu đồ
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Hàm xử lý khi người dùng chọn loại biểu đồ
   const handleShowChart = (type) => {
     let labels = [];
     let data = [];
 
+    // Xử lý dữ liệu theo loại biểu đồ
     switch (type) {
       case "totalUsers":
         if (reportData.monthlyUsers) {
@@ -63,6 +65,7 @@ const ReportDashboard = () => {
         return;
     }
 
+    // Cập nhật dữ liệu biểu đồ khi chọn loại
     setChartData({
       labels,
       datasets: [
@@ -76,11 +79,11 @@ const ReportDashboard = () => {
     });
   };
 
+  // Hàm lấy dữ liệu báo cáo
   const fetchReportData = async () => {
     try {
       const response = await axiosInstance.get("/admin/reports");
-      console.log(response.data); // Kiểm tra dữ liệu từ API
-      setReportData(response.data);
+      setReportData(response.data); // Lưu dữ liệu báo cáo
     } catch (err) {
       setError("Failed to load report data");
     } finally {
@@ -93,7 +96,7 @@ const ReportDashboard = () => {
   }, []);
 
   return (
-    <div className="dashboard-container">
+    <div className="report-dashboard">
       <h2>Thống kê báo cáo</h2>
       {loading ? (
         <p>Loading...</p>
@@ -102,20 +105,29 @@ const ReportDashboard = () => {
       ) : (
         <>
           <div className="report-cards">
-            <button onClick={() => handleShowChart("totalUsers")}>
-              Người dùng đăng ký
-            </button>
-            <button onClick={() => handleShowChart("totalIncidents")}>
-              Bài viết đã đăng
-            </button>
-            <button onClick={() => handleShowChart("totalLostItems")}>
-              Vật bị mất
-            </button>
-            <button onClick={() => handleShowChart("totalFoundItems")}>
-              Vật được tìm thấy
-            </button>
+            <div className="report-card">
+              <button onClick={() => handleShowChart("totalUsers")}>
+                Người dùng đăng ký
+              </button>
+            </div>
+            <div className="report-card">
+              <button onClick={() => handleShowChart("totalIncidents")}>
+                Bài viết đã đăng
+              </button>
+            </div>
+            <div className="report-card">
+              <button onClick={() => handleShowChart("totalLostItems")}>
+                Vật bị mất
+              </button>
+            </div>
+            <div className="report-card">
+              <button onClick={() => handleShowChart("totalFoundItems")}>
+                Vật được tìm thấy
+              </button>
+            </div>
           </div>
 
+          {/* Biểu đồ chỉ hiện khi có dữ liệu */}
           {chartData && (
             <div className="chart-container">
               <Line data={chartData} options={{ responsive: true }} />

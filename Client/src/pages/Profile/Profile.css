@@ -1,65 +1,12 @@
-/* Tổng thể giao diện */
 .Profile {
-  display: flex; /* Sử dụng flexbox để sắp xếp các thành phần ngang hàng */
-  justify-content: space-between; /* Giãn khoảng cách giữa các thành phần */
-  padding: 20px;
-  gap: 20px; /* Khoảng cách giữa các cột */
-  background-color: #f8f9fa; /* Màu nền chung */
-  min-height: 100vh; /* Chiều cao tối thiểu để phủ toàn màn hình */
-}
-
-/* Phần bên trái (ProfileLeft) */
-.Profile-left {
-  flex: 2.5; /* Tùy chỉnh kích thước cột trái */
-  max-width: 300px; /* Đảm bảo không quá rộng */
-  background: #fff; /* Nền trắng */
-  border: 1px solid #ddd; /* Viền nhạt */
-  border-radius: 9px;
-  /* padding: 10px; */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Tạo đổ bóng nhẹ */
-}
-
-/* Phần giữa (ProfileCard + PostSide) */
-.Profile-center {
-  flex: 1.5; /* Cột trung tâm rộng hơn */
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Căn chỉnh bài viết */
-.Profile-center .posts-list {
+  position: relative;
   display: grid;
+  grid-template-columns: 18rem auto 20rem;
+  gap: 1rem;
+}
+
+.Profile-center {
+  display: flex;
   flex-direction: column;
-  gap: 15px; /* Khoảng cách giữa các bài viết */
-}
-
-/* Phần bên phải (RightSide) */
-.Profile-right {
-  flex: 1; /* Cột phải */
-  max-width: 300px;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Responsive cho màn hình nhỏ */
-@media screen and (max-width: 768px) {
-  .Profile {
-    flex-direction: column; /* Chuyển sang hiển thị dọc */
-    gap: 10px;
-  }
-
-  .Profile-left,
-  .Profile-right {
-    max-width: 100%; /* Chiếm toàn bộ chiều rộng */
-  }
-
-  .Profile-center {
-    max-width: 100%; /* Chiếm toàn bộ chiều rộng */
-  }
+  gap: 1rem;
 }

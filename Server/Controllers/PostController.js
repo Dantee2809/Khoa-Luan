@@ -331,9 +331,8 @@ export const getLostItemsCount = async (req, res) => {
     res.status(500).json({ message: "Error fetching lost items count", error });
   }
 };
-
 export const search = async (req, res) => {
-  const { q, category, location, lostDate } = req.query;
+  const { q, location, lostDate } = req.query; // Không cần lấy `status` từ req.query
 
   try {
     // Tạo điều kiện tìm kiếm động
@@ -351,15 +350,14 @@ export const search = async (req, res) => {
 
     // Tìm kiếm theo ngày mất
     if (lostDate) {
-      const date = new Date(lostDate); // Chuyển đổi chuỗi ngày thành đối tượng Date
-      query.createdAt = { $gte: date }; // Tìm kiếm sau ngày bị mất
+      const date = new Date(lostDate);
+      query.createdAt = { $gte: date };
     }
 
-    // Tìm kiếm bài đăng mất
-    query.isLost = true; // Chỉ lấy các bài đăng mất
+    // Mặc định tìm cả bài đăng bị mất và bài đăng tìm thấy
+    query.$or = [{ isLost: true }, { isFound: true }];
 
-    const posts = await PostModel.find(query); // Tìm bài đăng theo điều kiện
-
+    const posts = await PostModel.find(query);
     return res.json(posts); // Trả về kết quả tìm kiếm
   } catch (err) {
     console.error(err);

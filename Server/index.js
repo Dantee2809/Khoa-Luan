@@ -14,60 +14,12 @@ import AdvRoute from "./Routes/AdvRoute.js";
 import MessageRoute from "./Routes/MessageRoute.js";
 import { app, server } from "./lib/socket.js";
 
-// const allowedOrigins = ["http://localhost:3000", /ngrok-free\.app$/]; // Chấp nhận localhost và tất cả các subdomain của ngrok
-// const socket = new WebSocket("https://dcb0-14-233-191-63.ngrok-free.app");
-// socket.onopen = () => {
-//   console.log("WebSocket connection established");
-// };
-// socket.onerror = (error) => {
-//   console.error("WebSocket Error: ", error);
-// };
-// socket.onclose = () => {
-//   console.log("WebSocket connection closed");
-// };
-const allowedOrigins = ["http://localhost:3000", /\.loca\.lt$/]; // Regex for Localtunnel subdomains
-
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (
-        !origin ||
-        allowedOrigins.some((allowedOrigin) =>
-          allowedOrigin instanceof RegExp
-            ? allowedOrigin.test(origin)
-            : allowedOrigin === origin
-        )
-      ) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true, // Allow cookies to be sent
+    origin: ["https://b432-117-2-254-194.ngrok-free.app"],
+    credentials: true,
   })
 );
-
-// app.use(
-//   cors({
-//     origin: function (origin, callback) {
-//       if (
-//         !origin ||
-//         allowedOrigins.some((allowedOrigin) =>
-//           allowedOrigin instanceof RegExp
-//             ? allowedOrigin.test(origin)
-//             : allowedOrigin === origin
-//         )
-//       ) {
-//         callback(null, true);
-//       } else {
-//         callback(new Error("Not allowed by CORS"));
-//       }
-//     },
-//     credentials: true, // Cho phép gửi cookie, token
-//   })
-// );
-
 app.use(cookieParser());
 app.use(bodyparser.json({ limit: "20mb", extended: true }));
 app.use(bodyparser.urlencoded({ limit: "20mb", extended: true }));
@@ -90,9 +42,3 @@ app.use("/api/user", UserRoute);
 app.use("/api/post", PostRoute);
 app.use("/api/message", MessageRoute);
 app.use("/api/adv", AdvRoute);
-// Global error handler
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send({ error: "Something went wrong" });
-});
-export default app;

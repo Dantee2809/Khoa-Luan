@@ -5,11 +5,12 @@ export const generateToken = (userId, res) => {
     expiresIn: "7d",
   });
 
+  // Gửi cookie trong response
   res.cookie("jwt", token, {
-    maxAge: 7 * 24 * 60 * 60 * 1000, // MS
     httpOnly: true,
-    sameSite: "none",
-    secure: process.env.NODE_ENV !== "development",
+    secure: true, // Bắt buộc khi dùng HTTPS (ngrok dùng HTTPS)
+    sameSite: "None", // Cross-site cần SameSite=None
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
   });
 
   return token;

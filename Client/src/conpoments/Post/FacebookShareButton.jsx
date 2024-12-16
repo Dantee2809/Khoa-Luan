@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import "./Post.css";
 
-const FacebookShareButton = ({ postId }) => {
-  const postUrl = `https://localhost:3000/post/${postId}`;
+const FacebookShareButton = ({ postId, className }) => {
+  const postUrl = `https://b432-117-2-254-194.ngrok-free.app/post/${postId}`;
 
   // // Khởi tạo lại Facebook SDK nếu cần
   // useEffect(() => {
@@ -29,13 +29,13 @@ const FacebookShareButton = ({ postId }) => {
     const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
       postUrl
     )}`;
-    window.open(fbShareUrl, "_blank", "width=600,height=400");
+    window.open(fbShareUrl, "_blank");
   };
 
   return (
     <div>
       <button onClick={handleShare} className="custom-share-button">
-        Chia sẻ
+        Chia sẻ trên Facebook
       </button>
     </div>
   );
