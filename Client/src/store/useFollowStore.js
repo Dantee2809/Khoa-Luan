@@ -36,7 +36,6 @@ export const useFollowStore = create((set) => ({
       return isFollowing;
     } catch (error) {
       console.error("Failed to fetch follow status:", error);
-      toast.error("Failed to fetch follow status.");
       return false; // Nếu lỗi, mặc định là không theo dõi
     }
   },

@@ -1,3 +1,98 @@
+/* ChatContainer */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Chat messages section */
+.chat-container .flex-1 {
+  flex: 1;
+  overflow-y: auto; /* Cuộn dọc nếu quá dài */
+  padding: 1rem;
+  space-y: 1rem; /* Khoảng cách giữa các tin nhắn */
+}
+
+/* Chat message bubbles */
+.chat-container .chat {
+  display: flex;
+  align-items: flex-start; /* Giữ các tin nhắn căn chỉnh theo chiều dọc */
+  padding-bottom: 1rem;
+  position: relative;
+}
+
+.chat-container .chat-end {
+  justify-content: flex-end;
+}
+
+.chat-container .chat-start {
+  justify-content: flex-start;
+}
+
+/* Avatar style */
+.chat-avatar {
+  margin-right: 10px;
+}
+
+.chat-avatar img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Content of the message */
+.chat-content {
+  max-width: 75%; /* Điều chỉnh độ rộng của nội dung tin nhắn */
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #888;
+}
+
+.chat-time {
+  font-size: 12px;
+}
+
+.chat-bubble {
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #f1f1f1;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+.chat-bubble img {
+  width: 100%;
+  max-width: 200px;
+  margin-bottom: 10px;
+}
+
+.chat-text {
+  margin-top: 5px;
+  color: #333;
+}
+
+/* Button to delete message */
+.chat-header button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: red;
+}
+
+/* Styling for loading state */
+.chat-container .loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
 /* Toàn bộ khung chat */
 .chat-container {
   background-color: #f5f6fa;

@@ -6,6 +6,7 @@ import { generateToken } from "../lib/utils.js";
 import cloudinary from "../lib/cloudinary.js";
 import messageModel from "../Models/messageModel.js";
 import nodemailer from "nodemailer";
+import config from "../lib/config.js";
 
 export const dataRoute = async (req, res) => {
   const { role } = req.query;
@@ -56,9 +57,7 @@ export const registerUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-// export const loginUser = async (req , res) => {
-//     try {
+//     tr
 //         // Kiểm tra xem có token trong request header không
 //         const token = req.headers['authorization']?.split(' ')[1]; // Lấy token từ header (nếu có)
 
@@ -253,7 +252,14 @@ export const forgetPassword = async (req, res) => {
       from: "trungnguyenhs3105@gmail.com",
       to: email,
       subject: "Gửi token để đặt lại mã",
-      text: `http://localhost:3000/reset-password/${token}`,
+      html: `
+        <p>Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu của bạn. Để thay đổi mật khẩu, vui lòng bấm vào nút dưới đây:</p>
+        <a href="${config.baseUrl}/reset-password/${token}" 
+           style="display:inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-align: center; text-decoration: none; border-radius: 5px;">
+           Bấm vào để thay đổi mật khẩu
+        </a>
+        <p>Nếu bạn không yêu cầu thay đổi mật khẩu, vui lòng bỏ qua email này.</p>
+      `,
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
@@ -327,7 +333,12 @@ export const resetPassword = async (req, res) => {
 
 export const logoutUser = async (req, res) => {
   try {
-    res.cookie("jwt", "", { maxAge: 0 });
+    res.cookie("jwt", "", {
+      maxAge: 0,
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    }); // Ensure cookies are properly cleared
     res.status(200).json({ message: "Đăng xuất thành công" });
   } catch (error) {
     console.log("Error in logout controller", error.message);

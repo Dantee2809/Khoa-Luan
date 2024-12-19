@@ -66,44 +66,30 @@ export const getPostToProfile = async (req, res) => {
   }
 };
 
-// Backend - Cập nhật trong hàm fetch posts
-// export const fetchPosts = async (req, res) => {
-//   try {
-//     const posts = await PostModel.find(); // Lấy tất cả bài viết
-//     const postsWithReportCount = posts.map((post) => ({
-//       ...post.toObject(),
-//       reportsCount: post.reports.length, // Đếm số lượng báo cáo
-//     }));
-//     res.status(200).json(postsWithReportCount);
-//   } catch (error) {
-//     res.status(500).json({ message: "Có lỗi xảy ra khi lấy bài viết." });
-//   }
-// };
-
 export const updatePost = async (req, res) => {
-  //   const postId = req.params.id;
-  //   const { userId } = req.body;
-  //   try {
-  //     const post = await PostModel.findById(postId);
-  //     if (post.userId === userId) {
-  //       await post.updateOne({ $set: req.body });
-  //       res.status(200).json("Post update");
-  //     } else {
-  //       res.status(403).json("Unauthorized to update this post");
-  //     }
-  //   } catch (error) {
-  //     res.status(500).json(error);
-  //   }
-  // };
   const { id } = req.params;
-  const { desc, location, contact } = req.body; // Assuming these are the fields you're updating
+  const { desc, location, contact, image } = req.body; // image là URL ảnh hoặc base64 từ client
 
   try {
-    // Find the post by ID and update it
+    // Nếu có hình ảnh mới, upload lên Cloudinary
+    let imageUrl = null;
+    if (image) {
+      const uploadResponse = await cloudinary.uploader.upload(image, {
+        resource_type: "auto", // Tự động nhận dạng loại file
+      });
+      imageUrl = uploadResponse.secure_url; // Lấy URL ảnh từ Cloudinary
+    }
+
+    // Cập nhật thông tin bài đăng
     const updatedPost = await PostModel.findByIdAndUpdate(
       id,
-      { desc, location, contact },
-      { new: true } // Return the updated document
+      {
+        desc,
+        location,
+        contact,
+        image: imageUrl || undefined, // Nếu có hình ảnh, cập nhật, nếu không giữ nguyên
+      },
+      { new: true } // Trả về tài liệu đã được cập nhật
     );
 
     if (!updatedPost) {
@@ -116,6 +102,7 @@ export const updatePost = async (req, res) => {
     res.status(500).json({ message: "Server error while updating the post" });
   }
 };
+
 export const reportPost = async (req, res) => {
   const { postId } = req.params;
   const { userId } = req.body;
@@ -238,59 +225,6 @@ export const provinces = [
   { id: 58, name: "Yên Bái" },
 ];
 
-// export const getTimelinepost = async (req, res) => {
-//   const userId = req.params.id;
-//   try {
-//     const currentUserPosts = await PostModel.find({ userId: userId });
-//     const followingPosts = await UserModel.aggregate([
-//       {
-//         $match: {
-//           _id: new mongoose.Types.ObjectId(userId),
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "posts",
-//           localField: "following",
-//           foreignField: "userId",
-//           as: "followingPosts",
-//         },
-//       },
-//       {
-//         $project: {
-//           followingPosts: 1,
-//           _id: 0,
-//         },
-//       },
-//     ]);
-//     res.status(200).json(currentUserPosts.concat(...followingPosts));
-//   } catch (error) {
-//     res.status(500).json(error);
-//   }
-// };
-
-// API tìm kiếm bài viết
-// export const searchPosts = async (req, res) => {
-//   try {
-//     const { query } = req.query; // Lấy từ khóa tìm kiếm từ query params
-
-//     // Tìm kiếm theo mô tả (desc), liên hệ (contact) hoặc trạng thái (isLost/isFound)
-//     const posts = await PostModel.find({
-//       $or: [
-//         { desc: { $regex: query, $options: "i" } }, // Tìm kiếm không phân biệt chữ hoa/thường
-//         { contact: { $regex: query, $options: "i" } },
-//         { isLost: query.toLowerCase() === "lost" },
-//         { isFound: query.toLowerCase() === "found" },
-//       ],
-//     });
-
-//     res.status(200).json(posts);
-//   } catch (error) {
-//     console.error("Error searching posts:", error);
-//     res.status(500).json({ message: "Error searching posts" });
-//   }
-// };
-// Tính ngày đầu và cuối tháng trước
 const getLastMonthDateRange = () => {
   const now = new Date();
 

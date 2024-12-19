@@ -20,13 +20,13 @@
   margin-bottom: 16px;
   background-color: #f9f9f9;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 100%; /* Giới hạn độ rộng tối đa bằng với chiều rộng của parent container */
 }
+
 .delete-btn {
   margin-left: 750px;
 }
-/* .post-container:last-child {
-  margin-bottom: 0;
-} */
+
 .fc-button {
   height: 2rem;
   padding-left: 20px;

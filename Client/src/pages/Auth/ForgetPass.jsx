@@ -20,6 +20,7 @@ const ForgetPass = () => {
     </div>
   );
 };
+
 function Forget() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false); // Trạng thái loading
@@ -34,15 +35,17 @@ function Forget() {
       return;
     }
 
-    setLoading(true); // Bật loading
+    setLoading(true);
+    const toastId = toast.loading("Đang gửi email..."); // Hiện thông báo loading
+
     axiosInstance
       .post("/auth/forgot-password", { email })
       .then((response) => {
         console.log("API Response:", response.data); // Log phản hồi từ API
         setLoading(false);
+        toast.dismiss(toastId); // Ẩn thông báo loading
 
         if (response.data.status) {
-          // Thông báo khi gửi thành công
           toast.success("Email gửi thành công! Kiểm tra email của bạn.");
           navigate("/sign-in");
         } else {
@@ -52,6 +55,7 @@ function Forget() {
       .catch((error) => {
         console.error("API Error:", error.response); // Log lỗi từ API
         setLoading(false);
+        toast.dismiss(toastId); // Ẩn thông báo loading
         const errorMessage =
           error.response?.data?.message || "Có lỗi xảy ra khi gửi email!";
         toast.error(errorMessage);
@@ -73,11 +77,7 @@ function Forget() {
           />
         </div>
 
-        <button
-          type="submit"
-          className="button infoButton"
-          disabled={loading} // Trạng thái vô hiệu hoá khi loading
-        >
+        <button type="submit" className="button infoButton" disabled={loading}>
           {loading ? "Sending..." : "Submit"}
         </button>
       </form>

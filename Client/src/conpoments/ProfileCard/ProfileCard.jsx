@@ -86,7 +86,7 @@ const ProfileCard = () => {
           <div className="I"></div>
           <div className="Follow">
             <span>{authUser.following?.length || 0}</span>{" "}
-            <span>Người theo dõi</span>
+            <span>Đang theo dõi</span>
           </div>
         </div>
         <hr />

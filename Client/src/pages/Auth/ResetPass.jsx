@@ -3,9 +3,25 @@ import toast from "react-hot-toast";
 import { TfiEmail } from "react-icons/tfi";
 import { useNavigate, useParams } from "react-router-dom";
 import { axiosInstance } from "../../lib/axios";
+import Logo from "../../img/logo.png";
 import "./Auth.css";
 
 const ResetPass = () => {
+  return (
+    <div className="Auth">
+      <div className="a-left">
+        <img src={Logo} alt="Logo" />
+        <div className="Webname">
+          <h1>TL SOSICAL</h1>
+          <h6>Mạng xã hội tìm đồ bị thất lạc toàn quốc</h6>
+        </div>
+      </div>
+      <Reset />
+    </div>
+  );
+};
+
+function Reset() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { token } = useParams();
@@ -32,10 +48,8 @@ const ResetPass = () => {
     <div className="a-right">
       <form className="infoForm authForm" onSubmit={handleSubmit}>
         <div className="form-control">
-          <h1 className="text-2xl font-bold mt-2">Reset Password</h1>
-
           <TfiEmail className="w-6 h-6 text-primary" />
-          <h3>Enter your email</h3>
+          <h3>Nhập mật khẩu mới</h3>
 
           <div className="form-control">
             <input
@@ -53,6 +67,6 @@ const ResetPass = () => {
       </form>
     </div>
   );
-};
+}
 
 export default ResetPass;

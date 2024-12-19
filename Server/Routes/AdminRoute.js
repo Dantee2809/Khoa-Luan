@@ -10,6 +10,7 @@ import {
   getAllUsers,
   getApprovedPosts,
   getPendingPosts,
+  getReportsByUser,
   getUserById,
   loginAdmin,
   logoutAdmin,
@@ -22,6 +23,7 @@ const router = express.Router();
 router.post("/login", loginAdmin);
 router.post("/logout", logoutAdmin);
 router.post("/approve/:id", approvePost);
+router.get("/getReportsByUser/:userId", getReportsByUser);
 router.get("/pendingPost", getPendingPosts);
 router.get("/approvePost", getApprovedPosts);
 router.get("/check", protectRoute, checkAuth);

@@ -48,32 +48,32 @@ const MessageInput = () => {
   };
 
   return (
-    <div className="p-4 w-full bg-neutral-200 rounded-lg shadow-lg">
+    <div className="p-2 w-full bg-neutral-200 rounded-md shadow-sm">
       {imagePreview && (
-        <div className="mb-3 flex items-center gap-2">
+        <div className="mb-2 flex items-center gap-2">
           <div className="relative">
             <img
               src={imagePreview}
               alt="Preview"
-              className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
+              className="w-16 h-16 object-cover rounded-md border border-zinc-500"
             />
             <button
               onClick={removeImage}
-              className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-zinc-600 text-white hover:bg-red-600 transition duration-300 flex items-center justify-center"
+              className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-zinc-500 text-white hover:bg-red-500 transition duration-200 flex items-center justify-center"
               type="button"
             >
-              <X className="size-4" />
+              <X className="size-3" />
             </button>
           </div>
         </div>
       )}
 
-      <form onSubmit={handleSendMessage} className="flex items-center gap-3">
-        <div className="flex-1 flex gap-3 items-center">
+      <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+        <div className="flex-1 flex gap-2 items-center">
           <input
             type="text"
-            className="w-full input input-bordered bg-zinc-700 text-white placeholder-zinc-400 rounded-lg input-sm sm:input-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            placeholder="Mời bạn nhập tin nhắn..."
+            className="w-full input input-bordered bg-zinc-700 text-white placeholder-zinc-400 rounded-md input-xs sm:input-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
+            placeholder="Nhập tin nhắn..."
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
@@ -88,23 +88,23 @@ const MessageInput = () => {
 
           <button
             type="button"
-            className={`sm:flex btn btn-circle ${
-              imagePreview ? "text-emerald-500" : "text-zinc-400"
+            className={`btn btn-circle p-1 ${
+              imagePreview ? "text-emerald-400" : "text-zinc-400"
             }`}
             onClick={() => fileInputRef.current?.click()}
             title="Upload image"
           >
-            <Image size={20} />
+            <Image size={16} />
           </button>
         </div>
 
         <button
           type="submit"
-          className="btn btn-circle text-white bg-emerald-500 hover:bg-emerald-400 focus:ring-2 focus:ring-emerald-500"
+          className="btn btn-circle p-2 text-white bg-emerald-400 hover:bg-emerald-300 focus:ring-1 focus:ring-emerald-400"
           disabled={!text.trim() && !imagePreview}
           title="Send message"
         >
-          <Send size={20} />
+          <Send size={16} />
         </button>
       </form>
     </div>

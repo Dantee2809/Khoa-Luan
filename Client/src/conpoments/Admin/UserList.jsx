@@ -9,21 +9,9 @@ const UserList = () => {
   const [searchUser, setSearchUser] = useState(""); // Tìm kiếm người dùng
   const [isLoading, setIsLoading] = useState(true); // Trạng thái tải
   const [error, setError] = useState(null); // Trạng thái lỗi
+  const [reportCounts, setReportCounts] = useState({}); // Số lần báo cáo của người dùng
   const { authUser } = useAuthStore(); // Lấy thông tin người dùng đã đăng nhập
   const navigate = useNavigate();
-
-  // Kiểm tra tài khoản bị khóa
-  useEffect(() => {
-    if (authUser && authUser.isBlocked) {
-      const confirmExit = window.confirm(
-        "Tài khoản của bạn đã bị khóa. Bạn có muốn thoát khỏi trang không?"
-      );
-      if (confirmExit) {
-        localStorage.removeItem("token"); // Xóa token khi bị khóa
-        navigate("/sign-in"); // Điều hướng về trang đăng nhập
-      }
-    }
-  }, [authUser, navigate]);
 
   // Gọi API để lấy danh sách người dùng
   useEffect(() => {
@@ -32,6 +20,7 @@ const UserList = () => {
         setIsLoading(true);
         const response = await axiosInstance.get("/admin/getUsers");
         setUsers(response.data); // Cập nhật danh sách người dùng
+        fetchReportCounts(response.data); // Fetch báo cáo cho mỗi người dùng
       } catch (err) {
         setError(
           err.response?.data?.error || "Không thể lấy danh sách người dùng"
@@ -43,6 +32,32 @@ const UserList = () => {
 
     fetchUsers();
   }, []);
+
+  const fetchReportCounts = async (users) => {
+    const counts = {};
+    for (const user of users) {
+      try {
+        const response = await axiosInstance.get(
+          `/admin/getReportsByUser/${user._id}`
+        );
+        // Log the report count response for debugging
+        console.log(
+          `Report count for ${user.username}:`,
+          response.data.reportCount
+        );
+        // Ensure the response contains a valid report count
+        counts[user._id] = response.data.reportCount || 0;
+      } catch (err) {
+        console.error(
+          "Error fetching report count for user",
+          user.username,
+          err
+        );
+        counts[user._id] = 0; // Default to 0 if there's an error
+      }
+    }
+    setReportCounts(counts); // Set the fetched report counts into state
+  };
 
   // Hàm xử lý tìm kiếm người dùng
   const handleSearch = (e) => {
@@ -124,13 +139,23 @@ const UserList = () => {
                   />
                 </td>
                 <td>{user.lastname}</td>
-                <td>{user.username}</td>
+                <td>
+                  <div>
+                    <span
+                      title={`Số bài viết bị báo cáo: ${
+                        reportCounts[user._id] || 0
+                      }`} // Hiển thị tooltip với số bài viết bị báo cáo khi hover
+                    >
+                      {user.username}
+                    </span>
+                  </div>
+                </td>
                 <td>{user.email}</td>
                 <td>
                   {user.isBlocked ? (
-                    <span className="status blocked">Blocked</span>
+                    <span className="status blocked">Bị chặn</span>
                   ) : (
-                    <span className="status active">Active</span>
+                    <span className="status active">Đang hoạt động</span>
                   )}
                 </td>
                 <td>

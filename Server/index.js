@@ -13,10 +13,11 @@ import PostRoute from "./Routes/PostRoute.js";
 import AdvRoute from "./Routes/AdvRoute.js";
 import MessageRoute from "./Routes/MessageRoute.js";
 import { app, server } from "./lib/socket.js";
+import config from "./lib/config.js";
 
 app.use(
   cors({
-    origin: "https://06c3-42-112-70-205.ngrok-free.app",
+    origin: config.baseUrl, // Lấy giá trị từ cấu hình
     credentials: true,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS", // Cho phép các method
   })

@@ -1,33 +1,37 @@
-.Home {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
+/* .Home {
   position: relative;
+  display: grid;
+  grid-template-columns: 18rem auto 20rem;
+  gap: 1rem;
   height: 100vh;
-  flex-wrap: wrap; /* Cho phép các phần tử co lại */
+} */
+.Home {
+  position: relative;
+  display: grid;
+  grid-template-columns: 18rem auto 20rem;
+  gap: 1rem;
+  height: 100vh;
 }
 
 .Home > div {
-  min-width: 250px; /* Đảm bảo mỗi phần tử có kích thước tối thiểu */
+  flex: 1;
+  min-width: 250px; /* Đảm bảo các phần tử có kích thước tối thiểu khi co lại */
 }
 
-.ProfileSide {
-  width: 18rem; /* Giữ chiều rộng cố định cho ProfileSide */
-  flex: 0 0 auto; /* Không cho ProfileSide co lại */
+.ProfileSide,
+.RightSide {
+  flex: 1;
 }
 
 .Posts {
-  flex: 2 1 auto; /* Phần Posts giữ kích thước vừa đủ để đọc */
+  flex: 3; /* Posts chiếm nhiều không gian hơn so với 2 phần còn lại */
 }
 
-.RightSide {
-  flex: 1 1 20rem; /* RightSide co lại nhưng không nhỏ hơn 20rem */
-}
-
+/* Khi màn hình nhỏ (ví dụ: width <= 768px), các phần tử sẽ xếp chồng lên nhau */
 @media (max-width: 768px) {
   .Home {
-    flex-direction: column; /* Chuyển các phần tử thành cột */
-    align-items: center; /* Căn giữa nội dung theo chiều ngang */
+    flex-direction: column; /* Chuyển các phần tử thành dạng cột */
+    align-items: center;
   }
 
   .Home > div {
@@ -36,19 +40,14 @@
   }
 
   .ProfileSide {
-    order: 1; /* ProfileSide lên đầu */
-    width: 18rem; /* Giữ kích thước cố định cho ProfileSide */
-    margin-bottom: 10px;
+    order: 1; /* ProfileSide sẽ luôn ở đầu */
   }
 
   .Posts {
-    order: 2; /* Posts nằm ở giữa */
-    width: 100%;
-    margin-bottom: 10px;
+    order: 2; /* Posts sẽ ở giữa */
   }
 
   .RightSide {
-    order: 3; /* RightSide xuống dưới cùng */
-    width: 100%;
+    order: 3; /* RightSide ở cuối */
   }
 }

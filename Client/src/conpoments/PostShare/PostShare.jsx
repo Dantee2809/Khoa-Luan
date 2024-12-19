@@ -113,7 +113,7 @@ const PostShare = ({ onPostCreateSuccess }) => {
     <form onSubmit={handleSubmit} className="space-y-6 max-w-xl mx-auto">
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-gray-700">
-          Mô tả
+          Mô tả *
         </label>
         <textarea
           name="desc"
@@ -127,7 +127,7 @@ const PostShare = ({ onPostCreateSuccess }) => {
 
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-gray-700">
-          Liên lạc
+          Liên lạc *
         </label>
         <input
           type="text"
@@ -142,7 +142,7 @@ const PostShare = ({ onPostCreateSuccess }) => {
 
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-gray-700">
-          Địa điểm
+          Địa điểm *
         </label>
         <select
           name="location"
@@ -166,7 +166,7 @@ const PostShare = ({ onPostCreateSuccess }) => {
 
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-gray-700">
-          Chọn ảnh
+          Chọn ảnh *
         </label>
         <input
           type="file"

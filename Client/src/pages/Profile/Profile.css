@@ -1,12 +1,44 @@
 .Profile {
-  position: relative;
   display: grid;
   grid-template-columns: 18rem auto 20rem;
-  gap: 1rem;
+  gap: 2rem;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  min-height: 100vh;
 }
 
+/* Profile Center */
 .Profile-center {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .Profile {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+
+  .Profile-center {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .Profile {
+    gap: 1rem;
+  }
+
+  .Profile-center {
+    gap: 1rem;
+    border-radius: 8px;
+    box-shadow: none;
+    padding: 1rem;
+  }
 }

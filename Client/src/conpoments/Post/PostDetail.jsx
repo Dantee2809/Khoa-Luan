@@ -6,6 +6,8 @@ import { useAuthStore } from "../../store/useAuthStore";
 import { useFollowStore } from "../../store/useFollowStore";
 import "./PostDetail.css";
 import FacebookShareButton from "./FacebookShareButton";
+import config from "../../lib/config";
+import toast from "react-hot-toast";
 
 const PostDetail = () => {
   const { id } = useParams();
@@ -109,6 +111,19 @@ const PostDetail = () => {
       setIsFollowLoading(false);
     }
   };
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditedPost((prevState) => ({
+          ...prevState,
+          image: reader.result, // Lưu base64 vào state
+        }));
+      };
+      reader.readAsDataURL(file); // Chuyển file sang base64
+    }
+  };
 
   const handleMessage = () => {
     if (!isUserFollowing) {
@@ -122,6 +137,7 @@ const PostDetail = () => {
     if (window.confirm("Bạn chắc chắn muốn xóa bài đăng này?")) {
       try {
         await deletePost(post._id); // Call deletePost to remove the post
+        toast.success("Xoa thanh cong !");
         navigate("/"); // Navigate to the homepage or any other page
       } catch (error) {
         console.error("Error deleting post:", error);
@@ -142,20 +158,30 @@ const PostDetail = () => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
   if (!post) return <div>Post not found!</div>;
-  const postUrl = `https://b432-117-2-254-194.ngrok-free.app/post/${id}`;
+  const postUrl = `${config.baseUrl}/post/${id}`;
 
   return (
     <div className="post-detail">
       {/* Thêm thẻ meta Open Graph */}
       <Helmet>
-        <meta property="og:title" content={post.desc || "Chi tiết bài viết"} />
+        {/* Remove title meta tag to prevent displaying "React App" */}
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content={post.image || "/avatar.jpg"} />
         <meta property="og:url" content={postUrl} />
+        {/* Add noindex to prevent search engines from indexing the ngrok URL */}
+        <meta name="robots" content="noindex" />
+        {/* Force Facebook to use a blank title */}
+        <meta property="og:title" content=" " />
+        <meta property="og:description" content=" " />
       </Helmet>
+
       <div className="post-header">
         <h1>{user?.username || "Người dùng ẩn danh"}</h1>
-        <button className="go-back-btn" onClick={handleGoBack}>
-          Quay lại
-        </button>
+        {authUser && (
+          <button className="go-back-btn" onClick={handleGoBack}>
+            Quay lại
+          </button>
+        )}
       </div>
 
       {isEditing ? (
@@ -173,20 +199,20 @@ const PostDetail = () => {
             onChange={handleInputChange}
             placeholder="Liên hệ"
           />
-          <input
-            type="text"
+          <select
             name="location"
             value={editedPost.location}
             onChange={handleInputChange}
-            placeholder="Địa điểm"
-          />
-          <input
-            type="text"
-            name="image"
-            value={editedPost.image}
-            onChange={handleInputChange}
-            placeholder="Link hình ảnh"
-          />
+          >
+            <option value="">Chọn địa điểm</option>
+            {provinces.map((province) => (
+              <option key={province.id} value={province.id}>
+                {province.name}
+              </option>
+            ))}
+          </select>
+          <input type="file" accept="image/*" onChange={handleImageChange} />
+
           <div className="edit-actions">
             <button onClick={handleSave}>Lưu</button>
             <button onClick={handleCancel}>Hủy</button>
@@ -209,14 +235,14 @@ const PostDetail = () => {
 
       {/* Edit Button */}
       {authUser && authUser._id === post.userId && !isEditing && (
-        <>
-          <button className="edit-btn" onClick={handleEditClick}>
+        <div className="postReact">
+          <button className="button fc-button" onClick={handleEditClick}>
             Sửa
           </button>
-          <button className="delete-btn" onClick={handleDelete}>
+          <button className="button fc-button" onClick={handleDelete}>
             Xóa
           </button>
-        </>
+        </div>
       )}
 
       <div className="postReact">
@@ -230,7 +256,7 @@ const PostDetail = () => {
               disabled={isFollowLoading}
             >
               {isFollowLoading
-                ? "Đang tải..."
+                ? "Loading..."
                 : isUserFollowing
                 ? "Đã theo dõi"
                 : "Theo dõi"}
@@ -251,7 +277,7 @@ const PostDetail = () => {
         nonce="ABC123"
       ></script>
 
-      <FacebookShareButton className="fb-share-button" postId={post._id} />
+      <FacebookShareButton postId={post._id} />
     </div>
   );
 };

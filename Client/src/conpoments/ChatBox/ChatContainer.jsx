@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { useChatStore } from "../../store/useChatStore";
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
-import "./ChatBox.css";
+import "./Container.css";
 import { useAuthStore } from "../../store/useAuthStore";
 import { formatMessageTime } from "../../lib/utils";
+import toast from "react-hot-toast";
 
 const ChatContainer = () => {
   const {
@@ -65,7 +66,7 @@ const ChatContainer = () => {
       if (result.success) {
         // Thay vì setMessageList, ta gọi lại getMessages để đồng bộ dữ liệu
         getMessages(selectedUser._id);
-        alert("Tin nhắn đã được xóa thành công!");
+        toast.success("Tin nhắn đã được xóa thành công!");
       } else {
         alert(result.message || "Có lỗi xảy ra");
       }

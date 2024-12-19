@@ -7,7 +7,6 @@ import { usePostStore } from "../../store/usePostStore";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { X } from "lucide-react";
-import { useDeletestore } from "../../store/useDeletestore";
 
 const Post = ({ data, currentUserId }) => {
   const {
@@ -18,8 +17,13 @@ const Post = ({ data, currentUserId }) => {
     setFollowing,
   } = useFollowStore();
 
-  const { provinces, fetchProvinces, reportPost, deletePost } = usePostStore();
-  const { deleteMinePost } = useDeletestore(); // Lấy hàm deletePost từ store
+  const {
+    provinces,
+    fetchProvinces,
+    reportPost,
+    deletePost,
+    createPostSuccess,
+  } = usePostStore();
   const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -29,6 +33,12 @@ const Post = ({ data, currentUserId }) => {
 
   const userId = data?.userId?._id || null;
   const username = data?.userId?.username || "Người dùng ẩn danh";
+  useEffect(() => {
+    if (createPostSuccess) {
+      // Scroll to the top when a new post is added
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [createPostSuccess]); // This effect will run when createPostSuccess changes
 
   // Lấy danh sách tỉnh thành nếu chưa tải
   useEffect(() => {
@@ -107,12 +117,29 @@ const Post = ({ data, currentUserId }) => {
     return province ? province.name : "Không xác định";
   };
 
-  // Format ngày tạo
+  const formatTimeAgo = (timestamp) => {
+    const now = new Date();
+    const timeDifference = now - new Date(timestamp);
+
+    const seconds = Math.floor(timeDifference / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) {
+      return `${days} ngày trước`;
+    } else if (hours > 0) {
+      return `${hours} giờ trước`;
+    } else if (minutes > 0) {
+      return `${minutes} phút trước`;
+    } else {
+      return `${seconds} giây trước`;
+    }
+  };
+
+  // Example usage
   const formattedDate = data.createdAt
-    ? new Date(data.createdAt).toLocaleString("vi-VN", {
-        dateStyle: "long",
-        timeStyle: "short",
-      })
+    ? formatTimeAgo(data.createdAt)
     : "Không rõ ngày";
 
   // Kiểm tra trạng thái theo dõi
@@ -161,7 +188,7 @@ const Post = ({ data, currentUserId }) => {
 
       {/* Nút tương tác */}
       <div className="postReact">
-        {!isCurrentUserPost && (
+        {currentUserId && !isCurrentUserPost && (
           <>
             <button
               className="report-btn button btn-danger"
@@ -175,6 +202,7 @@ const Post = ({ data, currentUserId }) => {
             >
               Nhắn Tin
             </button>
+
             <button
               className={`report-btn button btn-danger ${
                 isUserFollowing ? "unfollow" : "follow"
@@ -188,6 +216,7 @@ const Post = ({ data, currentUserId }) => {
                 ? "Đã theo dõi"
                 : "Theo dõi"}
             </button>
+
             <button
               className="report-btn button btn-danger"
               onClick={handleReport}
@@ -204,20 +233,17 @@ const Post = ({ data, currentUserId }) => {
           <b>Người đăng: {isCurrentUserPost ? "Bài của bạn" : username}</b>
         </span>
         <br />
-        <span>Mô tả: {data.desc || "Không có mô tả"}</span>
+        <span>
+          Mô tả:{" "}
+          {data.desc?.length > 20
+            ? `${data.desc.substring(0, 20)}...`
+            : data.desc || "Không có mô tả"}
+        </span>
         <br />
         Địa điểm: {getProvinceNameById(data.location)}
         <br />
         <span>Ngày tạo: {formattedDate}</span>
         <br />
-        {/* <span>
-          Liên hệ:{" "}
-          {data.contact
-            ? `${data.contact.substring(0, 3)}***${data.contact.substring(
-                data.contact.length - 3
-              )}`
-            : "Không có thông tin liên hệ"}
-        </span> */}
         <span
           className={`font-bold border rounded px-2 py-1 ${
             data.isLost

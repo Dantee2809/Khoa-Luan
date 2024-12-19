@@ -11,7 +11,6 @@ export const useChatStore = create((set, get) => ({
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
-
   loading: false, // Biến trạng thái loading
   error: null, // Biến lưu lỗi nếu có
   fetchMessages: async () => {

@@ -108,6 +108,7 @@ const AllUserChat = () => {
       >
         {filteredMessages
           .filter((msg) => msg.senderId && msg.receiverId) // Kiểm tra tồn tại
+          .reverse() // Reverse the messages to show the newest at the top
           .map((msg, index) => (
             <div
               key={index}

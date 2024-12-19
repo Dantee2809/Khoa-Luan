@@ -250,6 +250,27 @@ export const dashboard = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch report data" });
   }
 };
+export const getReportsByUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    // Find all posts of the user
+    const posts = await PostModel.find({ userId: userId });
+
+    // Calculate the total number of reports
+    let reportCount = 0;
+    posts.forEach((post) => {
+      reportCount += post.reports.length; // reports is an array, so count its length
+    });
+
+    return res.status(200).json({ reportCount });
+  } catch (err) {
+    console.error("Error fetching report count", err);
+    return res
+      .status(500)
+      .json({ error: "Có lỗi xảy ra khi lấy số lượng báo cáo" });
+  }
+};
 
 export const allchatUser = async (req, res) => {
   const { userId } = req.params;

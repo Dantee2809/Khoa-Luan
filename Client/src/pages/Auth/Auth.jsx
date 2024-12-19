@@ -5,9 +5,8 @@ import Logo from "../../img/logo.png";
 import "./Auth.css";
 import { useAuthStore } from "../../store/useAuthStore";
 
-const Auth = () => {
-  const [isAdminLogin, setIsAdminLogin] = useState(false); // State để lưu trạng thái checkbox
-
+const Auth = ({ isAdminLogin = false }) => {
+  // Truyền isAdminLogin qua props
   return (
     <div className="Auth">
       <div className="a-left">
@@ -17,13 +16,12 @@ const Auth = () => {
           <h6>Mạng xã hội tìm đồ bị thất lạc toàn quốc</h6>
         </div>
       </div>
-      <Login isAdminLogin={isAdminLogin} setIsAdminLogin={setIsAdminLogin} />{" "}
-      {/* Truyền setIsAdminLogin vào Login */}
+      <Login isAdminLogin={isAdminLogin} />
     </div>
   );
 };
 
-function Login({ isAdminLogin, setIsAdminLogin }) {
+function Login({ isAdminLogin }) {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -64,17 +62,6 @@ function Login({ isAdminLogin, setIsAdminLogin }) {
 
   return (
     <div className="a-right">
-      {/* Checkbox để chuyển đổi giữa admin login và user login */}
-      <div>
-        <label>
-          <input
-            type="checkbox"
-            checked={isAdminLogin}
-            onChange={() => setIsAdminLogin(!isAdminLogin)} // Đảo trạng thái khi thay đổi checkbox
-          />
-          Đăng nhập với tư cách admin
-        </label>
-      </div>
       <form className="infoForm authForm" onSubmit={handleSubmit}>
         <h3>{isAdminLogin ? "Đăng Nhập Admin" : "Đăng Nhập Người Dùng"}</h3>
         {error && <p style={{ color: "red", fontSize: "12px" }}>{error}</p>}
@@ -128,6 +115,7 @@ function Login({ isAdminLogin, setIsAdminLogin }) {
             </Link>
           </p>
         </div>
+
         <div>
           <p className="text-base-content/60" style={{ fontSize: "12px" }}>
             <Link
